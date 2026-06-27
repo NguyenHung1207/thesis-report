@@ -32,5 +32,8 @@
 # build log (script tu tao)
 build.log
 
+# VS Code (chua duong dan tuyet doi rieng tung may)
+.vscode/
+
 # macOS
 .DS_Store
