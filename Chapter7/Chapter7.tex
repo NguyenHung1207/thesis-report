@@ -1,0 +1,239 @@
+% =========================================================
+% CHAPTER 7
+% =========================================================
+
+\chapter{Tổ chức thực hiện đề tài}
+\label{Chapter7}
+
+\section{Phân chia công việc trong nhóm}
+
+Đề tài được thực hiện bởi nhóm gồm hai thành viên: Nguyễn Chí Công và Nguyễn Hưng. Do hệ thống có nhiều thành phần như frontend, backend, cơ sở dữ liệu, agent-worker, browser automation và báo cáo thực nghiệm, nhóm đã phân chia công việc theo hướng mỗi thành viên phụ trách một số mảng chính nhưng vẫn phối hợp trong các phần có liên quan.
+
+\subsection{Vai trò của từng thành viên}
+
+Bảng~\ref{tab:chapter7_member_roles} trình bày vai trò chính của từng thành viên trong quá trình thực hiện đề tài.
+
+\begin{table}[H]
+\centering
+\caption{Vai trò của từng thành viên trong nhóm}
+\label{tab:chapter7_member_roles}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.0cm}|p{10.2cm}|}
+\hline
+\textbf{Thành viên} & \textbf{Vai trò chính} \\
+\hline
+Nguyễn Chí Công & Tham gia phân tích yêu cầu, xây dựng giao diện người dùng, hỗ trợ thiết kế luồng chức năng, kiểm tra giao diện và hoàn thiện tài liệu báo cáo. \\
+\hline
+Nguyễn Hưng & Tham gia thiết kế kiến trúc hệ thống, xây dựng backend API, cơ sở dữ liệu, agent-worker, tích hợp Browser-use, Playwright, AI và hỗ trợ thực nghiệm hệ thống. \\
+\hline
+\end{tabular}
+\end{table}
+
+Việc phân chia trên giúp nhóm có định hướng rõ ràng trong quá trình phát triển. Tuy nhiên, các phần quan trọng như phân tích yêu cầu, kiểm thử chức năng, tích hợp hệ thống và viết báo cáo vẫn được hai thành viên cùng trao đổi để đảm bảo tính thống nhất.
+
+\subsection{Phạm vi công việc của từng thành viên}
+
+Phạm vi công việc được chia theo từng nhóm chức năng chính của hệ thống. Thành viên phụ trách chính sẽ đảm nhiệm việc xây dựng, chỉnh sửa và kiểm tra phần việc tương ứng, trong khi thành viên còn lại hỗ trợ góp ý, kiểm thử và tích hợp khi cần.
+
+\begin{table}[H]
+\centering
+\caption{Phân chia phạm vi công việc}
+\label{tab:chapter7_work_scope}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{5.0cm}|p{5.0cm}|}
+\hline
+\textbf{Hạng mục} & \textbf{Người phụ trách chính} & \textbf{Nội dung thực hiện} \\
+\hline
+Phân tích yêu cầu & Cả nhóm & Xác định chức năng hệ thống, nhóm người dùng, use case và yêu cầu phi chức năng. \\
+\hline
+Frontend & Nguyễn Chí Công & Xây dựng giao diện project, test case, dataset, test suite, object repository và report. \\
+\hline
+Backend API & Nguyễn Hưng & Xây dựng API, xử lý nghiệp vụ, quản lý dữ liệu và điều phối yêu cầu chạy test. \\
+\hline
+Cơ sở dữ liệu & Nguyễn Hưng & Thiết kế schema PostgreSQL, các bảng lưu project, test case, test run, evidence, replay script và object repository. \\
+\hline
+Agent-worker & Nguyễn Hưng & Xây dựng worker bằng Python FastAPI, tích hợp Browser-use, Playwright và cơ chế callback kết quả. \\
+\hline
+Kiểm thử và thực nghiệm & Cả nhóm & Chạy thử các luồng chức năng, ghi nhận lỗi, kiểm tra report và đánh giá kết quả. \\
+\hline
+Viết báo cáo & Cả nhóm & Tổng hợp nội dung, mô tả hệ thống, trình bày kiến trúc, thực nghiệm và kết luận. \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Cách phối hợp giữa các thành viên}
+
+Trong quá trình thực hiện, nhóm phối hợp theo từng giai đoạn nhỏ. Trước khi phát triển một chức năng, nhóm trao đổi để thống nhất mục tiêu, luồng xử lý và dữ liệu cần lưu. Sau khi một thành viên hoàn thành phần việc của mình, thành viên còn lại kiểm tra, chạy thử và góp ý chỉnh sửa.
+
+Đối với các chức năng cần tích hợp nhiều thành phần như chạy test bằng agent, sinh replay script hoặc hiển thị report, nhóm thực hiện theo hướng chia nhỏ luồng xử lý. Backend và worker được kiểm tra trước, sau đó frontend được kết nối để hoàn thiện luồng người dùng cuối. Cách làm này giúp hạn chế lỗi tích hợp và dễ xác định nguyên nhân khi hệ thống gặp vấn đề.
+
+\section{Quy trình làm việc}
+
+\subsection{Quy trình phát triển hệ thống}
+
+Quy trình phát triển hệ thống được thực hiện theo hướng lặp. Nhóm không xây dựng toàn bộ hệ thống trong một lần, mà chia thành nhiều nhóm chức năng nhỏ để phát triển, kiểm tra và cải tiến dần.
+
+Các bước chính trong quy trình phát triển gồm:
+
+\begin{enumerate}
+    \item Phân tích yêu cầu và xác định phạm vi chức năng.
+    \item Thiết kế kiến trúc tổng thể và mô hình dữ liệu.
+    \item Xây dựng các thành phần nền tảng như xác thực, project, test case và database.
+    \item Tích hợp agent-worker, Browser-use và Playwright để chạy test.
+    \item Bổ sung replay script, test data, test suite, object repository và report.
+    \item Chạy thử hệ thống, ghi nhận lỗi và điều chỉnh.
+    \item Hoàn thiện tài liệu báo cáo và kết quả thực nghiệm.
+\end{enumerate}
+
+Cách tiếp cận này giúp nhóm kiểm soát tiến độ tốt hơn, đồng thời phát hiện sớm các vấn đề về kiến trúc, dữ liệu và tích hợp.
+
+\subsection{Quy trình quản lý mã nguồn}
+
+Mã nguồn được quản lý bằng Git và lưu trữ trên GitHub. Mỗi thành viên làm việc trên phần chức năng được phân công, sau đó commit và push mã nguồn lên repository chung. Trước khi tích hợp các thay đổi lớn, nhóm kiểm tra lại trạng thái hệ thống để hạn chế xung đột hoặc lỗi phát sinh.
+
+Quy trình quản lý mã nguồn gồm các thao tác chính:
+
+\begin{itemize}
+    \item Pull phiên bản mới nhất trước khi bắt đầu chỉnh sửa.
+    \item Commit theo từng nhóm thay đổi có ý nghĩa.
+    \item Push mã nguồn lên repository chung.
+    \item Kiểm tra lại hệ thống sau khi tích hợp thay đổi.
+    \item Sửa lỗi phát sinh nếu có xung đột hoặc chức năng không hoạt động đúng.
+\end{itemize}
+
+\subsection{Quy trình kiểm tra và tích hợp chức năng}
+
+Sau khi một chức năng được xây dựng, nhóm kiểm tra ở hai mức. Mức thứ nhất là kiểm tra riêng từng thành phần, ví dụ kiểm tra API, kiểm tra truy vấn database hoặc kiểm tra worker chạy đúng request. Mức thứ hai là kiểm tra luồng tích hợp từ frontend đến backend, từ backend sang worker và từ worker callback kết quả về backend.
+
+Các chức năng quan trọng như chạy agent, replay script, dataset run và report được kiểm tra nhiều lần vì các chức năng này phụ thuộc đồng thời vào frontend, backend, database, worker và trình duyệt. Khi phát hiện lỗi, nhóm dựa vào log, trạng thái test run và response API để xác định lỗi nằm ở thành phần nào.
+
+\section{Kế hoạch thực hiện}
+
+\subsection{Các giai đoạn thực hiện đề tài}
+
+Quá trình thực hiện đề tài được chia thành các giai đoạn chính như sau:
+
+\begin{table}[H]
+\centering
+\caption{Các giai đoạn thực hiện đề tài}
+\label{tab:chapter7_project_phases}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3.2cm}|p{7.0cm}|p{4.0cm}|}
+\hline
+\textbf{Giai đoạn} & \textbf{Nội dung thực hiện} & \textbf{Kết quả chính} \\
+\hline
+Giai đoạn 1 & Tìm hiểu bài toán, khảo sát công cụ kiểm thử Web, LLM, AI agent và browser automation. & Xác định hướng tiếp cận và phạm vi đề tài. \\
+\hline
+Giai đoạn 2 & Phân tích yêu cầu, xác định use case, yêu cầu chức năng và phi chức năng. & Hoàn thành phân tích yêu cầu hệ thống. \\
+\hline
+Giai đoạn 3 & Thiết kế kiến trúc, mô hình dữ liệu và các luồng xử lý chính. & Hoàn thành thiết kế hệ thống. \\
+\hline
+Giai đoạn 4 & Xây dựng frontend, backend, database và agent-worker. & Có phiên bản hệ thống chạy được các luồng chính. \\
+\hline
+Giai đoạn 5 & Tích hợp Browser-use, Playwright, Gemini Flash, replay script, object repository và report. & Hoàn thiện các chức năng cốt lõi. \\
+\hline
+Giai đoạn 6 & Thực nghiệm, đánh giá, sửa lỗi và hoàn thiện báo cáo. & Có kết quả đánh giá và báo cáo khóa luận. \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Tiến độ thực hiện}
+
+Tiến độ thực hiện được tổ chức theo từng nhóm công việc. Mỗi nhóm công việc có thể được điều chỉnh tùy theo mức độ khó và các lỗi phát sinh trong quá trình tích hợp.
+
+\begin{table}[H]
+\centering
+\caption{Tiến độ thực hiện đề tài}
+\label{tab:chapter7_timeline}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3.0cm}|p{8.2cm}|p{3.0cm}|}
+\hline
+\textbf{Thời gian} & \textbf{Công việc chính} & \textbf{Trạng thái} \\
+\hline
+Giai đoạn đầu & Tìm hiểu đề tài, khảo sát công nghệ và xác định phạm vi. & Hoàn thành \\
+\hline
+Giai đoạn phân tích & Phân tích yêu cầu, xây dựng use case và mô hình chức năng. & Hoàn thành \\
+\hline
+Giai đoạn thiết kế & Thiết kế kiến trúc, database và các luồng xử lý chính. & Hoàn thành \\
+\hline
+Giai đoạn hiện thực & Xây dựng frontend, backend, worker và tích hợp công nghệ lõi. & Hoàn thành cơ bản \\
+\hline
+Giai đoạn thực nghiệm & Chạy thử hệ thống, ghi nhận kết quả và đánh giá. & Đang hoàn thiện \\
+\hline
+Giai đoạn báo cáo & Tổng hợp nội dung, chỉnh sửa báo cáo và hoàn thiện tài liệu. & Đang hoàn thiện \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Kết quả đạt được theo từng giai đoạn}
+
+Sau từng giai đoạn, nhóm đạt được các kết quả tương ứng với mục tiêu đã đặt ra. Kết quả quan trọng nhất là hệ thống đã hình thành được luồng kiểm thử tự động từ tạo project, tạo test case, chạy test bằng agent, sinh replay script, chạy replay và xem báo cáo kết quả.
+
+Các kết quả đạt được gồm:
+
+\begin{itemize}
+    \item Hoàn thành phân tích bài toán và xác định phạm vi hệ thống.
+    \item Xây dựng được kiến trúc gồm frontend, backend, database và agent-worker.
+    \item Xây dựng được cơ sở dữ liệu phục vụ quản lý project, test case, test run, replay script, evidence và object repository.
+    \item Tích hợp được Browser-use, Playwright và Google Gemini Flash.
+    \item Xây dựng được các chức năng chính như tạo test case, chạy agent, sinh replay script, chạy replay, quản lý dataset, test suite và report.
+    \item Hoàn thiện phần báo cáo mô tả quá trình xây dựng và đánh giá hệ thống.
+\end{itemize}
+
+\section{Công cụ hỗ trợ thực hiện}
+
+\subsection{Công cụ quản lý mã nguồn}
+
+Nhóm sử dụng Git và GitHub để quản lý mã nguồn. Git giúp theo dõi lịch sử thay đổi, còn GitHub được dùng để lưu trữ repository chung và hỗ trợ các thành viên đồng bộ mã nguồn trong quá trình làm việc.
+
+\subsection{Công cụ phát triển và kiểm thử}
+
+Các công cụ phát triển chính gồm Visual Studio Code, Node.js, npm, Python, PostgreSQL và trình duyệt Chromium. Ngoài ra, nhóm sử dụng Playwright để kiểm thử thao tác trình duyệt và Browser-use để chạy agent trên website mục tiêu.
+
+Trong quá trình phát triển, các API được kiểm tra thông qua giao diện hệ thống hoặc công cụ gửi request. Các lỗi phát sinh được phân tích thông qua log backend, log worker và kết quả lưu trong database.
+
+\subsection{Công cụ triển khai và theo dõi hệ thống}
+
+Ở phạm vi khóa luận, hệ thống chủ yếu được chạy trên môi trường phát triển cục bộ. Các thành phần frontend, backend, database và worker được khởi động riêng để dễ kiểm tra và sửa lỗi. Việc theo dõi hệ thống được thực hiện thông qua log terminal, trạng thái API, dữ liệu trong database và báo cáo hiển thị trên frontend.
+
+\subsection{Công cụ hỗ trợ trao đổi trong nhóm}
+
+Nhóm sử dụng các công cụ trao đổi trực tuyến để thảo luận yêu cầu, phân chia công việc, cập nhật tiến độ và xử lý lỗi. Các nội dung quan trọng như thay đổi kiến trúc, thay đổi schema hoặc thay đổi luồng chạy test đều được trao đổi trước khi cập nhật vào mã nguồn hoặc báo cáo.
+
+\section{Khó khăn và cách xử lý}
+
+\subsection{Khó khăn về kỹ thuật}
+
+Khó khăn kỹ thuật lớn nhất là hệ thống phải kết hợp nhiều công nghệ khác nhau như ReactJS, Node.js, PostgreSQL, Python FastAPI, Browser-use, Playwright và LLM. Mỗi thành phần có cách cấu hình, cách xử lý lỗi và mô hình dữ liệu riêng, nên nhóm cần thiết kế giao tiếp rõ ràng giữa các service.
+
+Cách xử lý là chia hệ thống thành các thành phần độc lập, kiểm tra từng phần trước khi tích hợp. Backend giữ vai trò điều phối, worker tập trung vào thực thi kiểm thử, còn frontend chỉ giao tiếp thông qua API.
+
+\subsection{Khó khăn về tích hợp hệ thống}
+
+Một khó khăn khác là quá trình tích hợp giữa backend và agent-worker. Các phiên chạy test có thể kéo dài, bị timeout hoặc thất bại do nhiều nguyên nhân khác nhau. Vì vậy, hệ thống cần có cơ chế tạo test run, cập nhật trạng thái, nhận callback và lưu error message đầy đủ.
+
+Nhóm xử lý bằng cách thiết kế luồng thực thi bất đồng bộ. Backend tạo test run trước, worker thực thi test và callback kết quả sau khi hoàn tất. Cách này giúp backend không bị phụ thuộc trực tiếp vào thời gian chạy của trình duyệt.
+
+\subsection{Khó khăn trong quá trình thực nghiệm}
+
+Trong quá trình thực nghiệm, kết quả chạy test có thể bị ảnh hưởng bởi trạng thái website mục tiêu, dữ liệu đầu vào, tốc độ tải trang, locator và phản hồi của mô hình AI. Một số ca kiểm thử có thể thất bại không phải do hệ thống lỗi, mà do website thay đổi trạng thái hoặc dữ liệu kiểm thử không còn phù hợp.
+
+Cách xử lý là sử dụng môi trường kiểm thử có kiểm soát, chuẩn bị tài khoản test, ghi nhận evidence đầy đủ và phân biệt rõ các loại lỗi như lỗi ứng dụng, lỗi dữ liệu, lỗi locator, lỗi môi trường hoặc lỗi do agent suy luận sai.
+
+\subsection{Cách xử lý và bài học rút ra}
+
+Từ quá trình thực hiện đề tài, nhóm rút ra một số bài học chính:
+
+\begin{itemize}
+    \item Cần thiết kế kiến trúc tách thành phần ngay từ đầu để dễ phát triển và sửa lỗi.
+    \item Các chức năng liên quan đến browser automation cần có log, screenshot và evidence đầy đủ.
+    \item Không nên phụ thuộc hoàn toàn vào LLM trong mọi lần chạy, mà cần replay script để giảm chi phí và tăng tính ổn định.
+    \item Object repository và locator fallback là cần thiết để hỗ trợ bảo trì replay script.
+    \item Việc viết báo cáo cần đi song song với quá trình phát triển để tránh thiếu mô tả về quyết định thiết kế và kết quả thực nghiệm.
+\end{itemize}
+
+\section{Kết chương}
+
+Chương này đã trình bày cách nhóm tổ chức thực hiện đề tài, bao gồm phân chia công việc, quy trình làm việc, kế hoạch thực hiện, công cụ hỗ trợ và các khó khăn gặp phải. Nhìn chung, đề tài được thực hiện theo hướng chia nhỏ chức năng, phát triển từng thành phần, tích hợp dần và kiểm tra thường xuyên.
+
+Việc tổ chức công việc theo từng giai đoạn giúp nhóm kiểm soát được phạm vi đề tài, đồng thời đảm bảo các thành phần chính như frontend, backend, database, agent-worker, Browser-use, Playwright và LLM có thể phối hợp với nhau trong một hệ thống thống nhất. Các khó khăn trong quá trình thực hiện cũng là cơ sở để nhóm rút ra kinh nghiệm và đề xuất hướng phát triển tiếp theo ở chương kết luận.

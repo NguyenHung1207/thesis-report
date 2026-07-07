@@ -1,0 +1,99 @@
+% =========================================================
+% CHAPTER 8
+% =========================================================
+
+\chapter{Kết luận và hướng phát triển}
+\label{Chapter8}
+
+\section{Kết quả đạt được}
+
+Khóa luận đã hoàn thành việc nghiên cứu, thiết kế và xây dựng hệ thống kiểm thử tự động ứng dụng Web theo hướng kết hợp giữa AI agent, browser automation và replay script. Hệ thống cho phép người dùng tạo project kiểm thử, mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, chạy test trên trình duyệt, ghi nhận evidence và xem báo cáo kết quả sau mỗi lần thực thi.
+
+\subsection{Về mặt nghiên cứu và kiến thức nền tảng}
+
+Trong quá trình thực hiện đề tài, nhóm đã tìm hiểu các kiến thức nền tảng liên quan đến kiểm thử phần mềm, kiểm thử tự động ứng dụng Web, kiểm thử chức năng, kiểm thử hồi quy, browser automation, mô hình ngôn ngữ lớn và AI agent. Các kiến thức này là cơ sở để xác định phạm vi hệ thống, phân tích yêu cầu và lựa chọn hướng thiết kế phù hợp.
+
+Nhóm cũng đã khảo sát các công cụ kiểm thử Web phổ biến như Selenium, Playwright, Cypress và Katalon để làm rõ ưu điểm, hạn chế và vị trí của hệ thống đề xuất. Qua đó, khóa luận xác định hướng tiếp cận chính là không thay thế hoàn toàn các framework kiểm thử truyền thống, mà bổ sung một lớp hỗ trợ giúp người dùng tạo và chạy kiểm thử dễ hơn thông qua mô tả ngôn ngữ tự nhiên.
+
+\subsection{Về mặt xây dựng hệ thống}
+
+Về mặt hiện thực, nhóm đã xây dựng được hệ thống gồm các thành phần chính: frontend, backend API, cơ sở dữ liệu PostgreSQL và agent-worker. Frontend cung cấp giao diện để người dùng quản lý project, test case, dataset, test suite, object repository và report. Backend API xử lý nghiệp vụ, lưu trữ dữ liệu và điều phối yêu cầu chạy test. Agent-worker chịu trách nhiệm chạy test trên trình duyệt thông qua Browser-use và Playwright.
+
+Hệ thống đã hỗ trợ các chức năng chính như:
+
+\begin{itemize}
+    \item Đăng ký, đăng nhập và quản lý phiên làm việc của người dùng.
+    \item Tạo và quản lý project kiểm thử.
+    \item Scan/crawl website để ghi nhận thông tin nền ban đầu.
+    \item Tạo test case từ prompt hoặc goal bằng ngôn ngữ tự nhiên.
+    \item Chạy test case bằng goal-based agent.
+    \item Ghi nhận log, screenshot, action history, evidence và verdict.
+    \item Sinh replay script từ phiên chạy agent thành công.
+    \item Chạy lại replay script bằng Playwright.
+    \item Quản lý test data, dataset và chạy test với nhiều bộ dữ liệu.
+    \item Quản lý test suite để chạy nhiều test case theo lô.
+    \item Lưu object repository và hỗ trợ locator fallback.
+    \item Hỗ trợ phân tích lỗi và hiển thị report sau khi chạy test.
+\end{itemize}
+
+Một điểm quan trọng của hệ thống là sự kết hợp giữa hai chế độ thực thi: chạy bằng agent và chạy bằng replay script. Agent giúp hệ thống linh hoạt hơn ở lần chạy ban đầu, trong khi replay script giúp các lần kiểm thử hồi quy có tính xác định hơn và giảm sự phụ thuộc vào LLM.
+
+\subsection{Về mặt thực nghiệm và đánh giá}
+
+Về mặt thực nghiệm, hệ thống được đánh giá thông qua case study trên website OrangeHRM. Các kịch bản thực nghiệm tập trung vào những luồng kiểm thử phổ biến của ứng dụng Web như đăng nhập, điều hướng, tìm kiếm, chạy test với nhiều bộ dữ liệu và chạy test suite.
+
+Kết quả thực nghiệm cho thấy hệ thống có thể hỗ trợ toàn bộ quy trình kiểm thử từ giai đoạn chuẩn bị project, tạo test case, chạy test, sinh replay script, chạy lại kịch bản và xem báo cáo. Các bằng chứng như log, screenshot, action history và report giúp người dùng theo dõi quá trình thực thi và phân tích nguyên nhân khi test thất bại.
+
+Tuy nhiên, kết quả thực nghiệm cũng cho thấy hiệu quả của hệ thống phụ thuộc vào chất lượng prompt, trạng thái website mục tiêu, dữ liệu kiểm thử, khả năng tìm lại phần tử giao diện và độ ổn định của mô hình AI. Đây là những yếu tố cần tiếp tục được cải thiện trong các phiên bản sau.
+
+\section{Hạn chế của hệ thống}
+
+Mặc dù hệ thống đã hoàn thành các chức năng chính, vẫn còn một số hạn chế cần được ghi nhận.
+
+Thứ nhất, khả năng suy luận của agent còn phụ thuộc vào chất lượng prompt và trạng thái giao diện tại thời điểm chạy. Nếu prompt quá mơ hồ, thiếu điều kiện kiểm tra hoặc website có nhiều luồng hiển thị phức tạp, agent có thể chọn sai hành động hoặc không hoàn thành đúng mục tiêu kiểm thử.
+
+Thứ hai, replay script vẫn có thể bị ảnh hưởng khi giao diện website thay đổi mạnh. Object repository và locator fallback chỉ hỗ trợ trong một số trường hợp phần tử vẫn còn tồn tại nhưng locator chính không hoạt động. Nếu website thay đổi luồng nghiệp vụ, xóa phần tử hoặc thay đổi logic xử lý, người dùng vẫn cần cập nhật test case hoặc replay script.
+
+Thứ ba, hệ thống hiện tập trung chủ yếu vào kiểm thử giao diện Web trên trình duyệt máy tính để bàn. Các loại kiểm thử khác như kiểm thử hiệu năng, kiểm thử bảo mật, kiểm thử API độc lập hoặc kiểm thử ứng dụng di động chưa nằm trong phạm vi hiện tại.
+
+Thứ tư, việc sử dụng LLM có thể phát sinh chi phí, độ trễ và sự không ổn định nhất định. Mặc dù replay script giúp giảm số lần gọi LLM trong các lần chạy sau, hệ thống vẫn cần cơ chế kiểm soát tốt hơn đối với prompt, kết quả sinh ra và các trường hợp mô hình phản hồi không phù hợp.
+
+Thứ năm, cơ chế phân tích lỗi bằng AI mới dừng ở mức hỗ trợ giải thích và gợi ý nguyên nhân. Hệ thống chưa thể tự động sửa mọi lỗi hoặc tự quyết định cập nhật test case mà không cần người dùng xác nhận.
+
+\section{Bài học kinh nghiệm}
+
+Trong quá trình thực hiện đề tài, nhóm rút ra một số bài học kinh nghiệm quan trọng.
+
+Trước hết, đối với một hệ thống có nhiều thành phần như frontend, backend, database, worker, browser automation và LLM, việc thiết kế kiến trúc tách biệt ngay từ đầu là rất cần thiết. Cách tách thành phần giúp quá trình phát triển, kiểm thử và sửa lỗi dễ kiểm soát hơn.
+
+Thứ hai, các chức năng liên quan đến kiểm thử tự động trên trình duyệt cần có cơ chế ghi nhận log và evidence đầy đủ. Khi test thất bại, nếu không có screenshot, action history, URL hiện tại hoặc error message, việc xác định nguyên nhân lỗi sẽ rất khó khăn.
+
+Thứ ba, không nên phụ thuộc hoàn toàn vào AI agent trong mọi lần chạy. Agent phù hợp với giai đoạn tạo và khám phá luồng kiểm thử ban đầu, nhưng replay script cần thiết để hỗ trợ kiểm thử hồi quy với chi phí thấp hơn và tính xác định cao hơn.
+
+Thứ tư, dữ liệu kiểm thử, trạng thái website và locator có ảnh hưởng lớn đến kết quả chạy test. Vì vậy, hệ thống cần có cơ chế quản lý dataset, object repository và fallback locator để hỗ trợ bảo trì kịch bản kiểm thử.
+
+Cuối cùng, việc viết báo cáo cần đi song song với quá trình phát triển hệ thống. Khi các quyết định thiết kế, khó khăn kỹ thuật và kết quả thực nghiệm được ghi nhận kịp thời, nội dung báo cáo sẽ đầy đủ và phản ánh đúng quá trình thực hiện đề tài hơn.
+
+\section{Hướng phát triển trong tương lai}
+
+Trong tương lai, hệ thống có thể được mở rộng theo nhiều hướng khác nhau.
+
+Thứ nhất, hệ thống có thể cải thiện khả năng sinh test case bằng cách bổ sung nhiều ngữ cảnh hơn cho mô hình AI, chẳng hạn như kết quả scan/crawl, mô tả nghiệp vụ, trạng thái DOM, screenshot và lịch sử các lần chạy trước. Điều này có thể giúp test case được sinh ra rõ ràng và phù hợp hơn với website mục tiêu.
+
+Thứ hai, cơ chế replay script có thể được mở rộng với nhiều loại action và assertion hơn. Ngoài các thao tác cơ bản như navigate, fill và click, hệ thống có thể hỗ trợ thêm các thao tác phức tạp như upload file, drag-and-drop, chọn ngày, xử lý modal, kiểm tra bảng dữ liệu hoặc kiểm tra trạng thái API phía sau.
+
+Thứ ba, object repository và self-healing có thể được cải tiến để tăng khả năng tìm lại phần tử khi giao diện thay đổi. Hệ thống có thể bổ sung cơ chế chấm điểm locator, học từ các lần fallback thành công hoặc đề xuất cập nhật object sau khi replay script gặp lỗi.
+
+Thứ tư, chức năng AI analysis có thể được phát triển sâu hơn. Thay vì chỉ gợi ý nguyên nhân lỗi, hệ thống có thể đề xuất bản sửa cụ thể cho step, assertion, selector hoặc dữ liệu kiểm thử, sau đó cho phép người dùng xem lại và xác nhận trước khi lưu.
+
+Thứ năm, hệ thống có thể mở rộng khả năng thực nghiệm và đánh giá trên nhiều website hơn. Việc kiểm thử trên nhiều loại ứng dụng Web khác nhau như thương mại điện tử, quản trị nội bộ, form nghiệp vụ hoặc dashboard dữ liệu sẽ giúp đánh giá rõ hơn độ ổn định và khả năng áp dụng thực tế của hệ thống.
+
+Thứ sáu, hệ thống có thể được triển khai theo hướng hỗ trợ nhiều worker hoặc hàng đợi thực thi để chạy nhiều test song song. Điều này giúp hệ thống phù hợp hơn với nhu cầu kiểm thử hồi quy lớn hoặc chạy test suite định kỳ.
+
+Cuối cùng, hệ thống có thể bổ sung các cơ chế bảo mật nâng cao hơn như mã hóa thông tin xác thực website, che dữ liệu nhạy cảm trong screenshot/log, phân quyền theo nhóm người dùng và tích hợp với các hệ thống CI/CD. Đây là những hướng cần thiết nếu hệ thống được phát triển thành một nền tảng kiểm thử tự động có khả năng ứng dụng trong môi trường thực tế.
+
+\section{Kết luận chung}
+
+Khóa luận đã đề xuất và xây dựng một hệ thống kiểm thử tự động ứng dụng Web theo hướng kết hợp giữa AI agent, browser automation và replay script. Hệ thống cho phép người dùng mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, chạy test trên trình duyệt, ghi nhận bằng chứng, sinh replay script và hỗ trợ chạy lại kịch bản kiểm thử.
+
+Kết quả đạt được cho thấy hướng tiếp cận này có tiềm năng trong việc giảm rào cản tạo test case, hỗ trợ kiểm thử hồi quy và cải thiện khả năng truy vết kết quả kiểm thử. Mặc dù hệ thống vẫn còn một số hạn chế về độ ổn định của agent, khả năng phục hồi khi giao diện thay đổi và phạm vi thực nghiệm, đề tài đã tạo được nền tảng ban đầu cho việc phát triển các hệ thống kiểm thử Web thông minh hơn trong tương lai.
