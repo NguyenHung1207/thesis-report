@@ -7,16 +7,31 @@ Hệ thống được xây dựng là một nền tảng web hỗ trợ kiểm t
 
 Về mặt sử dụng, hệ thống hỗ trợ người dùng tạo project kiểm thử, khai báo địa chỉ website cần kiểm thử, scan/crawl website để ghi nhận các trang có thể truy cập, tạo test case từ prompt, sinh dữ liệu kiểm thử, chạy test case bằng agent, lưu lại lịch sử thực thi, sinh replay script và chạy lại các kịch bản kiểm thử đã ghi nhận. Sau mỗi lần chạy, hệ thống lưu bằng chứng thực thi như log, screenshot, action history và tổng hợp thành báo cáo để người dùng có thể quan sát, đánh giá và phân tích nguyên nhân khi ca kiểm thử thất bại.
 
-Về mặt kiến trúc công nghệ, hệ thống gồm các thành phần chính sau:
+Các thành phần chính của hệ thống được tóm tắt trong Bảng~\ref{tab:system_components}.
 
-\begin{itemize}
-    \item \textbf{Frontend}: xây dựng bằng ReactJS, Vite, shadcn/ui và Tailwind CSS, cung cấp giao diện cho người dùng thao tác với project, test case, test suite, test data, object repository và báo cáo kết quả.
-    \item \textbf{Backend}: xây dựng bằng Node.js và Express.js, chịu trách nhiệm xử lý API, quản lý dữ liệu nghiệp vụ, lưu trữ thông tin project, test case, test run, replay script và điều phối yêu cầu thực thi.
-    \item \textbf{Database}: sử dụng PostgreSQL 16 để lưu trữ thông tin người dùng, project, scan result, test case, test data, execution script, test run, evidence và các dữ liệu liên quan.
-    \item \textbf{Agent worker}: xây dựng bằng Python và FastAPI, chịu trách nhiệm nhận yêu cầu chạy test từ backend, khởi tạo trình duyệt, gọi Browser-use agent, thực thi test, ghi nhận log và gửi kết quả về backend.
-    \item \textbf{Browser automation}: sử dụng Browser-use kết hợp với Playwright. Browser-use hỗ trợ agent thực thi nhiệm vụ dựa trên mục tiêu tự nhiên, còn Playwright được sử dụng cho các thao tác trình duyệt và replay script có tính xác định.
-    \item \textbf{AI/LLM}: sử dụng Google Gemini Flash làm mô hình hỗ trợ suy luận, phân tích yêu cầu kiểm thử, điều phối hành động và hỗ trợ phân tích lỗi.
-\end{itemize}
+\begin{table}[H]
+\centering
+\caption{Các thành phần chính của hệ thống}
+\label{tab:system_components}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4cm}|p{10cm}|}
+\hline
+\textbf{Thành phần} & \textbf{Vai trò} \\
+\hline
+Frontend & Xây dựng bằng ReactJS, Vite, shadcn/ui và Tailwind CSS, cung cấp giao diện cho người dùng thao tác với project, test case, test suite, test data, object repository và báo cáo kết quả. \\
+\hline
+Backend & Xây dựng bằng Node.js và Express.js, chịu trách nhiệm xử lý API, quản lý dữ liệu nghiệp vụ, lưu trữ thông tin project, test case, test run, replay script và điều phối yêu cầu thực thi. \\
+\hline
+Database & Sử dụng PostgreSQL 16 để lưu trữ thông tin người dùng, project, scan result, test case, test data, execution script, test run, evidence và các dữ liệu liên quan. \\
+\hline
+Agent worker & Xây dựng bằng Python và FastAPI, chịu trách nhiệm nhận yêu cầu chạy test từ backend, khởi tạo trình duyệt, gọi Browser-use agent, thực thi test, ghi nhận log và gửi kết quả về backend. \\
+\hline
+Browser automation & Sử dụng Browser-use kết hợp với Playwright. Browser-use hỗ trợ agent thực thi nhiệm vụ dựa trên mục tiêu tự nhiên, còn Playwright được sử dụng cho các thao tác trình duyệt và replay script có tính xác định. \\
+\hline
+AI/LLM & Sử dụng Google Gemini Flash làm mô hình hỗ trợ suy luận, phân tích yêu cầu kiểm thử, điều phối hành động và hỗ trợ phân tích lỗi. \\
+\hline
+\end{tabular}
+\end{table}
 
 Hệ thống không được thiết kế như một công cụ chỉ chạy script có sẵn, mà là một nền tảng hỗ trợ quy trình kiểm thử tự động từ giai đoạn chuẩn bị đến giai đoạn thực thi và phân tích kết quả. Người dùng có thể bắt đầu từ một mục tiêu kiểm thử ở mức nghiệp vụ, sau đó hệ thống hỗ trợ chuyển mục tiêu này thành test case, thực thi trên trình duyệt và ghi nhận kết quả để tái sử dụng trong các lần kiểm thử sau.
 
@@ -27,396 +42,130 @@ Hệ thống hiện tại tập trung vào một nhóm người dùng chính là
 Người dùng hệ thống có thể thực hiện các thao tác chính sau:
 
 \begin{itemize}
-    \item Đăng ký và đăng nhập vào hệ thống bằng email và mật khẩu.
+    \item Đăng ký, đăng nhập và đăng xuất khỏi hệ thống.
     \item Tạo và quản lý project kiểm thử.
     \item Khai báo website mục tiêu thông qua base URL.
     \item Scan/crawl website để ghi nhận các trang và luồng điều hướng có thể truy cập.
     \item Tạo test case từ mô tả bằng ngôn ngữ tự nhiên.
     \item Sinh và quản lý dữ liệu kiểm thử.
-    \item Chạy test case bằng AI agent.
-    \item Xem lịch sử chạy test, screenshot, log và evidence.
-    \item Sinh và chạy replay script.
+    \item Chạy test case bằng AI agent hoặc replay script.
     \item Chạy test case với nhiều bộ dữ liệu.
     \item Quản lý test suite để gom nhóm nhiều test case và chạy theo lô.
     \item Quản lý object repository để tái sử dụng thông tin định vị phần tử.
     \item Sửa step thông qua fast-forward inspect và hỗ trợ AI.
-    \item Xem báo cáo và phân tích nguyên nhân thất bại.
+    \item Xem log, screenshot, evidence, báo cáo và phân tích nguyên nhân thất bại.
 \end{itemize}
 
 Việc tập trung vào một nhóm người dùng chính giúp hệ thống đơn giản hơn về mặt phân quyền trong giai đoạn hiện tại. Thay vì xây dựng nhiều vai trò phức tạp, hệ thống ưu tiên hoàn thiện luồng nghiệp vụ cốt lõi của kiểm thử tự động: tạo project, tạo test case, chạy test, ghi nhận kết quả, phát lại kịch bản và hỗ trợ sửa lỗi.
 
 \section{Yêu cầu chức năng}
 
-\subsection{Quản lý người dùng và xác thực}
+Yêu cầu chức năng được nhóm theo các capability chính của hệ thống. Cách trình bày dạng bảng giúp tránh lặp lại mô tả dài ở từng chức năng, đồng thời vẫn thể hiện đầy đủ phạm vi mà hệ thống cần đáp ứng.
 
-Hệ thống cần cung cấp chức năng đăng ký và đăng nhập tài khoản để người dùng có thể truy cập và sử dụng các chức năng kiểm thử. Người dùng đăng ký bằng địa chỉ email, họ tên và mật khẩu. Khi đăng nhập, hệ thống kiểm tra thông tin xác thực và cho phép người dùng truy cập vào dashboard nếu thông tin hợp lệ.
+{\small
+\begin{longtable}{|p{1.5cm}|p{3.4cm}|p{8.1cm}|p{1.6cm}|}
+\caption{Danh sách yêu cầu chức năng của hệ thống}
+\label{tab:functional_requirements} \\
+\hline
+\textbf{Mã} & \textbf{Nhóm chức năng} & \textbf{Mô tả yêu cầu} & \textbf{Ưu tiên} \\
+\hline
+\endfirsthead
 
-Chức năng xác thực cần đảm bảo mỗi người dùng có không gian làm việc riêng. Các project, test case, test run, test data và kết quả kiểm thử được gắn với tài khoản người dùng tương ứng. Điều này giúp người dùng quản lý dữ liệu kiểm thử của mình một cách độc lập, tránh nhầm lẫn giữa các project hoặc các phiên làm việc khác nhau.
+\hline
+\textbf{Mã} & \textbf{Nhóm chức năng} & \textbf{Mô tả yêu cầu} & \textbf{Ưu tiên} \\
+\hline
+\endhead
 
-Các yêu cầu chính của chức năng này gồm:
+FR01 & Quản lý người dùng và xác thực & Cho phép người dùng đăng ký, đăng nhập, đăng xuất; kiểm tra dữ liệu đầu vào; lưu mật khẩu ở dạng đã băm; duy trì phiên đăng nhập để truy cập dashboard và các chức năng kiểm thử. & Must \\
+\hline
 
-\begin{itemize}
-    \item Cho phép người dùng tạo tài khoản mới bằng email, họ tên và mật khẩu.
-    \item Cho phép người dùng đăng nhập bằng email và mật khẩu.
-    \item Kiểm tra dữ liệu đầu vào khi đăng ký và đăng nhập.
-    \item Lưu mật khẩu ở dạng đã mã hóa hoặc băm, không lưu mật khẩu thô.
-    \item Duy trì phiên đăng nhập để người dùng có thể thao tác với hệ thống.
-    \item Cho phép người dùng đăng xuất khỏi hệ thống.
-\end{itemize}
+FR02 & Quản lý project kiểm thử & Cho phép người dùng tạo, xem, cập nhật project; khai báo tên project, mô tả, base URL và cấu hình liên quan; hiển thị tổng quan project như số test case, pass rate, lần chạy gần nhất. & Must \\
+\hline
 
-\subsection{Quản lý project kiểm thử}
+FR03 & Scan/Crawl website & Cho phép khởi tạo scan/crawl từ base URL; ghi nhận trạng thái scan, root URL, sitemap, interaction map và lỗi nếu có; cung cấp ngữ cảnh ban đầu cho việc tạo test case và chạy agent. & Should \\
+\hline
 
-Project kiểm thử là đơn vị tổ chức chính trong hệ thống. Mỗi project đại diện cho một website hoặc một nhóm chức năng của website mà người dùng muốn kiểm thử. Khi tạo project, người dùng cần nhập tên project, mô tả và base URL của website mục tiêu. Ngoài ra, hệ thống có thể cho phép người dùng cấu hình thông tin xác thực website nếu website cần đăng nhập trước khi scan hoặc kiểm thử.
+FR04 & Quản lý test case & Cho phép tạo test case từ prompt hoặc goal bằng ngôn ngữ tự nhiên; sinh tiêu đề, mục tiêu và test plan; lưu, chỉnh sửa, xem lịch sử chạy và chọn chế độ chạy phù hợp. & Must \\
+\hline
 
-Thông tin project giúp hệ thống xác định phạm vi kiểm thử. Base URL được sử dụng làm điểm xuất phát cho quá trình scan/crawl, tạo test case và chạy test. Mô tả project giúp người dùng ghi chú mục đích kiểm thử, phạm vi ứng dụng hoặc đặc điểm của website.
+FR05 & Điều kiện kiểm tra kết quả & Hỗ trợ thiết lập assertion hoặc state anchor để xác định test case pass/fail, ví dụ kiểm tra URL, văn bản, phần tử hiển thị, giá trị nhập liệu hoặc trạng thái lỗi. & Must \\
+\hline
 
-Các yêu cầu chính của chức năng này gồm:
+FR06 & Sinh và quản lý test data & Cho phép tạo, lưu, sinh và quản lý dữ liệu kiểm thử; hỗ trợ dữ liệu hợp lệ, không hợp lệ, thiếu trường và dữ liệu biên; gắn dataset vào test case hoặc replay script. & Should \\
+\hline
 
-\begin{itemize}
-    \item Cho phép người dùng tạo project mới.
-    \item Cho phép nhập tên project, mô tả và base URL.
-    \item Cho phép cấu hình thông tin xác thực website nếu cần.
-    \item Hiển thị danh sách project gần đây trên dashboard.
-    \item Hiển thị các chỉ số tổng quan của project như số lượng test case, pass rate, số test thất bại và lần chạy gần nhất.
-    \item Cho phép chỉnh sửa thông tin project.
-    \item Cho phép truy cập vào các khu vực chức năng bên trong project như test cases, test suites, data, objects, test runs và settings.
-\end{itemize}
+FR07 & Quản lý test suite & Cho phép tạo test suite, thêm hoặc bỏ test case, sắp xếp thứ tự chạy, chạy suite theo lô và tổng hợp kết quả pass/fail/error của toàn bộ suite. & Should \\
+\hline
 
-\subsection{Scan/Crawl website}
+FR08 & Thực thi test bằng agent & Cho phép chạy test case bằng Browser-use agent; worker khởi tạo trình duyệt, thực thi hành động thông qua Playwright, ghi nhận log, screenshot, action history và callback kết quả về backend. & Must \\
+\hline
 
-Chức năng scan/crawl website được sử dụng để ghi nhận các trang và luồng điều hướng mà hệ thống có thể truy cập từ base URL của project. Đây không phải là bước phân tích sâu toàn bộ logic của website, mà là bước xây dựng thông tin nền ban đầu về phạm vi website và các đường dẫn có thể đi được.
+FR09 & Sinh và quản lý replay script & Tự động sinh replay script từ phiên chạy agent thành công; lưu script dạng JSON; cho phép xem, chỉnh sửa, quản lý params, assertion và metadata của script. & Must \\
+\hline
 
-Khi người dùng khởi tạo scan/crawl, hệ thống bắt đầu từ root URL và duyệt qua các liên kết hoặc trang có thể truy cập trong phạm vi được cấu hình. Kết quả scan có thể bao gồm sitemap, interaction map, trạng thái scan, lỗi phát sinh nếu có, thời điểm bắt đầu và thời điểm kết thúc. Những thông tin này hỗ trợ người dùng hiểu sơ bộ cấu trúc website, đồng thời cung cấp ngữ cảnh ban đầu cho quá trình tạo test case và chạy agent.
+FR10 & Chạy replay script & Cho phép chạy lại replay script bằng Playwright mà không cần gọi LLM ở từng bước; hỗ trợ navigate, fill, click, assertion, params và ghi nhận evidence sau mỗi lần chạy. & Must \\
+\hline
 
-Việc phân tích sâu giao diện, xác định phần tử cần thao tác và quyết định hành động kiểm thử sẽ do agent thực hiện trong quá trình chạy test. Do đó, scan/crawl trong hệ thống đóng vai trò hỗ trợ lập bản đồ website, không thay thế cho khả năng quan sát và suy luận của agent.
+FR11 & Chạy test với nhiều bộ dữ liệu & Cho phép chạy cùng một test case hoặc replay script với nhiều dòng dữ liệu; truyền dữ liệu vào script thông qua params và lưu kết quả riêng cho từng dataset run. & Should \\
+\hline
 
-Các yêu cầu chính của chức năng này gồm:
+FR12 & Object repository & Lưu trữ các object giao diện theo project, gồm tên object, page key, mô tả, selector collection, attribute snapshot và nguồn tạo object để tái sử dụng trong replay script. & Should \\
+\hline
 
-\begin{itemize}
-    \item Cho phép người dùng khởi tạo scan/crawl từ base URL của project.
-    \item Ghi nhận trạng thái scan như queued, running, completed, failed hoặc cancelled.
-    \item Lưu root URL, sitemap và interaction map.
-    \item Ghi nhận lỗi nếu quá trình scan thất bại.
-    \item Hỗ trợ cấu hình giới hạn crawl như số trang tối đa hoặc độ sâu tối đa nếu cần.
-    \item Hiển thị kết quả scan để người dùng nắm được website có thể truy cập đến những khu vực nào.
-\end{itemize}
+FR13 & Self-healing & Khi chạy agent, hệ thống có thể quan sát lại giao diện và suy luận hành động. Khi chạy replay, hệ thống thử locator dự phòng nếu locator chính thất bại và ghi nhận quá trình fallback. & Should \\
+\hline
 
-\subsection{Quản lý test case}
+FR14 & Fast-forward inspect & Cho phép chọn step cần sửa, chạy nhanh các bước trước target step, trả về screenshot, URL hiện tại và danh sách phần tử tương tác để hỗ trợ người dùng hoặc AI sửa step. & Should \\
+\hline
 
-Test case là thành phần trung tâm của hệ thống. Mỗi test case mô tả một mục tiêu kiểm thử cụ thể, chẳng hạn như kiểm tra đăng nhập thành công, xác minh trang danh sách nhân viên sau khi đăng nhập, kiểm tra chức năng tìm kiếm hoặc xác nhận một thông báo lỗi khi nhập dữ liệu không hợp lệ.
+FR15 & Log, evidence, report và phân tích lỗi & Ghi nhận log, screenshot, action history, evidence summary, verdict và error message; hiển thị báo cáo kết quả và hỗ trợ phân tích nguyên nhân khi test thất bại. & Must \\
+\hline
 
-Hệ thống cho phép người dùng tạo test case bằng cách nhập prompt hoặc goal bằng ngôn ngữ tự nhiên. Từ mô tả này, hệ thống hỗ trợ sinh ra test case với tiêu đề, mục tiêu, test plan và các bước kiểm thử. Người dùng có thể xem, lưu, chỉnh sửa và chạy test case đã tạo. Test case có thể ở các trạng thái như draft, ready hoặc archived tùy theo mức độ hoàn thiện và nhu cầu sử dụng.
+\end{longtable}
+}
 
-Các yêu cầu chính của chức năng này gồm:
-
-\begin{itemize}
-    \item Cho phép người dùng tạo test case từ prompt hoặc goal.
-    \item Cho phép hệ thống sinh tiêu đề, mô tả mục tiêu và test plan.
-    \item Cho phép người dùng xem lại các bước kiểm thử trước khi chạy.
-    \item Cho phép lưu test case vào project.
-    \item Cho phép chỉnh sửa test case hoặc các bước kiểm thử.
-    \item Cho phép chọn test case để chạy bằng agent hoặc replay script.
-    \item Hiển thị lịch sử chạy, pass rate, trạng thái lần chạy gần nhất và số lần chạy.
-\end{itemize}
-
-\subsection{Thiết lập điều kiện kiểm tra kết quả}
-
-Điều kiện kiểm tra kết quả là cơ sở để xác định một test case đạt hay không đạt. Hệ thống cần hỗ trợ người dùng hoặc agent thiết lập các điều kiện xác nhận sau khi thực hiện thao tác kiểm thử. Các điều kiện này có thể là kiểm tra URL đã thay đổi, kiểm tra một văn bản xuất hiện, kiểm tra phần tử hiển thị, kiểm tra giá trị của trường nhập liệu hoặc kiểm tra không có thông báo lỗi.
-
-Trong hệ thống, điều kiện kiểm tra có thể được biểu diễn bằng assertion hoặc state anchor. Assertion là bước kiểm tra trực tiếp trong replay script, chẳng hạn như \texttt{assert\_url\_changed}, \texttt{assert\_text} hoặc \texttt{assert\_visible}. State anchor là điều kiện xác nhận trạng thái giao diện tại một điểm quan trọng trong luồng kiểm thử. Việc kết hợp thao tác và điều kiện kiểm tra giúp replay script không chỉ lặp lại hành động mà còn xác minh kết quả thực tế của ứng dụng.
-
-Các yêu cầu chính của chức năng này gồm:
-
-\begin{itemize}
-    \item Cho phép thêm điều kiện kiểm tra vào test case hoặc replay script.
-    \item Hỗ trợ các loại assertion phổ biến như kiểm tra URL, văn bản, phần tử hiển thị và giá trị nhập liệu.
-    \item Cho phép hệ thống tự động bổ sung một số assertion sau khi agent chạy thành công.
-    \item Hiển thị số lượng assertion/check trong recorded script.
-    \item Ghi nhận assertion thất bại như một kết quả fail của test case.
-    \item Phân biệt lỗi assertion với lỗi hạ tầng hoặc lỗi thực thi.
-\end{itemize}
-
-\subsection{Sinh và quản lý test data}
-
-Test data là dữ liệu đầu vào phục vụ quá trình chạy test. Trong nhiều trường hợp, một test case cần được chạy với nhiều bộ dữ liệu khác nhau để kiểm tra các tình huống hợp lệ, không hợp lệ, thiếu trường bắt buộc, sai định dạng hoặc các trường hợp biên. Do đó, hệ thống cần hỗ trợ sinh và quản lý test data để người dùng có thể tái sử dụng trong nhiều lần chạy.
-
-Hệ thống cho phép người dùng tạo dữ liệu kiểm thử thủ công hoặc sinh dữ liệu bằng AI. Dữ liệu này có thể được truyền vào test case thông qua tham số, ví dụ như username, password, email, tên nhân viên hoặc các giá trị nhập liệu khác. Khi chạy replay script với dataset, hệ thống thay thế các tham số tương ứng và ghi nhận kết quả cho từng bộ dữ liệu.
-
-Các yêu cầu chính của chức năng này gồm:
-
-\begin{itemize}
-    \item Cho phép tạo và lưu bộ dữ liệu kiểm thử trong project.
-    \item Cho phép sinh dữ liệu kiểm thử bằng AI dựa trên mục tiêu test case.
-    \item Hỗ trợ nhiều loại dữ liệu như dữ liệu hợp lệ, dữ liệu không hợp lệ, dữ liệu thiếu và dữ liệu biên.
-    \item Cho phép gắn dataset vào test case hoặc replay script.
-    \item Cho phép chạy test case với một hoặc nhiều bộ dữ liệu.
-    \item Lưu kết quả từng lần chạy theo dataset để người dùng xem lại.
-\end{itemize}
-
-\subsection{Quản lý test suite}
-
-Test suite là tập hợp nhiều test case được gom nhóm để chạy theo một mục tiêu kiểm thử lớn hơn. Ví dụ, một test suite có thể bao gồm các test case liên quan đến đăng nhập, quản lý nhân viên, tìm kiếm, thêm mới, chỉnh sửa và xóa dữ liệu. Việc tổ chức test suite giúp người dùng chạy nhiều test case theo lô thay vì chạy từng test case riêng lẻ.
-
-Hệ thống cần cho phép người dùng tạo test suite, thêm hoặc bỏ test case khỏi suite, sắp xếp thứ tự chạy và thực thi toàn bộ suite. Test suite cũng có thể được chạy với dataset nếu người dùng muốn kiểm tra nhiều bộ dữ liệu trên một nhóm test case.
-
-Các yêu cầu chính của chức năng này gồm:
-
-\begin{itemize}
-    \item Cho phép tạo test suite trong project.
-    \item Cho phép thêm nhiều test case vào test suite.
-    \item Cho phép sắp xếp thứ tự test case trong suite.
-    \item Cho phép chạy test suite như một batch.
-    \item Cho phép chạy test suite bằng agent hoặc replay tùy theo trạng thái test case.
-    \item Cho phép chạy test suite với dataset nếu có cấu hình dữ liệu.
-    \item Tổng hợp kết quả chạy suite để người dùng đánh giá nhanh số test pass, fail hoặc error.
-\end{itemize}
-
-\subsection{Thực thi test case bằng agent}
-
-Chức năng thực thi test case bằng agent là một trong những chức năng cốt lõi của hệ thống. Với chế độ này, người dùng chọn một test case đã tạo, sau đó hệ thống gửi yêu cầu chạy test sang Python worker. Worker khởi tạo trình duyệt, tạo Browser-use agent, xây dựng prompt thực thi từ goal, plan và input params của test case, sau đó để agent thao tác trên website mục tiêu.
-
-Trong quá trình chạy, agent quan sát trạng thái giao diện, xác định bước tiếp theo và thực hiện hành động trên trình duyệt. Các hành động có thể bao gồm mở trang, nhập dữ liệu, nhấp chuột, điều hướng, kiểm tra trạng thái và hoàn thành mục tiêu kiểm thử. Hệ thống ghi nhận action history, URL, log, screenshot và kết quả từng bước để phục vụ báo cáo và phân tích sau khi chạy.
-
-Luồng thực thi test case bằng agent gồm các bước chính:
-
-\begin{enumerate}
-    \item Người dùng tạo project và nhập base URL.
-    \item Người dùng tạo test case bằng prompt hoặc goal.
-    \item Hệ thống sinh test case và test plan.
-    \item Người dùng lưu test case và chọn chạy test.
-    \item Backend gửi yêu cầu chạy test sang Python worker.
-    \item Worker sử dụng Browser-use agent để chạy test trên trình duyệt.
-    \item Agent thao tác trên website mục tiêu thông qua Browser-use và Playwright.
-    \item Worker ghi nhận log, screenshot và action history.
-    \item Worker callback kết quả về backend.
-    \item Backend lưu kết quả và hiển thị báo cáo cho người dùng.
-    \item Nếu phiên chạy thành công, hệ thống sinh replay script để sử dụng cho các lần chạy sau.
-\end{enumerate}
-
-Các yêu cầu chính của chức năng này gồm:
-
-\begin{itemize}
-    \item Cho phép chạy test case bằng chế độ agent.
-    \item Cho phép truyền runtime config như model, browser, headless, timeout và max steps.
-    \item Giới hạn domain được phép truy cập trong quá trình chạy.
-    \item Ghi nhận trạng thái chạy theo thời gian thực.
-    \item Lưu lại action history, screenshot, log và kết quả từng bước.
-    \item Gửi kết quả cuối cùng về backend sau khi hoàn tất.
-    \item Tự động sinh replay script nếu phiên chạy thành công.
-\end{itemize}
-
-\subsection{Replay script}
-
-Replay script là kịch bản phát lại được sinh tự động từ lịch sử hành động của Browser-use agent sau khi một phiên chạy thành công. Mục tiêu của replay script là cho phép hệ thống chạy lại luồng kiểm thử một cách xác định hơn mà không cần gọi LLM ở từng bước. Điều này giúp giảm chi phí vận hành, giảm độ trễ và phù hợp với kiểm thử hồi quy.
-
-Replay script được lưu trong database dưới dạng JSON. Script bao gồm danh sách các bước như \texttt{navigate}, \texttt{fill}, \texttt{click}, \texttt{assert\_url\_changed} hoặc các assertion khác. Mỗi bước có thể chứa action name, action input, timeout, tham số và các thông tin locator liên quan. Replay script cũng có thể có params schema để hỗ trợ truyền dữ liệu đầu vào trong các lần chạy với dataset.
-
-Hệ thống không sử dụng LLM fallback trong chế độ replay. Nếu một bước replay thất bại, hệ thống ưu tiên retry hoặc thử các locator/path dự phòng theo cơ chế self-healing. Nếu vẫn không thực hiện được, hệ thống ghi nhận lỗi, lưu evidence và hiển thị báo cáo tương tự như khi chạy bằng agent.
-
-Các yêu cầu chính của chức năng này gồm:
-
-\begin{itemize}
-    \item Tự động sinh replay script sau khi agent chạy thành công.
-    \item Lưu replay script dưới dạng JSON trong database.
-    \item Hỗ trợ script type như \texttt{strict\_replay\_json}.
-    \item Cho phép truyền params hoặc dataset vào replay script.
-    \item Cho phép xem và chỉnh sửa các bước trong recorded script.
-    \item Hỗ trợ assertion/check trong replay script.
-    \item Không phụ thuộc vào LLM fallback khi chạy replay.
-    \item Lưu log, screenshot, evidence và report cho mỗi lần replay.
-\end{itemize}
-
-\subsection{Chạy test với nhiều bộ dữ liệu}
-
-Hệ thống cần hỗ trợ chạy test với nhiều bộ dữ liệu khác nhau để mở rộng phạm vi kiểm thử. Một test case hoặc replay script có thể được chạy nhiều lần với các giá trị đầu vào khác nhau. Ví dụ, với test case đăng nhập, hệ thống có thể chạy với tài khoản hợp lệ, sai mật khẩu, thiếu username hoặc dữ liệu có định dạng không hợp lệ.
-
-Chức năng này giúp người dùng kiểm tra nhiều trường hợp mà không cần tạo nhiều test case riêng biệt. Mỗi dòng dữ liệu trong dataset tương ứng với một lần chạy. Sau khi hoàn thành, hệ thống lưu kết quả riêng cho từng dataset run để người dùng so sánh và đánh giá.
-
-Các yêu cầu chính của chức năng này gồm:
-
-\begin{itemize}
-    \item Cho phép gắn dataset vào replay script hoặc test case.
-    \item Cho phép chạy cùng một test case với nhiều bộ dữ liệu.
-    \item Truyền dữ liệu vào script thông qua params.
-    \item Lưu kết quả cho từng dataset run.
-    \item Hiển thị trạng thái pass, fail hoặc error của từng bộ dữ liệu.
-    \item Cho phép người dùng xem lại log và evidence của từng lần chạy.
-\end{itemize}
-
-\subsection{Object repository}
-
-Object repository là nơi lưu trữ các định nghĩa phần tử giao diện có thể tái sử dụng trong quá trình replay. Mỗi object đại diện cho một phần tử trên giao diện, chẳng hạn như ô nhập username, ô nhập password, nút login, liên kết điều hướng hoặc một trường dữ liệu trong form. Thay vì chỉ lưu một selector duy nhất, hệ thống lưu nhiều thông tin định vị và thuộc tính của phần tử để tăng khả năng tìm lại phần tử khi giao diện thay đổi.
-
-Các thông tin có thể được lưu trong object repository bao gồm tên object, page key, mô tả, danh sách selector, snapshot thuộc tính tại thời điểm ghi nhận và thông tin nguồn tạo object. Danh sách selector được ưu tiên theo các thuộc tính ổn định và dễ xác nhận hơn, chẳng hạn như testId, id ổn định, name attribute, CSS selector, accessible name, placeholder, title hoặc XPath. Cách lưu trữ nhiều locator giúp hệ thống có cơ sở để thử phương án thay thế khi locator chính không còn hoạt động.
-
-Các yêu cầu chính của chức năng này gồm:
-
-\begin{itemize}
-    \item Tự động trích xuất object từ replay script hoặc lịch sử agent.
-    \item Lưu object theo project.
-    \item Lưu nhiều selector hoặc thuộc tính định vị cho mỗi object.
-    \item Ưu tiên các thuộc tính ổn định, ít thay đổi và dễ xác nhận.
-    \item Cho phép object được tái sử dụng giữa các test case.
-    \item Hỗ trợ replay script tham chiếu đến object thay vì phụ thuộc hoàn toàn vào selector cứng.
-\end{itemize}
-
-\subsection{Self-healing}
-
-Self-healing là cơ chế hỗ trợ hệ thống phục hồi khi kịch bản kiểm thử gặp thay đổi nhỏ ở giao diện. Trong phạm vi hệ thống, self-healing được hiểu theo hai lớp.
-
-Lớp thứ nhất đến từ Browser-use agent. Khi chạy ở chế độ agent, hệ thống không chỉ phát lại cứng nhắc một chuỗi thao tác đã ghi. Agent có thể quan sát giao diện hiện tại, phân tích mục tiêu kiểm thử và lựa chọn hành động phù hợp với trạng thái đang nhìn thấy. Điều này giúp agent có khả năng thích nghi tốt hơn trong một số trường hợp giao diện thay đổi nhẹ, vị trí phần tử khác đi hoặc luồng hiển thị có biến thể.
-
-Lớp thứ hai đến từ replay script và object repository. Khi chạy replay, nếu locator chính không tìm được phần tử, hệ thống có thể thử các locator hoặc thuộc tính dự phòng được lưu trong selector collection. Các locator được thử theo thứ tự ưu tiên dựa trên mức độ ổn định và độ tin cậy. Nếu một selector thất bại nhưng selector khác vẫn tìm được phần tử tương ứng, hệ thống có thể tiếp tục thực thi mà không cần người dùng sửa script ngay lập tức.
-
-Các yêu cầu chính của chức năng này gồm:
-
-\begin{itemize}
-    \item Hỗ trợ agent quan sát lại giao diện và suy luận hành động khi chạy ở chế độ agent.
-    \item Hỗ trợ replay thử locator dự phòng khi locator chính thất bại.
-    \item Ưu tiên các thuộc tính định vị ổn định và dễ xác nhận.
-    \item Ghi nhận quá trình fallback để người dùng biết script đã được phục hồi như thế nào.
-    \item Không cam kết tự sửa mọi lỗi, mà tập trung tăng khả năng phục hồi trước các thay đổi nhỏ.
-\end{itemize}
-
-\subsection{Fast-forward inspect và hỗ trợ sửa step}
-
-Fast-forward inspect là chức năng hỗ trợ người dùng sửa một step trong replay script hoặc test case. Khi một step bị lỗi hoặc cần chỉnh sửa, hệ thống có thể chạy nhanh các bước trước đó để đưa trình duyệt đến đúng trạng thái ngay trước step cần sửa. Sau đó, hệ thống chụp lại screenshot, lấy URL hiện tại và trích xuất các phần tử tương tác trên trang để hỗ trợ người dùng hoặc AI sửa step.
-
-Chức năng này giúp quá trình sửa test case dễ hơn vì người dùng không cần chạy lại toàn bộ luồng thủ công để đến bước cần sửa. Người dùng có thể chọn step, xem trạng thái giao diện tại thời điểm đó, nhập thêm thông tin hướng dẫn và yêu cầu hệ thống hỗ trợ cập nhật step cho phù hợp. Nếu cần, người dùng cũng có thể chọn phần tử trên trang hoặc sửa thông tin action input.
-
-Các yêu cầu chính của chức năng này gồm:
-
-\begin{itemize}
-    \item Cho phép chọn step cần inspect hoặc sửa.
-    \item Chạy nhanh các bước trước target step để đưa trình duyệt đến đúng trạng thái.
-    \item Chụp screenshot trước hoặc sau step cần kiểm tra.
-    \item Trả về URL hiện tại và danh sách phần tử tương tác trên trang.
-    \item Cho phép người dùng nhập thêm thông tin để sửa step.
-    \item Hỗ trợ AI đề xuất sửa step nếu có đủ ngữ cảnh.
-    \item Cho phép lưu lại replay script hoặc test case sau khi sửa.
-\end{itemize}
-
-\subsection{Ghi nhận log, screenshot và evidence}
-
-Trong quá trình chạy test, hệ thống cần ghi nhận bằng chứng thực thi để người dùng có thể xem lại và đánh giá kết quả. Evidence có thể bao gồm screenshot, DOM snapshot, console log, network log, video, trace hoặc các dữ liệu khác liên quan đến từng bước chạy. Việc ghi nhận evidence giúp người dùng xác định test đã chạy đến đâu, hành động nào đã được thực hiện và lỗi xảy ra ở bước nào.
-
-Đối với mỗi test run, hệ thống cần lưu trạng thái chạy, thời điểm bắt đầu, thời điểm kết thúc, verdict, execution log, evidence summary và error message nếu có. Các dữ liệu này được sử dụng để hiển thị run history, report chi tiết và hỗ trợ phân tích lỗi.
-
-Các yêu cầu chính của chức năng này gồm:
-
-\begin{itemize}
-    \item Ghi nhận log trong quá trình chạy test.
-    \item Chụp screenshot tại các bước quan trọng hoặc sau mỗi step nếu được cấu hình.
-    \item Lưu evidence gắn với test run và run step.
-    \item Lưu execution log và evidence summary.
-    \item Hiển thị run history cho từng test case.
-    \item Cho phép người dùng xem chi tiết từng lần chạy.
-\end{itemize}
-
-\subsection{Hỗ trợ phân tích lỗi và báo cáo}
-
-Sau khi test case hoàn tất hoặc thất bại, hệ thống cần tổng hợp kết quả thành báo cáo để người dùng dễ đánh giá. Báo cáo cần hiển thị trạng thái cuối cùng của test run, verdict, thời gian chạy, các bước đã thực hiện, evidence, lỗi phát sinh và phân tích nguyên nhân nếu có.
-
-Đối với các lỗi phức tạp, hệ thống có thể sử dụng AI để hỗ trợ diễn giải lỗi theo ngôn ngữ dễ hiểu hơn. Thay vì chỉ hiển thị thông báo kỹ thuật, hệ thống có thể gợi ý lỗi xảy ra do ứng dụng không thỏa mãn điều kiện kiểm tra, locator không tìm thấy phần tử, timeout, dữ liệu đầu vào không phù hợp hoặc agent chọn sai hành động. Phần phân tích này giúp người dùng rút ngắn thời gian đọc log và xác định hướng xử lý.
-
-Các yêu cầu chính của chức năng này gồm:
-
-\begin{itemize}
-    \item Tổng hợp kết quả sau mỗi lần chạy test.
-    \item Hiển thị trạng thái pass, fail, error hoặc partial.
-    \item Hiển thị thời gian chạy và số bước đã thực hiện.
-    \item Hiển thị log, screenshot và evidence liên quan.
-    \item Hỗ trợ phân tích lỗi bằng AI khi test thất bại.
-    \item Gợi ý nguyên nhân lỗi và hướng xử lý phù hợp.
-    \item Cho phép người dùng xem lại lịch sử kiểm thử của project.
-\end{itemize}
+Nhìn chung, nhóm yêu cầu bắt buộc tập trung vào luồng kiểm thử cốt lõi: quản lý project, tạo test case, chạy test bằng agent, sinh replay script, chạy replay và xem báo cáo. Các yêu cầu như test data, test suite, object repository, self-healing và fast-forward inspect đóng vai trò mở rộng, giúp hệ thống phù hợp hơn với kiểm thử hồi quy và bảo trì kịch bản kiểm thử trong thực tế.
 
 \section{Yêu cầu phi chức năng}
 
-\subsection{Tính dễ sử dụng}
+Bên cạnh yêu cầu chức năng, hệ thống cần đáp ứng một số yêu cầu phi chức năng để đảm bảo khả năng sử dụng, vận hành ổn định và an toàn dữ liệu trong quá trình kiểm thử.
 
-Hệ thống cần có giao diện dễ sử dụng, phù hợp với người dùng không chuyên sâu về kiểm thử tự động. Người dùng có thể tạo project, nhập mô tả mục tiêu kiểm thử, tạo test case, chạy test và xem báo cáo thông qua giao diện web trực quan. Các thao tác quan trọng như tạo project, tạo test case, chạy agent, replay test và xem kết quả cần được trình bày rõ ràng, hạn chế yêu cầu người dùng phải hiểu chi tiết kỹ thuật như selector, XPath hoặc mã kiểm thử.
+{\small
+\begin{longtable}{|p{1.6cm}|p{4.0cm}|p{8.8cm}|}
+\caption{Danh sách yêu cầu phi chức năng của hệ thống}
+\label{tab:nonfunctional_requirements} \\
+\hline
+\textbf{Mã} & \textbf{Nhóm yêu cầu} & \textbf{Mô tả yêu cầu} \\
+\hline
+\endfirsthead
 
-Các yêu cầu chính gồm:
+\hline
+\textbf{Mã} & \textbf{Nhóm yêu cầu} & \textbf{Mô tả yêu cầu} \\
+\hline
+\endhead
 
-\begin{itemize}
-    \item Người dùng có thể tạo test case bằng ngôn ngữ tự nhiên.
-    \item Người dùng không cần viết code kiểm thử phức tạp.
-    \item Giao diện cần phân tách rõ các khu vực như dashboard, projects, test cases, test suites, data, objects và test runs.
-    \item Báo cáo lỗi cần được trình bày dễ hiểu, không chỉ hiển thị log kỹ thuật thô.
-\end{itemize}
+NFR01 & Tính dễ sử dụng & Giao diện cần rõ ràng, giúp người dùng tạo project, nhập mục tiêu kiểm thử, chạy test và xem báo cáo mà không cần viết mã kiểm thử phức tạp hoặc hiểu sâu về selector, XPath, DOM. \\
+\hline
 
-\subsection{Độ ổn định}
+NFR02 & Độ ổn định & Hệ thống cần xử lý lỗi khi trang không tải được, trình duyệt timeout, locator thất bại, LLM phản hồi không hợp lệ hoặc worker gặp lỗi; không làm mất dữ liệu test run khi một bước chạy thất bại. \\
+\hline
 
-Hệ thống cần đảm bảo độ ổn định trong quá trình chạy test, đặc biệt khi làm việc với trình duyệt, website bên ngoài và mô hình ngôn ngữ lớn. Các lỗi như timeout, trang không tải được, locator không tìm thấy phần tử, LLM trả về kết quả không hợp lệ hoặc worker gặp lỗi cần được xử lý và ghi nhận rõ ràng.
+NFR03 & Hiệu năng vận hành & Worker cần có timeout và giới hạn số phiên browser chạy đồng thời; replay script cần được tối ưu để chạy nhanh hơn chế độ agent khi đã có script ổn định. \\
+\hline
 
-Các yêu cầu chính gồm:
+NFR04 & Tối ưu chi phí vận hành & Hệ thống nên dùng agent cho giai đoạn tạo hoặc khám phá luồng kiểm thử ban đầu, sau đó dùng replay script để giảm số lần gọi LLM trong các lần kiểm thử hồi quy. \\
+\hline
 
-\begin{itemize}
-    \item Có timeout cho mỗi test run và mỗi step quan trọng.
-    \item Xử lý lỗi khi trình duyệt không mở được hoặc trang không tải được.
-    \item Xử lý lỗi khi locator thất bại.
-    \item Xử lý lỗi khi LLM không phản hồi hoặc phản hồi không hợp lệ.
-    \item Ghi nhận error message và failure reason để người dùng phân tích.
-    \item Không làm mất dữ liệu test run khi một bước chạy thất bại.
-\end{itemize}
+NFR05 & Bảo mật & Không lưu mật khẩu thô, không để lộ API key ở frontend hoặc log, giới hạn domain được phép truy cập khi chạy test và kiểm soát quyền truy cập project, dataset, evidence, replay script. \\
+\hline
 
-\subsection{Hiệu năng vận hành}
+NFR06 & Khả năng mở rộng & Kiến trúc cần cho phép mở rộng runtime config, browser type, model LLM, loại assertion, dataset run, test suite, object repository và số lượng worker khi nhu cầu chạy test tăng lên. \\
+\hline
 
-Do quá trình chạy test có thể mở nhiều phiên trình duyệt và gọi mô hình ngôn ngữ lớn, hệ thống cần kiểm soát hiệu năng vận hành. Việc chạy đồng thời quá nhiều browser session có thể làm tăng tải CPU, RAM và gây lỗi hệ thống. Vì vậy, worker cần có cơ chế giới hạn số phiên chạy đồng thời và timeout cho từng phiên chạy.
+\end{longtable}
+}
 
-Các yêu cầu chính gồm:
-
-\begin{itemize}
-    \item Có giới hạn số phiên browser chạy đồng thời.
-    \item Có timeout cho mỗi test run.
-    \item Không để một phiên chạy lỗi làm ảnh hưởng đến toàn bộ worker.
-    \item Ghi nhận trạng thái queued, running, completed, failed hoặc cancelled.
-    \item Tối ưu quá trình replay để chạy nhanh hơn so với agent khi đã có script ổn định.
-\end{itemize}
-
-\subsection{Tối ưu chi phí vận hành}
-
-Việc sử dụng LLM trong quá trình kiểm thử có thể phát sinh chi phí và độ trễ. Do đó, hệ thống cần tối ưu số lần gọi mô hình, đặc biệt trong các trường hợp test case đã có replay script ổn định. Cách tiếp cận phù hợp là dùng agent để tạo hoặc khám phá luồng kiểm thử ban đầu, sau đó dùng replay script để chạy lại trong các lần kiểm thử hồi quy.
-
-Các yêu cầu chính gồm:
-
-\begin{itemize}
-    \item Dùng replay script để giảm số lần gọi LLM.
-    \item Không gọi LLM ở mọi lần chạy nếu đã có script replay ổn định.
-    \item Cho phép chạy replay với dataset mà không cần agent suy luận lại từng bước.
-    \item Chỉ gọi AI để phân tích lỗi hoặc hỗ trợ sửa step khi cần thiết.
-\end{itemize}
-
-\subsection{Bảo mật}
-
-Hệ thống cần đảm bảo các thông tin nhạy cảm như tài khoản người dùng, mật khẩu, API key, dữ liệu test và thông tin xác thực website được bảo vệ phù hợp. Đặc biệt, khi hệ thống có khả năng tự động thao tác trên website, cần giới hạn phạm vi domain được phép truy cập để tránh agent thực hiện hành động ngoài phạm vi kiểm thử.
-
-Các yêu cầu chính gồm:
-
-\begin{itemize}
-    \item Không lưu mật khẩu thô của người dùng.
-    \item Không để lộ API key ở frontend hoặc trong log.
-    \item Giới hạn domain được phép truy cập khi chạy test.
-    \item Quản lý thông tin tài khoản test một cách cẩn thận.
-    \item Không chạy kiểm thử trên production nếu chưa có kiểm soát phù hợp.
-    \item Có thể cấu hình thông tin xác thực website ở phạm vi project khi cần.
-\end{itemize}
-
-\subsection{Khả năng mở rộng}
-
-Hệ thống cần có khả năng mở rộng để hỗ trợ nhiều loại website, nhiều trình duyệt, nhiều mô hình AI và nhiều chế độ chạy test khác nhau. Kiến trúc tách frontend, backend và agent worker giúp các thành phần có thể được phát triển và triển khai độc lập hơn.
-
-Các yêu cầu chính gồm:
-
-\begin{itemize}
-    \item Có thể thay đổi hoặc bổ sung mô hình LLM.
-    \item Có thể mở rộng runtime config như browser type, headless mode, viewport, locale và timezone.
-    \item Có thể hỗ trợ thêm nhiều browser thông qua Playwright.
-    \item Có thể mở rộng thêm loại assertion hoặc state anchor.
-    \item Có thể mở rộng chức năng test suite, dataset run và object repository.
-    \item Có thể triển khai nhiều worker nếu nhu cầu chạy test tăng lên.
-\end{itemize}
+Các yêu cầu phi chức năng trên đóng vai trò định hướng cho thiết kế kiến trúc ở Chương~\ref{Chapter4}. Đặc biệt, việc tách frontend, backend, database và agent worker giúp hệ thống dễ kiểm soát tài nguyên, giới hạn phạm vi chạy test và mở rộng thành phần thực thi khi cần thiết.
 
 \section{Sơ đồ use case}
 
@@ -460,335 +209,74 @@ Nhóm use case sửa step, evidence, báo cáo và phân tích lỗi tập trung
 
 \section{Đặc tả use case chính}
 
-\subsection{UC01 -- Đăng ký tài khoản}
+Bảng~\ref{tab:main_use_cases} trình bày đặc tả rút gọn của các use case chính. Thay vì mô tả chi tiết từng bước cho tất cả use case, bảng tập trung vào tác nhân, mục tiêu và kết quả đầu ra để giữ chương ở mức phân tích yêu cầu, còn luồng xử lý chi tiết sẽ được trình bày ở Chương~\ref{Chapter4}.
 
-\textbf{Tác nhân chính}: User.
+{\small
+\begin{longtable}{|p{1.4cm}|p{3.6cm}|p{5.5cm}|p{3.8cm}|}
+\caption{Đặc tả rút gọn các use case chính}
+\label{tab:main_use_cases} \\
+\hline
+\textbf{Mã} & \textbf{Use case} & \textbf{Mục tiêu} & \textbf{Kết quả đầu ra} \\
+\hline
+\endfirsthead
 
-\textbf{Mục tiêu}: Cho phép người dùng tạo tài khoản để sử dụng hệ thống.
+\hline
+\textbf{Mã} & \textbf{Use case} & \textbf{Mục tiêu} & \textbf{Kết quả đầu ra} \\
+\hline
+\endhead
 
-\textbf{Tiền điều kiện}: Người dùng chưa đăng nhập vào hệ thống.
+UC01 & Đăng ký tài khoản & Cho phép người dùng tạo tài khoản bằng email, họ tên và mật khẩu. & Tài khoản mới được tạo nếu dữ liệu hợp lệ. \\
+\hline
 
-\textbf{Luồng chính}:
+UC02 & Đăng nhập hệ thống & Xác thực người dùng để truy cập dashboard và các chức năng kiểm thử. & Phiên đăng nhập hợp lệ được tạo. \\
+\hline
 
-\begin{enumerate}
-    \item Người dùng mở trang đăng ký.
-    \item Người dùng nhập email, họ tên, mật khẩu và xác nhận mật khẩu.
-    \item Hệ thống kiểm tra dữ liệu đầu vào.
-    \item Hệ thống tạo tài khoản nếu dữ liệu hợp lệ.
-    \item Hệ thống chuyển người dùng sang trang đăng nhập hoặc dashboard.
-\end{enumerate}
+UC03 & Quản lý project kiểm thử & Tạo và quản lý project kiểm thử gắn với base URL của website mục tiêu. & Project được lưu và có thể dùng để tạo test case, scan và chạy test. \\
+\hline
 
-\textbf{Luồng ngoại lệ}:
+UC04 & Scan/Crawl website & Ghi nhận các trang và luồng điều hướng có thể truy cập từ base URL. & Sitemap, interaction map và trạng thái scan được lưu. \\
+\hline
 
-\begin{itemize}
-    \item Email không hợp lệ hoặc đã tồn tại.
-    \item Mật khẩu và xác nhận mật khẩu không khớp.
-    \item Dữ liệu bắt buộc bị bỏ trống.
-\end{itemize}
+UC05 & Tạo test case từ prompt & Chuyển mô tả ngôn ngữ tự nhiên thành test case có title, goal và test plan. & Test case được sinh và lưu vào project. \\
+\hline
 
-\textbf{Hậu điều kiện}: Tài khoản người dùng được tạo trong hệ thống.
+UC06 & Sinh và quản lý test data & Tạo hoặc sinh dữ liệu kiểm thử để dùng trong test case và replay script. & Dataset được lưu và có thể gắn với test case. \\
+\hline
 
-\subsection{UC02 -- Đăng nhập hệ thống}
+UC07 & Chạy test case bằng agent & Thực thi test case bằng Browser-use agent và Playwright trên website mục tiêu. & Test run, log, screenshot, verdict và evidence được lưu. \\
+\hline
 
-\textbf{Tác nhân chính}: User.
+UC08 & Xem kết quả chạy test & Cho phép người dùng xem trạng thái, verdict, timeline, log và screenshot của test run. & Báo cáo chi tiết của test run được hiển thị. \\
+\hline
 
-\textbf{Mục tiêu}: Cho phép người dùng đăng nhập để truy cập các chức năng kiểm thử.
+UC09 & Sinh replay script & Tạo replay script từ lịch sử hành động sau khi agent chạy thành công. & Replay script dạng JSON được lưu cho lần chạy sau. \\
+\hline
 
-\textbf{Tiền điều kiện}: Người dùng đã có tài khoản hợp lệ.
+UC10 & Chạy replay script & Chạy lại kịch bản kiểm thử bằng Playwright mà không cần agent suy luận lại toàn bộ luồng. & Replay run được lưu với trạng thái pass, fail hoặc error. \\
+\hline
 
-\textbf{Luồng chính}:
+UC11 & Chạy test với nhiều bộ dữ liệu & Chạy một test case hoặc replay script với nhiều dòng dữ liệu khác nhau. & Kết quả được lưu riêng cho từng bộ dữ liệu. \\
+\hline
 
-\begin{enumerate}
-    \item Người dùng mở trang đăng nhập.
-    \item Người dùng nhập email và mật khẩu.
-    \item Hệ thống kiểm tra thông tin đăng nhập.
-    \item Nếu thông tin hợp lệ, hệ thống tạo phiên đăng nhập.
-    \item Hệ thống chuyển người dùng đến dashboard.
-\end{enumerate}
+UC12 & Quản lý test suite & Gom nhiều test case vào một suite và chạy theo lô. & Kết quả chạy suite được tổng hợp. \\
+\hline
 
-\textbf{Luồng ngoại lệ}:
+UC13 & Quản lý object repository & Lưu và tái sử dụng thông tin định vị phần tử giao diện. & Object, selector collection và attribute snapshot được lưu theo project. \\
+\hline
 
-\begin{itemize}
-    \item Email hoặc mật khẩu không đúng.
-    \item Tài khoản không tồn tại.
-    \item Người dùng bỏ trống trường bắt buộc.
-\end{itemize}
+UC14 & Sửa step bằng fast-forward inspect & Đưa trình duyệt đến trạng thái trước target step để hỗ trợ inspect và sửa step. & Step hoặc replay script được cập nhật sau khi người dùng xác nhận. \\
+\hline
 
-\textbf{Hậu điều kiện}: Người dùng đăng nhập thành công và có thể sử dụng hệ thống.
+UC15 & Xem báo cáo và phân tích lỗi & Hiển thị kết quả kiểm thử, evidence và gợi ý nguyên nhân thất bại. & Người dùng có cơ sở để sửa test case, sửa step hoặc chạy lại test. \\
+\hline
 
-\subsection{UC03 -- Quản lý project kiểm thử}
+\end{longtable}
+}
 
-\textbf{Tác nhân chính}: User.
-
-\textbf{Mục tiêu}: Cho phép người dùng tạo và quản lý project kiểm thử cho website mục tiêu.
-
-\textbf{Tiền điều kiện}: Người dùng đã đăng nhập.
-
-\textbf{Luồng chính}:
-
-\begin{enumerate}
-    \item Người dùng mở dashboard hoặc trang projects.
-    \item Người dùng chọn tạo project mới.
-    \item Người dùng nhập tên project, mô tả và base URL.
-    \item Người dùng cấu hình site authentication nếu website cần xác thực.
-    \item Hệ thống kiểm tra thông tin project.
-    \item Hệ thống lưu project vào database.
-    \item Hệ thống hiển thị project trong danh sách project.
-\end{enumerate}
-
-\textbf{Luồng ngoại lệ}:
-
-\begin{itemize}
-    \item Base URL không hợp lệ.
-    \item Tên project bị bỏ trống.
-    \item Hệ thống không lưu được project do lỗi server hoặc database.
-\end{itemize}
-
-\textbf{Hậu điều kiện}: Project kiểm thử được tạo và sẵn sàng cho các bước scan, tạo test case và chạy test.
-
-\subsection{UC04 -- Scan/Crawl website}
-
-\textbf{Tác nhân chính}: User.
-
-\textbf{Mục tiêu}: Ghi nhận các trang và luồng điều hướng có thể truy cập từ base URL.
-
-\textbf{Tiền điều kiện}: Project đã được tạo và có base URL hợp lệ.
-
-\textbf{Luồng chính}:
-
-\begin{enumerate}
-    \item Người dùng chọn project cần scan.
-    \item Người dùng khởi tạo quá trình scan/crawl.
-    \item Hệ thống bắt đầu từ root URL của project.
-    \item Hệ thống duyệt qua các trang có thể truy cập trong phạm vi cho phép.
-    \item Hệ thống ghi nhận sitemap và interaction map.
-    \item Hệ thống lưu kết quả scan và hiển thị trạng thái hoàn tất.
-\end{enumerate}
-
-\textbf{Luồng ngoại lệ}:
-
-\begin{itemize}
-    \item Website không truy cập được.
-    \item Scan bị timeout.
-    \item Website yêu cầu xác thực nhưng chưa cấu hình thông tin đăng nhập.
-\end{itemize}
-
-\textbf{Hậu điều kiện}: Hệ thống lưu kết quả scan/crawl để hỗ trợ các bước kiểm thử tiếp theo.
-
-\subsection{UC05 -- Tạo test case từ prompt}
-
-\textbf{Tác nhân chính}: User.
-
-\textbf{Mục tiêu}: Cho phép người dùng tạo test case bằng mô tả ngôn ngữ tự nhiên.
-
-\textbf{Tiền điều kiện}: Người dùng đã chọn project kiểm thử.
-
-\textbf{Luồng chính}:
-
-\begin{enumerate}
-    \item Người dùng mở trang test cases của project.
-    \item Người dùng nhập prompt hoặc goal mô tả mục tiêu kiểm thử.
-    \item Hệ thống gửi yêu cầu sinh test case.
-    \item AI phân tích prompt và tạo tiêu đề, mục tiêu, test plan.
-    \item Hệ thống hiển thị test case được sinh ra cho người dùng xem lại.
-    \item Người dùng lưu test case nếu nội dung phù hợp.
-\end{enumerate}
-
-\textbf{Luồng ngoại lệ}:
-
-\begin{itemize}
-    \item Prompt quá mơ hồ hoặc thiếu mục tiêu kiểm thử.
-    \item AI không sinh được test case phù hợp.
-    \item Người dùng hủy thao tác trước khi lưu.
-\end{itemize}
-
-\textbf{Hậu điều kiện}: Test case được lưu vào project ở trạng thái phù hợp, chẳng hạn draft hoặc ready.
-
-\subsection{UC07 -- Chạy test case bằng agent}
-
-\textbf{Tác nhân chính}: User.
-
-\textbf{Mục tiêu}: Thực thi test case trên trình duyệt bằng Browser-use agent.
-
-\textbf{Tiền điều kiện}: Test case đã được tạo và project có base URL hợp lệ.
-
-\textbf{Luồng chính}:
-
-\begin{enumerate}
-    \item Người dùng chọn test case cần chạy.
-    \item Người dùng chọn chế độ chạy bằng agent.
-    \item Backend tạo test run và gửi yêu cầu sang Python worker.
-    \item Worker khởi tạo trình duyệt và Browser-use agent.
-    \item Agent đọc mục tiêu kiểm thử, quan sát giao diện và thực hiện hành động.
-    \item Worker ghi nhận log, screenshot và action history sau các bước chạy.
-    \item Worker callback kết quả về backend.
-    \item Backend lưu kết quả và hiển thị báo cáo cho người dùng.
-    \item Nếu chạy thành công, hệ thống sinh replay script từ lịch sử hành động.
-\end{enumerate}
-
-\textbf{Luồng ngoại lệ}:
-
-\begin{itemize}
-    \item Website không tải được.
-    \item Agent không xác định được hành động tiếp theo.
-    \item LLM lỗi hoặc phản hồi không hợp lệ.
-    \item Trình duyệt timeout hoặc worker gặp lỗi.
-\end{itemize}
-
-\textbf{Hậu điều kiện}: Test run được lưu lại cùng log, screenshot, verdict và evidence. Nếu thành công, replay script được sinh tự động.
-
-\subsection{UC10 -- Chạy replay script}
-
-\textbf{Tác nhân chính}: User.
-
-\textbf{Mục tiêu}: Chạy lại test case bằng replay script đã được sinh từ phiên agent thành công.
-
-\textbf{Tiền điều kiện}: Test case đã có replay script hợp lệ.
-
-\textbf{Luồng chính}:
-
-\begin{enumerate}
-    \item Người dùng mở test case đã có recorded script.
-    \item Người dùng chọn replay test.
-    \item Hệ thống đọc replay script JSON và params nếu có.
-    \item Worker sử dụng Playwright để thực thi từng bước trong script.
-    \item Hệ thống thực hiện các bước như navigate, fill, click và assertion.
-    \item Nếu có dataset, hệ thống thay thế params bằng dữ liệu tương ứng.
-    \item Hệ thống ghi nhận kết quả, log, screenshot và evidence.
-    \item Hệ thống hiển thị kết quả replay cho người dùng.
-\end{enumerate}
-
-\textbf{Luồng ngoại lệ}:
-
-\begin{itemize}
-    \item Replay script không hợp lệ.
-    \item Locator chính không tìm được phần tử.
-    \item Locator dự phòng cũng thất bại.
-    \item Assertion không đạt.
-    \item Website thay đổi luồng nghiệp vụ khiến script không còn phù hợp.
-\end{itemize}
-
-\textbf{Hậu điều kiện}: Replay run được lưu lại với trạng thái pass, fail hoặc error.
-
-\subsection{UC12 -- Quản lý test suite}
-
-\textbf{Tác nhân chính}: User.
-
-\textbf{Mục tiêu}: Gom nhóm nhiều test case thành suite và chạy theo lô.
-
-\textbf{Tiền điều kiện}: Project đã có một hoặc nhiều test case.
-
-\textbf{Luồng chính}:
-
-\begin{enumerate}
-    \item Người dùng mở trang test suites của project.
-    \item Người dùng tạo test suite mới.
-    \item Người dùng thêm các test case vào suite.
-    \item Người dùng sắp xếp thứ tự chạy nếu cần.
-    \item Người dùng chạy test suite.
-    \item Hệ thống lần lượt thực thi các test case trong suite.
-    \item Hệ thống tổng hợp kết quả chạy suite.
-\end{enumerate}
-
-\textbf{Luồng ngoại lệ}:
-
-\begin{itemize}
-    \item Suite không có test case.
-    \item Một test case trong suite chưa sẵn sàng để chạy.
-    \item Một test case thất bại hoặc lỗi trong quá trình chạy.
-\end{itemize}
-
-\textbf{Hậu điều kiện}: Kết quả chạy test suite được lưu và hiển thị cho người dùng.
-
-\subsection{UC13 -- Quản lý object repository}
-
-\textbf{Tác nhân chính}: User.
-
-\textbf{Mục tiêu}: Lưu và tái sử dụng thông tin định vị phần tử giao diện.
-
-\textbf{Tiền điều kiện}: Project đã có test case hoặc replay script phát sinh object.
-
-\textbf{Luồng chính}:
-
-\begin{enumerate}
-    \item Hệ thống trích xuất object từ lịch sử agent hoặc replay script.
-    \item Hệ thống lưu tên object, page key, selector list và attribute snapshot.
-    \item Người dùng mở trang object repository.
-    \item Người dùng xem danh sách object trong project.
-    \item Người dùng kiểm tra hoặc cập nhật thông tin object nếu cần.
-    \item Replay script sử dụng object để tìm lại phần tử khi chạy.
-\end{enumerate}
-
-\textbf{Luồng ngoại lệ}:
-
-\begin{itemize}
-    \item Object thiếu selector hợp lệ.
-    \item Selector đã cũ do giao diện thay đổi.
-    \item Nhiều phần tử cùng khớp với một selector.
-\end{itemize}
-
-\textbf{Hậu điều kiện}: Object được lưu trong repository và có thể được sử dụng cho replay hoặc self-healing.
-
-\subsection{UC14 -- Sửa step bằng fast-forward inspect}
-
-\textbf{Tác nhân chính}: User.
-
-\textbf{Mục tiêu}: Hỗ trợ người dùng sửa một step bị lỗi hoặc chưa phù hợp trong replay script.
-
-\textbf{Tiền điều kiện}: Test case đã có replay script và có step cần kiểm tra hoặc chỉnh sửa.
-
-\textbf{Luồng chính}:
-
-\begin{enumerate}
-    \item Người dùng chọn step cần sửa trong recorded script.
-    \item Hệ thống chạy nhanh các bước trước target step.
-    \item Hệ thống đưa trình duyệt đến trạng thái ngay trước step cần sửa.
-    \item Hệ thống chụp screenshot và lấy các phần tử tương tác trên trang.
-    \item Người dùng nhập thêm thông tin hướng dẫn sửa step.
-    \item Hệ thống hoặc AI đề xuất cập nhật step.
-    \item Người dùng xác nhận và lưu thay đổi.
-\end{enumerate}
-
-\textbf{Luồng ngoại lệ}:
-
-\begin{itemize}
-    \item Một bước trước target step bị lỗi nên không thể fast-forward.
-    \item Không lấy được screenshot hoặc DOM tương tác.
-    \item AI đề xuất sửa không phù hợp và người dùng cần chỉnh thủ công.
-\end{itemize}
-
-\textbf{Hậu điều kiện}: Step được cập nhật và replay script có thể được chạy lại.
-
-\subsection{UC15 -- Xem báo cáo và phân tích lỗi}
-
-\textbf{Tác nhân chính}: User.
-
-\textbf{Mục tiêu}: Cho phép người dùng xem kết quả kiểm thử và phân tích nguyên nhân thất bại.
-
-\textbf{Tiền điều kiện}: Đã có ít nhất một test run.
-
-\textbf{Luồng chính}:
-
-\begin{enumerate}
-    \item Người dùng mở test run hoặc báo cáo của test case.
-    \item Hệ thống hiển thị trạng thái, verdict, thời gian chạy và các bước đã thực hiện.
-    \item Hệ thống hiển thị screenshot, log và evidence liên quan.
-    \item Nếu test thất bại, hệ thống hiển thị error message và phân tích lỗi.
-    \item Người dùng xem nguyên nhân gợi ý và quyết định chạy lại, sửa step hoặc cập nhật test case.
-\end{enumerate}
-
-\textbf{Luồng ngoại lệ}:
-
-\begin{itemize}
-    \item Evidence bị thiếu do lỗi lưu trữ.
-    \item Phân tích lỗi không đủ thông tin để đưa ra kết luận rõ ràng.
-    \item Người dùng cần xem log kỹ thuật để xác minh thêm.
-\end{itemize}
-
-\textbf{Hậu điều kiện}: Người dùng hiểu kết quả test run và có cơ sở để sửa lỗi hoặc chạy lại test.
+Các use case trên bao phủ toàn bộ vòng đời kiểm thử mà hệ thống hướng đến: từ khởi tạo tài khoản và project, tạo test case, chạy test bằng agent, sinh replay script, chạy lại với dữ liệu kiểm thử, đến phân tích kết quả và hỗ trợ sửa lỗi.
 
 \section{Kết chương}
 
-Chương này đã trình bày phân tích yêu cầu của hệ thống kiểm thử tự động ứng dụng Web. Nội dung chương bao gồm tổng quan hệ thống, nhóm người dùng, yêu cầu chức năng, yêu cầu phi chức năng, sơ đồ use case và đặc tả các use case chính. Qua đó, chương làm rõ phạm vi chức năng mà hệ thống cần đáp ứng, từ đăng ký và đăng nhập, quản lý project, scan/crawl website, tạo test case từ prompt, chạy test bằng agent, sinh replay script, chạy với dataset, quản lý object repository, đến phân tích lỗi và báo cáo kết quả.
+Chương này đã trình bày phân tích yêu cầu của hệ thống kiểm thử tự động ứng dụng Web. Nội dung chương bao gồm tổng quan hệ thống, nhóm người dùng, yêu cầu chức năng, yêu cầu phi chức năng, sơ đồ use case và đặc tả rút gọn các use case chính. Qua đó, chương làm rõ phạm vi chức năng mà hệ thống cần đáp ứng, từ đăng ký và đăng nhập, quản lý project, scan/crawl website, tạo test case từ prompt, chạy test bằng agent, sinh replay script, chạy với dataset, quản lý object repository, đến phân tích lỗi và báo cáo kết quả.
 
-Các yêu cầu được phân tích trong chương này là cơ sở cho việc thiết kế kiến trúc và giải pháp kỹ thuật ở các chương tiếp theo. Đặc biệt, hệ thống được định hướng không chỉ là công cụ chạy script kiểm thử, mà là một nền tảng hỗ trợ toàn bộ quy trình kiểm thử tự động ứng dụng Web, kết hợp giữa giao diện quản lý, backend lưu trữ, agent worker, Browser-use, Playwright và mô hình ngôn ngữ lớn.
+Các yêu cầu được phân tích trong chương này là cơ sở cho việc thiết kế kiến trúc và giải pháp kỹ thuật ở Chương~\ref{Chapter4}. Đặc biệt, hệ thống được định hướng không chỉ là công cụ chạy script kiểm thử, mà là một nền tảng hỗ trợ toàn bộ quy trình kiểm thử tự động ứng dụng Web, kết hợp giữa giao diện quản lý, backend lưu trữ, agent worker, Browser-use, Playwright và mô hình ngôn ngữ lớn.

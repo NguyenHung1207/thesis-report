@@ -1,155 +1,88 @@
 \chapter{Nền tảng kỹ thuật và các giải pháp liên quan}
 \label{Chapter2}
 
-\section{Tổng quan về kiểm thử phần mềm}
+\section{Kiểm thử Web và kiểm thử tự động}
 
-\subsection{Khái niệm kiểm thử phần mềm}
+Kiểm thử phần mềm là hoạt động được thực hiện nhằm đánh giá chất lượng của hệ thống, phát hiện lỗi và kiểm tra mức độ đáp ứng của phần mềm so với các yêu cầu đã đặt ra. Theo ISTQB, kiểm thử không chỉ bao gồm việc chạy chương trình để tìm lỗi, mà còn liên quan đến phân tích yêu cầu, thiết kế ca kiểm thử, chuẩn bị dữ liệu, thực thi kiểm thử, ghi nhận kết quả và đánh giá kết quả thu được~\cite{istqb_glossary}.
 
-Kiểm thử phần mềm là một hoạt động quan trọng trong quy trình phát triển phần mềm, được thực hiện nhằm đánh giá chất lượng của hệ thống, phát hiện lỗi và kiểm tra mức độ đáp ứng của phần mềm so với các yêu cầu đã đặt ra. Kiểm thử không chỉ đơn thuần là việc chạy chương trình để tìm lỗi, mà còn bao gồm nhiều hoạt động liên quan như phân tích yêu cầu, thiết kế ca kiểm thử, chuẩn bị dữ liệu kiểm thử, thực thi kiểm thử, ghi nhận kết quả và đánh giá kết quả thu được \cite{istqb_glossary}.
+Trong quá trình phát triển phần mềm, lỗi có thể xuất hiện ở nhiều giai đoạn khác nhau, từ phân tích yêu cầu, thiết kế hệ thống, lập trình đến triển khai. Nếu lỗi được phát hiện càng muộn thì chi phí sửa lỗi và mức độ ảnh hưởng đến hệ thống thường càng lớn. Vì vậy, kiểm thử phần mềm đóng vai trò như một cơ chế kiểm soát chất lượng, giúp nhóm phát triển phát hiện vấn đề sớm hơn, giảm rủi ro khi triển khai và nâng cao độ tin cậy của sản phẩm.
 
-Trong quá trình phát triển phần mềm, lỗi có thể xuất hiện ở nhiều giai đoạn khác nhau, từ phân tích yêu cầu, thiết kế hệ thống, lập trình cho đến triển khai. Nếu lỗi được phát hiện càng muộn thì chi phí sửa lỗi và mức độ ảnh hưởng đến hệ thống thường càng lớn. Vì vậy, kiểm thử phần mềm đóng vai trò như một cơ chế kiểm soát chất lượng, giúp nhóm phát triển phát hiện vấn đề sớm hơn, giảm rủi ro khi triển khai và nâng cao độ tin cậy của sản phẩm.
+Đối với ứng dụng web, kiểm thử thường tập trung vào các chức năng mà người dùng trực tiếp tương tác, chẳng hạn như đăng nhập, đăng ký, nhập dữ liệu, tìm kiếm, điều hướng, gửi biểu mẫu, xử lý dữ liệu và hiển thị kết quả. Do ứng dụng web thường có sự kết hợp giữa giao diện người dùng, xử lý phía máy chủ, cơ sở dữ liệu và các dịch vụ liên quan, quá trình kiểm thử cần xem xét cả hành vi bên ngoài của hệ thống lẫn sự phối hợp giữa các thành phần bên trong.
 
-Về mặt mục tiêu, kiểm thử phần mềm thường gắn với hai hoạt động là xác minh và thẩm định. Xác minh tập trung vào việc kiểm tra phần mềm có được xây dựng đúng theo thiết kế và đặc tả hay không. Trong khi đó, thẩm định tập trung vào việc đánh giá phần mềm có đáp ứng đúng nhu cầu sử dụng thực tế của người dùng hay không. Hai hoạt động này bổ sung cho nhau, giúp đảm bảo phần mềm vừa đúng về mặt kỹ thuật, vừa phù hợp với mục tiêu sử dụng.
-
-Đối với ứng dụng web, kiểm thử thường tập trung vào việc đánh giá các chức năng mà người dùng trực tiếp tương tác, chẳng hạn như đăng nhập, đăng ký, nhập dữ liệu, tìm kiếm, điều hướng, gửi biểu mẫu, xử lý dữ liệu và hiển thị kết quả. Do ứng dụng web thường có sự kết hợp giữa giao diện người dùng, xử lý phía máy chủ, cơ sở dữ liệu và các dịch vụ liên quan, quá trình kiểm thử cần xem xét cả hành vi bên ngoài của hệ thống lẫn sự phối hợp giữa các thành phần bên trong.
-
-Trong phạm vi khóa luận này, kiểm thử phần mềm là cơ sở lý thuyết quan trọng để xây dựng hệ thống kiểm thử tự động ứng dụng Web. Hệ thống hướng đến việc hỗ trợ người dùng mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, sau đó hỗ trợ sinh test case, chuyển đổi thành test script và thực thi kiểm thử trên trình duyệt. Vì vậy, việc trình bày các khái niệm nền tảng về kiểm thử phần mềm là cần thiết để làm rõ phạm vi, mục tiêu và cơ sở đánh giá của hệ thống được xây dựng.
-
-\subsection{Các mức kiểm thử}
-
-Trong một quy trình phát triển phần mềm, kiểm thử có thể được tổ chức theo nhiều mức khác nhau tùy theo phạm vi và đối tượng được kiểm tra. Các mức kiểm thử phổ biến bao gồm Unit Test, Integration Test, System Test và Acceptance Test. Mỗi mức kiểm thử có mục tiêu riêng, được áp dụng ở những giai đoạn khác nhau và giúp phát hiện các loại lỗi khác nhau trong hệ thống.
-
-\subsubsection{Unit Test}
-
-Unit Test là mức kiểm thử tập trung vào các đơn vị nhỏ nhất của phần mềm, chẳng hạn như hàm, phương thức, lớp hoặc module độc lập. Mục tiêu của Unit Test là kiểm tra xem từng đơn vị riêng lẻ có hoạt động đúng theo logic đã thiết kế hay không. Loại kiểm thử này thường được thực hiện bởi lập trình viên trong quá trình phát triển nhằm phát hiện lỗi ở mức mã nguồn trước khi các thành phần được tích hợp với nhau.
-
-Ví dụ, trong một hệ thống web, một hàm kiểm tra định dạng email, một hàm tính tổng giá trị đơn hàng hoặc một phương thức xác thực mật khẩu có thể được kiểm thử bằng Unit Test. Các ca kiểm thử ở mức này thường có phạm vi nhỏ, tốc độ thực thi nhanh và dễ tự động hóa. Khi được tổ chức tốt, Unit Test giúp lập trình viên phát hiện lỗi sớm và tự tin hơn khi thay đổi hoặc mở rộng mã nguồn.
-
-Tuy nhiên, Unit Test chỉ kiểm tra từng thành phần riêng lẻ nên chưa đủ để kết luận toàn bộ hệ thống hoạt động đúng. Một thành phần có thể vượt qua Unit Test nhưng vẫn phát sinh lỗi khi kết nối với các thành phần khác. Trong khóa luận này, hệ thống không tập trung vào Unit Test ở mức mã nguồn, mà tập trung nhiều hơn vào kiểm thử chức năng của ứng dụng web thông qua giao diện người dùng. Dù vậy, Unit Test vẫn là một mức kiểm thử nền tảng cần được trình bày để làm rõ vị trí của kiểm thử giao diện trong tổng thể quy trình kiểm thử phần mềm.
-
-\subsubsection{Integration Test}
-
-Integration Test là mức kiểm thử được thực hiện sau khi các đơn vị riêng lẻ đã được kiểm tra. Mục tiêu của Integration Test là đánh giá sự phối hợp giữa các module, thành phần hoặc dịch vụ trong hệ thống. Các lỗi ở mức tích hợp thường không xuất hiện khi kiểm thử từng module độc lập, mà chỉ phát sinh khi các thành phần trao đổi dữ liệu hoặc gọi lẫn nhau.
-
-Ví dụ, trong một ứng dụng web, chức năng đăng nhập có thể liên quan đến giao diện người dùng, API xác thực, cơ sở dữ liệu người dùng và cơ chế lưu phiên đăng nhập. Mỗi thành phần có thể hoạt động đúng khi được kiểm thử riêng lẻ, nhưng lỗi vẫn có thể xảy ra khi chúng được kết nối với nhau, chẳng hạn như sai định dạng dữ liệu gửi lên API, lỗi ánh xạ dữ liệu, lỗi xử lý trạng thái đăng nhập hoặc lỗi truyền thông tin giữa phía giao diện và phía máy chủ.
-
-Integration Test giúp phát hiện các lỗi liên quan đến giao tiếp giữa các thành phần, luồng dữ liệu và sự phụ thuộc giữa các module. Đối với hệ thống kiểm thử tự động ứng dụng web, một số kịch bản kiểm thử thông qua giao diện người dùng cũng có thể gián tiếp kiểm tra mức tích hợp, vì thao tác trên trình duyệt thường kích hoạt nhiều thành phần phía sau như giao diện, API, máy chủ và cơ sở dữ liệu.
-
-\subsubsection{System Test}
-
-System Test là mức kiểm thử được thực hiện trên toàn bộ hệ thống sau khi các thành phần đã được tích hợp. Mục tiêu của System Test là đánh giá hệ thống hoàn chỉnh trong môi trường gần với môi trường sử dụng thực tế. Ở mức này, kiểm thử viên thường kiểm tra các chức năng chính, luồng nghiệp vụ, giao diện, xử lý lỗi và một số yêu cầu phi chức năng tùy theo phạm vi của dự án.
-
-Đối với ứng dụng web, System Test có thể bao gồm các kịch bản như người dùng đăng ký tài khoản, đăng nhập, cập nhật thông tin, tìm kiếm dữ liệu, tạo đơn hàng, gửi biểu mẫu hoặc xem báo cáo. Các kịch bản này thường mô phỏng hành vi của người dùng cuối trên hệ thống hoàn chỉnh, thay vì chỉ kiểm tra từng thành phần riêng lẻ.
-
-Khóa luận này có liên quan trực tiếp đến System Test ở mức giao diện người dùng, vì hệ thống được xây dựng nhằm hỗ trợ tự động hóa các luồng kiểm thử trên trình duyệt. Khi người dùng mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, hệ thống sẽ hỗ trợ sinh test case, chuyển đổi thành test script và thực thi trên website mục tiêu. Vì vậy, các kịch bản kiểm thử được hướng đến chủ yếu là các luồng chức năng có thể quan sát và thao tác thông qua giao diện web.
-
-\subsubsection{Acceptance Test}
-
-Acceptance Test là mức kiểm thử nhằm xác định liệu hệ thống có đáp ứng yêu cầu nghiệp vụ và tiêu chí chấp nhận của người dùng hoặc khách hàng hay không. Đây là mức kiểm thử gần với góc nhìn của người dùng cuối, trong đó trọng tâm không nằm ở cấu trúc kỹ thuật bên trong mà ở việc phần mềm có hỗ trợ đúng quy trình nghiệp vụ và đáp ứng mong đợi sử dụng thực tế hay không.
-
-Ví dụ, đối với một hệ thống thương mại điện tử, Acceptance Test có thể kiểm tra xem người dùng có thể tìm kiếm sản phẩm, thêm sản phẩm vào giỏ hàng, nhập thông tin giao hàng và hoàn tất đơn hàng hay không. Đối với một hệ thống quản trị nội bộ, Acceptance Test có thể kiểm tra các luồng nghiệp vụ như tạo hồ sơ, phê duyệt yêu cầu, cập nhật trạng thái hoặc xuất báo cáo.
-
-Trong bối cảnh đề tài, việc cho phép người dùng mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên có thể hỗ trợ tốt cho các kịch bản gần với Acceptance Test. Người dùng không nhất thiết phải viết script kiểm thử chi tiết, mà có thể mô tả hành vi mong muốn của hệ thống ở mức nghiệp vụ. Từ đó, hệ thống hỗ trợ chuyển đổi mô tả này thành ca kiểm thử có thể thực thi được trên trình duyệt.
+Trong các mức kiểm thử phổ biến, khóa luận này liên quan nhiều nhất đến kiểm thử hệ thống và kiểm thử chấp nhận ở mức giao diện người dùng. Các mức kiểm thử như unit test và integration test chủ yếu kiểm tra logic mã nguồn hoặc sự phối hợp giữa các module, trong khi hệ thống của khóa luận tập trung vào việc tự động hóa các luồng thao tác có thể quan sát và thực hiện trên trình duyệt. Vì vậy, các kịch bản như đăng nhập, nhập dữ liệu, tìm kiếm, tạo mới, cập nhật hoặc kiểm tra nội dung hiển thị là nhóm kịch bản phù hợp với phạm vi của đề tài.
 
 \subsection{Kiểm thử chức năng}
 
-Kiểm thử chức năng là loại kiểm thử tập trung vào việc xác định hệ thống có thực hiện đúng các chức năng đã được đặc tả hay không. Trong kiểm thử chức năng, người kiểm thử quan tâm đến dữ liệu đầu vào, hành vi xử lý và kết quả đầu ra của hệ thống. Cách tiếp cận này thường gần với kiểm thử hộp đen, vì người kiểm thử không nhất thiết cần biết chi tiết mã nguồn bên trong, mà chủ yếu đánh giá hệ thống thông qua hành vi quan sát được từ bên ngoài.
+Kiểm thử chức năng là loại kiểm thử tập trung vào việc xác định hệ thống có thực hiện đúng các chức năng đã được đặc tả hay không. Người kiểm thử quan tâm đến dữ liệu đầu vào, hành vi xử lý và kết quả đầu ra của hệ thống. Cách tiếp cận này thường gần với kiểm thử hộp đen, vì người kiểm thử không nhất thiết cần biết chi tiết mã nguồn bên trong, mà chủ yếu đánh giá hệ thống thông qua hành vi quan sát được từ bên ngoài.
 
 Đối với ứng dụng web, kiểm thử chức năng thường bao gồm các kịch bản như kiểm tra đăng nhập, đăng ký, nhập dữ liệu vào biểu mẫu, kiểm tra ràng buộc dữ liệu, tìm kiếm, lọc kết quả, điều hướng giữa các trang, tạo mới dữ liệu, cập nhật dữ liệu, xóa dữ liệu và kiểm tra thông báo lỗi. Mỗi chức năng thường được biểu diễn bằng một hoặc nhiều test case, trong đó mô tả các bước thực hiện, dữ liệu đầu vào, điều kiện tiền đề và kết quả mong đợi.
 
-Kiểm thử chức năng có vai trò quan trọng đối với các hệ thống web vì giao diện người dùng là nơi người dùng trực tiếp tương tác với hệ thống. Một lỗi ở giao diện, chẳng hạn như nút bấm không hoạt động, trường nhập liệu không kiểm tra đúng định dạng hoặc thông báo lỗi không rõ ràng, có thể ảnh hưởng trực tiếp đến trải nghiệm người dùng và chất lượng sản phẩm.
-
-Trong phạm vi khóa luận, kiểm thử chức năng là trọng tâm chính. Hệ thống hướng đến việc hỗ trợ người dùng mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, sau đó sinh test case và thực thi các thao tác kiểm thử trên trình duyệt. Do đó, các chức năng như phân tích giao diện, xác định đối tượng tương tác, sinh dữ liệu kiểm thử, chạy test và phân tích kết quả đều phục vụ cho mục tiêu kiểm thử chức năng của ứng dụng web.
+Trong phạm vi khóa luận, kiểm thử chức năng là trọng tâm chính. Hệ thống hướng đến việc hỗ trợ người dùng mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, sau đó sinh test case và thực thi các thao tác kiểm thử trên trình duyệt. Do đó, các chức năng như phân tích giao diện, xác định đối tượng tương tác, chạy test và phân tích kết quả đều phục vụ cho mục tiêu kiểm thử chức năng của ứng dụng web.
 
 \subsection{Kiểm thử hồi quy}
 
 Kiểm thử hồi quy là hoạt động kiểm tra lại các chức năng đã tồn tại của hệ thống sau khi phần mềm có thay đổi. Những thay đổi này có thể đến từ việc sửa lỗi, bổ sung chức năng mới, thay đổi giao diện, cập nhật thư viện, tối ưu mã nguồn hoặc điều chỉnh cấu trúc dữ liệu. Mục tiêu của kiểm thử hồi quy là đảm bảo rằng các chức năng từng hoạt động đúng trước đó không bị sai lệch do những thay đổi mới.
 
-Đối với ứng dụng web, kiểm thử hồi quy có vai trò đặc biệt quan trọng vì giao diện và luồng nghiệp vụ thường xuyên được cập nhật. Một thay đổi nhỏ ở phía giao diện, chẳng hạn như đổi nhãn nút, thay đổi cấu trúc DOM, thay đổi vị trí phần tử hoặc thêm bước xác nhận mới, có thể làm ảnh hưởng đến các luồng thao tác quen thuộc của người dùng. Nếu không có cơ chế kiểm thử hồi quy phù hợp, nhóm phát triển có thể khó phát hiện những lỗi phát sinh trong các chức năng cũ.
-
-Kiểm thử hồi quy thường phù hợp với tự động hóa vì các kịch bản cần được chạy lại nhiều lần sau mỗi lần cập nhật hệ thống. Tuy nhiên, việc tự động hóa kiểm thử hồi quy cho ứng dụng web cũng gặp thách thức do kịch bản kiểm thử dễ phụ thuộc vào selector, dữ liệu kiểm thử và trạng thái giao diện tại từng thời điểm. Đây là một trong những lý do đề tài hướng đến việc xây dựng hệ thống kiểm thử có khả năng biểu diễn mục tiêu kiểm thử ở mức ngôn ngữ tự nhiên và hỗ trợ phát lại kịch bản theo cách có thể kiểm chứng được.
+Kiểm thử hồi quy thường phù hợp với tự động hóa vì các kịch bản cần được chạy lại nhiều lần sau mỗi lần cập nhật hệ thống. Tuy nhiên, tự động hóa kiểm thử hồi quy cho ứng dụng web cũng gặp thách thức do kịch bản kiểm thử dễ phụ thuộc vào selector, dữ liệu kiểm thử và trạng thái giao diện tại từng thời điểm. Đây là một trong những lý do đề tài hướng đến việc xây dựng hệ thống kiểm thử có khả năng biểu diễn mục tiêu kiểm thử ở mức ngôn ngữ tự nhiên và hỗ trợ phát lại kịch bản theo cách có thể kiểm chứng được.
 
 \subsection{Kiểm thử tự động}
 
-Kiểm thử tự động là việc sử dụng công cụ, script hoặc hệ thống phần mềm để thực hiện các hoạt động kiểm thử thay cho thao tác thủ công. Một quy trình kiểm thử tự động thường bao gồm việc định nghĩa test case, chuẩn bị dữ liệu đầu vào, viết hoặc sinh test script, thực thi test script, ghi nhận kết quả và tạo báo cáo kiểm thử. So với kiểm thử thủ công, kiểm thử tự động có ưu điểm là có thể lặp lại nhiều lần, giảm công sức thao tác, tăng tính nhất quán và phù hợp với các kịch bản kiểm thử hồi quy.
+Kiểm thử tự động là việc sử dụng công cụ, script hoặc hệ thống phần mềm để thực hiện các hoạt động kiểm thử thay cho thao tác thủ công. Một quy trình kiểm thử tự động thường bao gồm việc định nghĩa test case, chuẩn bị dữ liệu đầu vào, viết hoặc sinh test script, thực thi test script, ghi nhận kết quả và tạo báo cáo kiểm thử.
 
-Trong phát triển phần mềm, kiểm thử tự động thường được sử dụng để kiểm tra lại các chức năng cũ sau mỗi lần hệ thống được cập nhật. Điều này giúp nhóm phát triển phát hiện sớm lỗi phát sinh do thay đổi mã nguồn hoặc thay đổi giao diện. Đối với ứng dụng web, kiểm thử tự động thường được thực hiện bằng các framework có khả năng điều khiển trình duyệt, tìm kiếm phần tử trên trang và mô phỏng hành vi người dùng như nhấp chuột, nhập dữ liệu, chọn giá trị hoặc kiểm tra nội dung hiển thị.
+So với kiểm thử thủ công, kiểm thử tự động có ưu điểm là có thể lặp lại nhiều lần, giảm công sức thao tác, tăng tính nhất quán và phù hợp với các kịch bản kiểm thử hồi quy. Đối với ứng dụng web, kiểm thử tự động thường được thực hiện bằng các framework có khả năng điều khiển trình duyệt, tìm kiếm phần tử trên trang và mô phỏng hành vi người dùng như nhấp chuột, nhập dữ liệu, chọn giá trị hoặc kiểm tra nội dung hiển thị.
 
 Tuy nhiên, kiểm thử tự động cũng tồn tại một số thách thức. Việc viết test script đòi hỏi kiến thức kỹ thuật, hiểu biết về cấu trúc DOM, selector, luồng xử lý bất đồng bộ và cách tổ chức dữ liệu kiểm thử. Ngoài ra, test script có thể bị lỗi khi giao diện thay đổi, khi selector không còn phù hợp hoặc khi môi trường kiểm thử không ổn định. Những vấn đề này làm tăng chi phí bảo trì và là một trong những nguyên nhân khiến kiểm thử tự động khó tiếp cận đối với người dùng không chuyên.
 
-Đề tài khóa luận hướng đến việc giảm bớt các rào cản trên bằng cách xây dựng một nền tảng hỗ trợ kiểm thử tự động ứng dụng Web. Thay vì yêu cầu người dùng trực tiếp viết script kiểm thử, hệ thống cho phép người dùng mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên. Sau đó, hệ thống hỗ trợ sinh test case, chuyển đổi thành test script, thực thi trên trình duyệt, lưu screenshot, log, timeline và tổng hợp báo cáo. Cách tiếp cận này giúp quy trình kiểm thử tự động trở nên dễ tiếp cận hơn và phù hợp hơn với các nhóm phát triển có nhu cầu kiểm thử chức năng trên môi trường web.
-
-\section{Các công cụ kiểm thử Web có sẵn}
+\section{Các công cụ kiểm thử Web phổ biến}
 
 Các công cụ kiểm thử Web là các công cụ hoặc thư viện hỗ trợ lập trình viên và kiểm thử viên tự động hóa quá trình kiểm thử ứng dụng web. Những công cụ này thường cung cấp khả năng điều khiển trình duyệt, định vị phần tử trên trang, mô phỏng hành vi người dùng, kiểm tra trạng thái giao diện và ghi nhận kết quả kiểm thử. Trong phạm vi đề tài, Selenium, Playwright, Cypress và Katalon là những công cụ tiêu biểu cần được khảo sát vì chúng đại diện cho các hướng tiếp cận phổ biến trong kiểm thử tự động ứng dụng web.
 
 \subsection{Selenium}
 
-Selenium là một trong những framework kiểm thử web tự động được sử dụng rộng rãi trong nhiều dự án phần mềm. Thành phần quan trọng nhất của Selenium là Selenium WebDriver, cho phép điều khiển trình duyệt thông qua các API lập trình. Theo tài liệu chính thức, WebDriver có khả năng điều khiển trình duyệt tương tự cách người dùng tương tác với trình duyệt, có thể chạy trên máy cục bộ hoặc máy từ xa thông qua Selenium Server, đồng thời được xem là một khuyến nghị của W3C \cite{selenium_webdriver}.
+Selenium là một trong những framework kiểm thử web tự động được sử dụng rộng rãi trong nhiều dự án phần mềm. Thành phần quan trọng nhất của Selenium là Selenium WebDriver, cho phép điều khiển trình duyệt thông qua các API lập trình. Theo tài liệu chính thức, WebDriver có khả năng điều khiển trình duyệt tương tự cách người dùng tương tác với trình duyệt, có thể chạy trên máy cục bộ hoặc máy từ xa thông qua Selenium Server, đồng thời được xem là một khuyến nghị của W3C~\cite{selenium_webdriver}.
 
-Selenium hỗ trợ nhiều trình duyệt như Chrome, Firefox, Edge và Safari, đồng thời hỗ trợ nhiều ngôn ngữ lập trình như Java, Python, JavaScript, C\# và Ruby. Nhờ hệ sinh thái rộng và thời gian phát triển lâu dài, Selenium được sử dụng trong nhiều tổ chức và dự án có nhu cầu kiểm thử trên nhiều trình duyệt, nhiều nền tảng và nhiều môi trường khác nhau.
-
-Trong Selenium, thao tác kiểm thử thường được xây dựng bằng cách tìm kiếm phần tử trên trang thông qua các locator như \textit{id}, \textit{name}, \textit{class name}, CSS selector hoặc XPath. Sau khi tìm được phần tử, test script có thể thực hiện các hành động như nhấp chuột, nhập văn bản, chọn giá trị hoặc kiểm tra nội dung hiển thị. Selenium cũng hỗ trợ các cơ chế chờ như implicit wait và explicit wait để xử lý trường hợp phần tử chưa xuất hiện hoặc trang chưa tải xong.
-
-Ưu điểm của Selenium là cộng đồng sử dụng lớn, tài liệu phong phú, khả năng tích hợp với nhiều hệ thống kiểm thử và CI/CD, cùng khả năng hỗ trợ nhiều trình duyệt. Tuy nhiên, Selenium cũng có một số hạn chế. Test script thường cần được viết khá chi tiết, người dùng phải hiểu rõ locator và cấu trúc DOM. Ngoài ra, việc xử lý các ứng dụng web có nhiều tương tác bất đồng bộ có thể làm test script trở nên phức tạp nếu không thiết kế cơ chế chờ phù hợp.
-
-Đối với đề tài này, Selenium là một framework quan trọng để tham khảo khi phân tích các công cụ kiểm thử web truyền thống. Mặc dù hệ thống của khóa luận không nhất thiết sử dụng Selenium làm lớp thực thi chính, việc tìm hiểu Selenium giúp làm rõ các khái niệm nền tảng như browser driver, locator, thao tác trên DOM, cơ chế chờ phần tử và cách tổ chức test script.
+Selenium hỗ trợ nhiều trình duyệt và nhiều ngôn ngữ lập trình. Trong Selenium, thao tác kiểm thử thường được xây dựng bằng cách tìm kiếm phần tử trên trang thông qua các locator như \textit{id}, \textit{name}, CSS selector hoặc XPath. Ưu điểm của Selenium là hệ sinh thái lớn, tài liệu phong phú và khả năng tích hợp với nhiều hệ thống kiểm thử. Tuy nhiên, test script thường cần được viết khá chi tiết và người dùng phải hiểu rõ locator, DOM và cơ chế chờ phần tử.
 
 \subsection{Playwright}
 
-Playwright là một framework hỗ trợ kiểm thử end-to-end cho ứng dụng web. Theo tài liệu chính thức, Playwright hỗ trợ các trình duyệt Chromium, WebKit và Firefox, đồng thời cung cấp các cơ chế phục vụ kiểm thử như test runner, assertion, chạy song song, cấu hình trình duyệt và hỗ trợ môi trường CI \cite{playwright_docs}.
+Playwright là một framework hỗ trợ kiểm thử end-to-end cho ứng dụng web. Theo tài liệu chính thức, Playwright hỗ trợ các trình duyệt Chromium, WebKit và Firefox, đồng thời cung cấp các cơ chế phục vụ kiểm thử như test runner, assertion, chạy song song, cấu hình trình duyệt và hỗ trợ môi trường CI~\cite{playwright_docs}.
 
-Một đặc điểm đáng chú ý của Playwright là khả năng hỗ trợ tốt các ứng dụng web có nhiều thao tác bất đồng bộ. Playwright cung cấp cơ chế auto-waiting, trong đó framework tự động kiểm tra khả năng tương tác của phần tử trước khi thực hiện hành động. Ví dụ, trước khi nhấp vào một phần tử, Playwright có thể kiểm tra phần tử có hiển thị, ổn định, nhận được sự kiện và đang ở trạng thái có thể thao tác hay không \cite{playwright_docs}.
-
-Playwright cũng hỗ trợ nhiều cách định vị phần tử, bao gồm định vị theo vai trò, nhãn, văn bản hiển thị, thuộc tính kiểm thử, CSS selector và XPath. Các locator theo hướng gần với cách người dùng nhận biết giao diện giúp test script dễ đọc hơn trong một số trường hợp. Ngoài ra, Playwright cung cấp các công cụ hỗ trợ quá trình phân tích lỗi như screenshot, video, trace viewer và HTML report. Những công cụ này giúp người dùng xem lại quá trình chạy test, xác định bước thất bại và phân tích nguyên nhân lỗi.
-
-So với Selenium, Playwright tích hợp nhiều tiện ích phục vụ kiểm thử end-to-end trong cùng một hệ sinh thái. Người dùng có thể viết test, chạy test, xem báo cáo và phân tích lỗi bằng các công cụ đi kèm. Tuy nhiên, trong các tổ chức đã có sẵn hạ tầng Selenium lâu năm, việc chuyển đổi sang Playwright có thể cần thời gian để điều chỉnh quy trình, đào tạo người dùng và cập nhật hệ thống kiểm thử hiện có.
-
-Trong phạm vi khóa luận, Playwright có liên quan trực tiếp đến lớp browser automation vì hệ thống cần thực thi thao tác kiểm thử trên trình duyệt. Playwright có thể được xem là một lựa chọn phù hợp cho các tác vụ như mở trang web, tìm phần tử, nhập liệu, nhấp chuột, lấy nội dung, chụp screenshot, lưu trace và ghi nhận kết quả kiểm thử.
+Một đặc điểm đáng chú ý của Playwright là khả năng hỗ trợ tốt các ứng dụng web có nhiều thao tác bất đồng bộ. Playwright cung cấp cơ chế auto-waiting, trong đó framework tự động kiểm tra khả năng tương tác của phần tử trước khi thực hiện hành động~\cite{playwright_docs}. Ngoài ra, Playwright hỗ trợ nhiều cách định vị phần tử, chụp screenshot, lưu trace, quay video và sinh HTML report. Trong phạm vi khóa luận, Playwright có liên quan trực tiếp đến lớp browser automation vì hệ thống cần thực thi thao tác kiểm thử trên trình duyệt.
 
 \subsection{Cypress}
 
-Cypress là một công cụ kiểm thử frontend và end-to-end cho ứng dụng web. Cypress cho phép người dùng viết các bài kiểm thử có khả năng truy cập trang web, tìm phần tử, thao tác với giao diện và kiểm tra trạng thái của ứng dụng. Theo tài liệu chính thức, một bài kiểm thử Cypress có thể sử dụng các lệnh như \texttt{cy.visit()} để truy cập trang, \texttt{cy.contains()} để tìm nội dung hiển thị, \texttt{.click()} để thao tác với phần tử và \texttt{.should()} để kiểm tra điều kiện mong đợi \cite{cypress_docs}.
+Cypress là một công cụ kiểm thử frontend và end-to-end cho ứng dụng web. Cypress cho phép người dùng viết các bài kiểm thử có khả năng truy cập trang web, tìm phần tử, thao tác với giao diện và kiểm tra trạng thái của ứng dụng. Theo tài liệu chính thức, một bài kiểm thử Cypress có thể sử dụng các lệnh như \texttt{cy.visit()}, \texttt{cy.contains()}, \texttt{.click()} và \texttt{.should()} để mô tả luồng kiểm thử~\cite{cypress_docs}.
 
-Một ưu điểm của Cypress là cách viết test tương đối trực quan đối với các luồng tương tác giao diện. Các lệnh trong Cypress có thể được nối chuỗi để mô tả một luồng kiểm thử gần với hành vi người dùng, chẳng hạn như truy cập trang, tìm một liên kết, nhấp vào liên kết, kiểm tra URL và xác nhận giá trị của một trường nhập liệu. Tài liệu Cypress cũng nhấn mạnh việc sử dụng các assertion để kiểm tra trạng thái ứng dụng sau khi thao tác \cite{cypress_docs}.
-
-Cypress cũng hỗ trợ cơ chế tự động chờ và thử lại trong một số thao tác tìm kiếm phần tử hoặc kiểm tra điều kiện. Điều này giúp giảm bớt các lỗi xảy ra khi giao diện chưa cập nhật kịp hoặc phần tử chưa xuất hiện ngay lập tức. Tuy nhiên, Cypress vẫn yêu cầu người dùng viết test bằng mã nguồn và hiểu cấu trúc của ứng dụng web ở một mức nhất định. Vì vậy, với người dùng không chuyên về lập trình hoặc kiểm thử tự động, Cypress vẫn có thể tạo ra rào cản kỹ thuật.
-
-Trong phạm vi đề tài, Cypress được xem là một công cụ tham khảo để hiểu cách các framework hiện đại tổ chức kiểm thử end-to-end. Hệ thống đề xuất trong khóa luận không tập trung vào việc thay thế Cypress, mà hướng đến việc bổ sung một lớp hỗ trợ ở mức ngôn ngữ tự nhiên để giúp người dùng mô tả mục tiêu kiểm thử dễ hơn.
+Ưu điểm của Cypress là cách viết test tương đối trực quan đối với các luồng tương tác giao diện trong hệ sinh thái JavaScript. Cypress cũng hỗ trợ cơ chế tự động chờ và thử lại trong một số thao tác tìm kiếm phần tử hoặc kiểm tra điều kiện. Tuy nhiên, Cypress vẫn yêu cầu người dùng viết test bằng mã nguồn và hiểu cấu trúc ứng dụng web ở một mức nhất định, nên vẫn có thể tạo ra rào cản kỹ thuật đối với người dùng không chuyên.
 
 \subsection{Katalon và các công cụ low-code}
 
-Katalon và các công cụ low-code trong kiểm thử phần mềm hướng đến việc giảm bớt rào cản lập trình khi xây dựng kịch bản kiểm thử tự động \cite{katalon_docs}. Thay vì yêu cầu người dùng viết toàn bộ test script bằng mã nguồn, các công cụ này thường cung cấp giao diện trực quan để tạo test case, ghi lại thao tác, quản lý đối tượng giao diện, cấu hình dữ liệu kiểm thử và chạy lại kịch bản.
+Katalon và các công cụ low-code trong kiểm thử phần mềm hướng đến việc giảm bớt rào cản lập trình khi xây dựng kịch bản kiểm thử tự động~\cite{katalon_docs}. Thay vì yêu cầu người dùng viết toàn bộ test script bằng mã nguồn, các công cụ này thường cung cấp giao diện trực quan để tạo test case, ghi lại thao tác, quản lý đối tượng giao diện, cấu hình dữ liệu kiểm thử và chạy lại kịch bản.
 
-Nhóm công cụ low-code phù hợp với những tổ chức có đội ngũ kiểm thử viên thủ công hoặc người dùng nghiệp vụ muốn tham gia vào quá trình tạo kịch bản kiểm thử nhưng không có nhiều kinh nghiệm lập trình. Thông qua giao diện trực quan, người dùng có thể tạo ra các bước kiểm thử ban đầu nhanh hơn so với việc viết mã từ đầu. Một số công cụ còn cho phép chuyển đổi giữa chế độ trực quan và chế độ script để người dùng kỹ thuật có thể tinh chỉnh sâu hơn khi cần.
+Nhóm công cụ low-code phù hợp với kiểm thử viên thủ công hoặc người dùng nghiệp vụ muốn tham gia vào quá trình tạo kịch bản kiểm thử nhưng không có nhiều kinh nghiệm lập trình. Tuy nhiên, các kịch bản ghi lại vẫn có thể phụ thuộc vào vị trí phần tử, selector hoặc trạng thái cụ thể tại thời điểm ghi. Khi giao diện thay đổi, việc bảo trì kịch bản vẫn có thể gặp khó khăn nếu công cụ không biểu diễn rõ mục tiêu nghiệp vụ của ca kiểm thử.
 
-Tuy nhiên, cách tiếp cận low-code cũng có giới hạn. Khi ứng dụng web thay đổi giao diện, các kịch bản ghi lại vẫn có thể phụ thuộc vào vị trí phần tử, selector hoặc trạng thái cụ thể tại thời điểm ghi. Nếu kịch bản được sinh tự động chứa nhiều chi tiết kỹ thuật nhưng thiếu biểu diễn rõ ràng về mục tiêu nghiệp vụ, việc bảo trì về sau vẫn có thể gặp khó khăn. Đây là điểm giao với vấn đề mà khóa luận đang hướng đến: làm thế nào để mô tả mục tiêu kiểm thử ở mức ngữ nghĩa hơn, thay vì chỉ ghi lại thao tác kỹ thuật.
+\subsection{So sánh tổng quan}
 
-Trong phạm vi khóa luận, Katalon và các công cụ low-code được xem là nhóm giải pháp liên quan vì chúng cũng hướng đến mục tiêu giảm rào cản tạo kịch bản kiểm thử tự động. Tuy nhiên, hệ thống được đề xuất đi theo hướng khác: sử dụng mô hình ngôn ngữ lớn và tác nhân AI để tiếp nhận mô tả tự nhiên, quan sát giao diện và suy luận hành động kiểm thử.
+Bảng~\ref{tab:web_testing_tools_comparison} trình bày một số tiêu chí so sánh tổng quan giữa các công cụ kiểm thử Web phổ biến.
 
-\subsection{Nhận xét chung}
-
-Selenium, Playwright, Cypress và Katalon đều hỗ trợ kiểm thử tự động ứng dụng web, nhưng mỗi công cụ có định hướng và điểm mạnh khác nhau. Selenium nổi bật nhờ tính phổ biến, khả năng hỗ trợ nhiều ngôn ngữ và nền tảng WebDriver. Playwright nổi bật ở khả năng kiểm thử end-to-end hiện đại, cơ chế auto-waiting và các công cụ hỗ trợ debug như trace, screenshot và video. Cypress cung cấp cách viết test frontend trực quan và thuận tiện cho các luồng end-to-end trong hệ sinh thái JavaScript. Katalon và các công cụ low-code lại tập trung vào việc giảm rào cản lập trình thông qua giao diện trực quan và cơ chế ghi lại thao tác.
-
-Bảng \ref{tab:web_testing_tools_comparison} trình bày một số tiêu chí so sánh tổng quan giữa các công cụ này.
-
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \caption{So sánh tổng quan các công cụ kiểm thử Web}
 \label{tab:web_testing_tools_comparison}
+\renewcommand{\arraystretch}{1.2}
 \begin{tabular}{|p{2.8cm}|p{3.1cm}|p{3.1cm}|p{3.1cm}|p{3.1cm}|}
 \hline
 \textbf{Tiêu chí} & \textbf{Selenium} & \textbf{Playwright} & \textbf{Cypress} & \textbf{Katalon/low-code} \\
 \hline
-Hướng tiếp cận & WebDriver, viết script kiểm thử. & End-to-end testing, browser automation hiện đại. & Frontend/E2E testing trong hệ sinh thái JavaScript. & Giao diện trực quan, low-code/record-and-replay. \\
+Hướng tiếp cận & WebDriver, viết script kiểm thử. & End-to-end testing, browser automation hiện đại. & Frontend/E2E testing trong hệ sinh thái JavaScript. & Giao diện trực quan, low-code, record-and-replay. \\
 \hline
 Đối tượng phù hợp & Nhóm kỹ thuật có kinh nghiệm automation. & Nhóm cần kiểm thử end-to-end, trace và debug tốt. & Nhóm frontend/JavaScript cần viết test nhanh. & Kiểm thử viên thủ công hoặc người dùng ít kinh nghiệm lập trình. \\
 \hline
 Ưu điểm chính & Phổ biến, hỗ trợ nhiều trình duyệt và ngôn ngữ. & Auto-waiting, hỗ trợ Chromium/WebKit/Firefox, nhiều công cụ debug. & Cú pháp trực quan, dễ mô tả luồng tương tác giao diện. & Giảm rào cản viết mã, hỗ trợ tạo test case bằng giao diện. \\
 \hline
-Hạn chế chính & Cần hiểu locator, DOM và cơ chế chờ. & Vẫn cần viết script và tổ chức test kỹ thuật. & Phụ thuộc vào cách viết test và hệ sinh thái công cụ. & Kịch bản ghi lại có thể khó bảo trì khi giao diện thay đổi. \\
+Hạn chế chính & Cần hiểu locator, DOM và cơ chế chờ. & Vẫn cần viết script và tổ chức test kỹ thuật. & Phụ thuộc vào cách viết test và hệ sinh thái JavaScript. & Kịch bản ghi lại có thể khó bảo trì khi giao diện thay đổi. \\
 \hline
-Liên hệ với đề tài & Nền tảng tham khảo cho kiểm thử truyền thống. & Phù hợp với lớp thực thi trình duyệt. & Công cụ tham khảo cho E2E testing hiện đại. & Nhóm giải pháp gần với mục tiêu giảm rào cản kỹ thuật. \\
+Liên hệ với đề tài & Nền tảng tham khảo cho kiểm thử truyền thống. & Phù hợp với lớp thực thi trình duyệt. & Công cụ tham khảo cho E2E testing hiện đại. & Gần với mục tiêu giảm rào cản kỹ thuật. \\
 \hline
 \end{tabular}
 \end{table}
@@ -158,32 +91,44 @@ Từ bảng so sánh có thể thấy các công cụ hiện có đã hỗ trợ
 
 \section{Mô hình ngôn ngữ lớn trong kiểm thử Web}
 
-\subsection{Khái niệm mô hình ngôn ngữ lớn}
+Mô hình ngôn ngữ lớn, hay Large Language Model (LLM), là một loại mô hình trí tuệ nhân tạo được huấn luyện trên lượng lớn dữ liệu văn bản nhằm học các mẫu ngôn ngữ, quan hệ ngữ nghĩa và cách biểu đạt trong văn bản. LLM có khả năng nhận đầu vào dưới dạng prompt và sinh đầu ra dưới nhiều dạng khác nhau như văn bản tự nhiên, mã nguồn, dữ liệu có cấu trúc hoặc câu trả lời cho một yêu cầu cụ thể. Theo tài liệu của OpenAI, mô hình ngôn ngữ lớn có thể sinh nhiều loại phản hồi văn bản, bao gồm mã nguồn, biểu thức toán học, dữ liệu JSON có cấu trúc hoặc văn bản gần với cách con người viết~\cite{openai_text_generation}.
 
-Mô hình ngôn ngữ lớn, hay Large Language Model (LLM), là một loại mô hình trí tuệ nhân tạo được huấn luyện trên lượng lớn dữ liệu văn bản nhằm học các mẫu ngôn ngữ, quan hệ ngữ nghĩa và cách biểu đạt trong văn bản. LLM có khả năng nhận đầu vào dưới dạng prompt và sinh đầu ra dưới nhiều dạng khác nhau như văn bản tự nhiên, mã nguồn, dữ liệu có cấu trúc hoặc câu trả lời cho một yêu cầu cụ thể. Theo tài liệu của OpenAI, mô hình ngôn ngữ lớn có thể sinh nhiều loại phản hồi văn bản, bao gồm mã nguồn, biểu thức toán học, dữ liệu JSON có cấu trúc hoặc văn bản gần với cách con người viết \cite{openai_text_generation}.
+Trong lĩnh vực kiểm thử phần mềm, LLM có thể hỗ trợ nhiều tác vụ khác nhau. Mô hình có thể phân tích mô tả yêu cầu để đề xuất test case, chuyển đổi mô tả kiểm thử bằng ngôn ngữ tự nhiên thành các bước kiểm thử cụ thể, giải thích lỗi kiểm thử theo cách dễ hiểu hoặc gợi ý hướng sửa test script. Đối với đề tài này, LLM đóng vai trò kết nối giữa yêu cầu của người dùng và quy trình kiểm thử tự động. Người dùng có thể nhập mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, sau đó hệ thống sử dụng LLM để hỗ trợ phân tích yêu cầu, sinh test case, điều phối agent và giải thích kết quả kiểm thử.
 
-Về nguyên lý tổng quát, LLM hoạt động bằng cách dự đoán token tiếp theo dựa trên ngữ cảnh đã có. Một token có thể là một từ, một phần của từ hoặc một ký hiệu tùy theo cơ chế mã hóa của mô hình. Khi nhận prompt từ người dùng, mô hình phân tích chuỗi đầu vào, dựa trên các mẫu đã học trong quá trình huấn luyện và sinh ra chuỗi đầu ra phù hợp với ngữ cảnh. Nhờ khả năng xử lý ngôn ngữ tự nhiên, LLM được ứng dụng trong nhiều bài toán như hỏi đáp, tóm tắt văn bản, sinh mã nguồn, phân tích lỗi, chuyển đổi yêu cầu tự nhiên thành dữ liệu có cấu trúc và hỗ trợ người dùng trong các quy trình phần mềm.
-
-Trong lĩnh vực kiểm thử phần mềm, LLM có thể hỗ trợ nhiều tác vụ khác nhau. Mô hình có thể phân tích mô tả yêu cầu để đề xuất test case, chuyển đổi mô tả kiểm thử bằng ngôn ngữ tự nhiên thành các bước kiểm thử cụ thể, giải thích lỗi kiểm thử theo cách dễ hiểu hoặc gợi ý hướng sửa test script. Đối với đề tài này, LLM đóng vai trò kết nối giữa yêu cầu của người dùng và quy trình kiểm thử tự động. Người dùng có thể nhập mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, sau đó hệ thống sử dụng LLM để hỗ trợ phân tích yêu cầu, sinh test case, gợi ý test script và giải thích kết quả kiểm thử.
-
-Tuy nhiên, LLM cũng có một số hạn chế cần được xem xét. Kết quả sinh ra có thể chưa hoàn toàn chính xác, phụ thuộc vào cách viết prompt và ngữ cảnh được cung cấp. Ngoài ra, LLM không thể trực tiếp thao tác trên trình duyệt nếu không được kết nối với công cụ hoặc hệ thống bên ngoài. Vì vậy, trong khóa luận này, LLM không được xem là thành phần thay thế các framework kiểm thử web, mà là thành phần hỗ trợ phân tích, sinh nội dung và điều phối một số bước trong quy trình kiểm thử thông qua các cơ chế như prompt engineering, function calling và tool calling.
+Tuy nhiên, LLM cũng có một số hạn chế cần được xem xét. Kết quả sinh ra có thể chưa hoàn toàn chính xác, phụ thuộc vào cách viết prompt và ngữ cảnh được cung cấp. Ngoài ra, LLM không thể trực tiếp thao tác trên trình duyệt nếu không được kết nối với công cụ hoặc hệ thống bên ngoài. Vì vậy, trong khóa luận này, LLM không được xem là thành phần thay thế các framework kiểm thử web, mà là thành phần hỗ trợ phân tích, sinh nội dung và điều phối một số bước trong quy trình kiểm thử.
 
 \subsection{Thiết kế prompt}
 
-Thiết kế prompt là quá trình xây dựng và điều chỉnh đầu vào cho mô hình ngôn ngữ lớn nhằm hướng dẫn mô hình tạo ra kết quả phù hợp với yêu cầu. Trong thực tế, cùng một mô hình có thể sinh ra các kết quả khác nhau tùy vào cách người dùng đặt câu hỏi, cung cấp bối cảnh và quy định định dạng đầu ra. Vì vậy, chất lượng prompt có ảnh hưởng trực tiếp đến chất lượng phản hồi của mô hình, đặc biệt đối với các tác vụ cần kết quả rõ ràng, có cấu trúc hoặc cần tuân thủ một quy trình cụ thể.
+Thiết kế prompt là quá trình xây dựng và điều chỉnh đầu vào cho mô hình ngôn ngữ lớn nhằm hướng dẫn mô hình tạo ra kết quả phù hợp với yêu cầu. Trong thực tế, cùng một mô hình có thể sinh ra các kết quả khác nhau tùy vào cách người dùng đặt câu hỏi, cung cấp bối cảnh và quy định định dạng đầu ra. Vì vậy, chất lượng prompt có ảnh hưởng trực tiếp đến chất lượng phản hồi của mô hình, đặc biệt đối với các tác vụ cần kết quả rõ ràng và có cấu trúc.
 
-Một prompt phù hợp thường cần nêu rõ nhiệm vụ, bối cảnh, dữ liệu đầu vào, định dạng đầu ra mong muốn và các ràng buộc cần tuân thủ. Ví dụ, trong bài toán sinh test case, prompt không nên chỉ viết ``hãy kiểm thử trang đăng nhập'', mà cần mô tả rõ mục tiêu kiểm thử, thông tin giao diện, các trường dữ liệu, điều kiện mong đợi và yêu cầu định dạng đầu ra. Nếu đầu ra cần là JSON hoặc một cấu trúc test case cụ thể, prompt cũng cần quy định rõ schema hoặc mẫu biểu diễn.
+Một prompt phù hợp thường cần nêu rõ nhiệm vụ, bối cảnh, dữ liệu đầu vào, định dạng đầu ra mong muốn và các ràng buộc cần tuân thủ. Trong bài toán sinh test case, prompt không nên chỉ yêu cầu chung chung như ``hãy kiểm thử trang đăng nhập'', mà cần mô tả mục tiêu kiểm thử, thông tin giao diện, dữ liệu đầu vào, điều kiện mong đợi và định dạng đầu ra. Nếu đầu ra cần là JSON hoặc một cấu trúc test case cụ thể, prompt cũng cần quy định rõ schema hoặc mẫu biểu diễn.
 
-Trong hệ thống kiểm thử tự động ứng dụng web, thiết kế prompt có thể được áp dụng ở nhiều bước. Ở bước phân tích yêu cầu, prompt có thể yêu cầu LLM tách mục tiêu kiểm thử thành các hành động cụ thể. Ở bước sinh test case, prompt có thể yêu cầu mô hình tạo ra các bước kiểm thử, dữ liệu đầu vào và kết quả mong đợi. Ở bước phân tích lỗi, prompt có thể yêu cầu mô hình đọc log, screenshot hoặc timeline để hỗ trợ giải thích nguyên nhân thất bại. Ở bước gợi ý sửa lỗi, prompt có thể yêu cầu mô hình đề xuất cách cập nhật test case hoặc selector.
-
-Tuy nhiên, thiết kế prompt không đảm bảo mô hình luôn tạo ra kết quả chính xác trong mọi trường hợp. Vì vậy, khi ứng dụng LLM vào kiểm thử web, hệ thống cần kết hợp prompt với các cơ chế kiểm soát khác như định dạng đầu ra có cấu trúc, kiểm tra tính hợp lệ của test case, xác minh test script trước khi chạy và ghi nhận kết quả thực thi thực tế. Điều này giúp giảm rủi ro khi mô hình sinh ra nội dung không phù hợp hoặc thiếu thông tin cần thiết.
+Trong hệ thống kiểm thử tự động ứng dụng web, thiết kế prompt có thể được áp dụng ở nhiều bước: phân tích yêu cầu, sinh test case, điều phối agent, phân tích lỗi và gợi ý sửa test. Tuy nhiên, prompt không đảm bảo mô hình luôn tạo ra kết quả chính xác trong mọi trường hợp. Vì vậy, hệ thống cần kết hợp prompt với các cơ chế kiểm soát khác như định dạng đầu ra có cấu trúc, kiểm tra tính hợp lệ của test case, xác minh script trước khi chạy và ghi nhận kết quả thực thi thực tế.
 
 \subsection{Sinh dữ liệu có cấu trúc}
 
-Trong các hệ thống phần mềm, dữ liệu có cấu trúc đóng vai trò quan trọng vì nó giúp các thành phần khác nhau có thể trao đổi và xử lý thông tin một cách nhất quán. Đối với hệ thống kiểm thử tự động ứng dụng web, dữ liệu có cấu trúc có thể bao gồm test case, danh sách bước kiểm thử, hành động cần thực hiện, locator, dữ liệu đầu vào, điều kiện xác nhận, kết quả thực thi và thông tin lỗi.
+Trong các hệ thống phần mềm, dữ liệu có cấu trúc giúp các thành phần khác nhau trao đổi và xử lý thông tin một cách nhất quán. Đối với hệ thống kiểm thử tự động ứng dụng web, dữ liệu có cấu trúc có thể bao gồm test case, danh sách bước kiểm thử, hành động cần thực hiện, locator, dữ liệu đầu vào, điều kiện xác nhận, kết quả thực thi và thông tin lỗi.
 
-Khi sử dụng LLM trong kiểm thử web, nếu mô hình chỉ trả về văn bản tự do thì hệ thống sẽ khó chuyển phản hồi đó thành hành động thực thi trên trình duyệt. Vì vậy, cần yêu cầu mô hình sinh đầu ra theo định dạng có cấu trúc, chẳng hạn như JSON. Mỗi hành động kiểm thử có thể được biểu diễn bằng các trường như loại hành động, phần tử mục tiêu, dữ liệu nhập, điều kiện chờ và kết quả mong đợi. Cách biểu diễn này giúp hệ thống kiểm tra tính hợp lệ của đầu ra trước khi thực thi.
-
-Theo tài liệu về Structured Outputs, mô hình có thể được ràng buộc để sinh phản hồi bám theo một JSON Schema đã định nghĩa, từ đó giảm rủi ro thiếu trường bắt buộc hoặc sinh giá trị không hợp lệ \cite{openai_structured_outputs}. Trong bối cảnh kiểm thử tự động, cơ chế này có ý nghĩa quan trọng vì các hành động trên trình duyệt cần được mô tả rõ ràng và có thể kiểm tra được trước khi thực thi.
+Khi sử dụng LLM trong kiểm thử web, nếu mô hình chỉ trả về văn bản tự do thì hệ thống sẽ khó chuyển phản hồi đó thành hành động thực thi trên trình duyệt. Vì vậy, cần yêu cầu mô hình sinh đầu ra theo định dạng có cấu trúc, chẳng hạn như JSON. Theo tài liệu về Structured Outputs, mô hình có thể được ràng buộc để sinh phản hồi bám theo một JSON Schema đã định nghĩa, từ đó giảm rủi ro thiếu trường bắt buộc hoặc sinh giá trị không hợp lệ~\cite{openai_structured_outputs}.
 
 Dù vậy, sinh dữ liệu có cấu trúc không loại bỏ hoàn toàn rủi ro sai lệch. Một phản hồi có thể đúng schema nhưng vẫn sai về mặt ngữ nghĩa, chẳng hạn chọn sai phần tử, nhập sai dữ liệu hoặc xác định sai điều kiện kiểm tra. Vì vậy, hệ thống cần kết hợp kiểm tra schema, kiểm tra ràng buộc nghiệp vụ, thực thi thử trong môi trường kiểm thử và ghi nhận bằng chứng để đánh giá kết quả thực tế.
+
+\section{AI agent và browser automation}
+
+AI agent trong kiểm thử web có thể được hiểu là một thành phần phần mềm có khả năng nhận mục tiêu, quan sát trạng thái giao diện, suy luận hành động tiếp theo và thực thi thao tác thông qua công cụ điều khiển trình duyệt. Khác với test script truyền thống vốn mô tả sẵn từng bước bằng mã nguồn, agent có thể hoạt động theo vòng lặp quan sát -- suy luận -- hành động. Trong mỗi vòng lặp, agent đọc mục tiêu kiểm thử, xem trạng thái hiện tại của trang, quyết định hành động phù hợp và yêu cầu công cụ browser automation thực hiện hành động đó.
+
+Trong phạm vi khóa luận, Browser-use được sử dụng để tổ chức quá trình chạy agent trên trình duyệt, trong khi Playwright được sử dụng làm lớp điều khiển trình duyệt. Cách kết hợp này cho phép hệ thống tiếp nhận goal hoặc prompt ở mức ngôn ngữ tự nhiên, chuyển mục tiêu đó thành hành động trên giao diện và ghi nhận lại quá trình thực thi. Sau một phiên chạy agent thành công, hệ thống có thể chuyển lịch sử hành động thành replay script để chạy lại bằng Playwright ở các lần sau.
+
+Browser automation là lớp kỹ thuật giúp hệ thống thực sự thao tác với trình duyệt. Lớp này chịu trách nhiệm mở trang web, tìm phần tử, nhập dữ liệu, nhấp chuột, kiểm tra nội dung, chụp screenshot và ghi nhận thông tin phục vụ báo cáo. Trong hệ thống đề xuất, browser automation không chỉ phục vụ agent ở lần chạy linh hoạt ban đầu, mà còn phục vụ replay script trong các lần kiểm thử hồi quy.
+
+Việc kết hợp giữa AI agent và browser automation giúp hệ thống tận dụng được hai ưu điểm. Một mặt, agent có thể hỗ trợ người dùng mô tả mục tiêu kiểm thử ở mức tự nhiên hơn, giảm yêu cầu viết script thủ công. Mặt khác, Playwright giúp đảm bảo việc thực thi trên trình duyệt vẫn được kiểm soát bằng các hành động cụ thể và có thể ghi nhận bằng chứng. Tuy nhiên, hướng tiếp cận này cũng cần các cơ chế kiểm soát như giới hạn domain, timeout, log, screenshot, kiểm tra kết quả và lưu evidence để giảm rủi ro do mô hình suy luận sai hoặc môi trường kiểm thử không ổn định.
+
+\section{Định vị giải pháp đề xuất}
+
+Từ các nội dung đã trình bày, có thể thấy các công cụ kiểm thử web truyền thống như Selenium, Playwright và Cypress có khả năng tự động hóa trình duyệt tốt, nhưng thường yêu cầu người dùng viết script và hiểu rõ locator. Các công cụ low-code như Katalon giúp giảm rào cản viết mã, nhưng kịch bản ghi lại vẫn có thể phụ thuộc vào selector hoặc trạng thái giao diện tại thời điểm ghi. Trong khi đó, LLM và AI agent mở ra khả năng tiếp nhận mục tiêu kiểm thử ở mức ngôn ngữ tự nhiên, suy luận hành động theo ngữ cảnh và hỗ trợ phân tích lỗi.
+
+Hệ thống được đề xuất trong khóa luận nằm ở giao điểm giữa ba hướng tiếp cận: kiểm thử tự động ứng dụng web, browser automation và tác nhân AI. Hệ thống không thay thế hoàn toàn các framework kiểm thử hiện có, mà sử dụng browser automation làm lớp thực thi, sử dụng LLM làm lớp hỗ trợ suy luận và sử dụng giao diện web để giúp người dùng quản lý quy trình kiểm thử.
+
+Điểm khác biệt chính của hệ thống là cách kết hợp giữa chạy linh hoạt bằng agent và chạy lại bằng replay script. Agent được dùng để chuyển mục tiêu kiểm thử bằng ngôn ngữ tự nhiên thành chuỗi thao tác trên trình duyệt, còn replay script được dùng để phát lại kịch bản đã ghi một cách xác định hơn trong các lần kiểm thử sau. Ngoài ra, hệ thống còn lưu log, screenshot, evidence, object repository và report để phục vụ truy vết kết quả và bảo trì test case.
+
+Như vậy, chương này cung cấp nền tảng cần thiết để hiểu các quyết định thiết kế ở các chương sau. Các khái niệm về kiểm thử chức năng, kiểm thử hồi quy, kiểm thử tự động, browser automation, LLM, prompt, structured output và AI agent sẽ được sử dụng trực tiếp trong quá trình phân tích yêu cầu, thiết kế kiến trúc và hiện thực hệ thống.
