@@ -1,0 +1,44 @@
+%%{init: {
+  "theme": "base",
+  "sequence": {
+    "mirrorActors": false,
+    "showSequenceNumbers": true,
+    "actorMargin": 145,
+    "messageMargin": 100,
+    "boxMargin": 24,
+    "noteMargin": 24
+  },
+  "themeVariables": {
+    "fontFamily": "Arial",
+    "fontSize": "28px",
+    "primaryTextColor": "#000000",
+    "lineColor": "#000000"
+  }
+}}%%
+
+sequenceDiagram
+    autonumber
+
+    actor User as Người dùng
+    participant System as Hệ thống
+    participant W as Worker
+    participant Web as Website kiểm thử
+    participant S as Kho lưu trữ
+
+    rect rgb(246, 255, 237)
+    Note over User,S: Chạy kiểm thử bằng replay script
+
+    User->>System: Chọn Replay
+    System->>W: Gửi kịch bản
+
+    W->>Web: Chạy lại kiểm thử
+    W->>S: Lưu bằng chứng
+
+    alt Thành công
+        W-->>System: Trả kết quả
+    else Thất bại
+        W-->>System: Trả lỗi
+    end
+
+    System-->>User: Hiển thị báo cáo
+    end

@@ -1,0 +1,53 @@
+%%{init: {
+  "theme": "base",
+  "flowchart": {
+    "curve": "linear",
+    "defaultRenderer": "elk",
+    "nodeSpacing": 80,
+    "rankSpacing": 85
+  },
+  "themeVariables": {
+    "fontFamily": "Arial",
+    "fontSize": "24px",
+    "primaryTextColor": "#000000",
+    "lineColor": "#000000"
+  }
+}}%%
+
+flowchart TD
+
+    Start["Replay step cần tìm phần tử"]
+    Main["Thử locator chính"]
+    FoundMain{"Tìm thấy?"}
+    Action["Thực hiện action"]
+    Fallback["Thử locator dự phòng"]
+    FoundFallback{"Tìm thấy?"}
+    LogFallback["Ghi nhận fallback"]
+    Fail["Lưu lỗi và evidence"]
+    EndPassed["Step thành công"]
+    EndFailed["Step thất bại"]
+
+    Start --> Main
+    Main --> FoundMain
+
+    FoundMain -->|"Có"| Action
+    FoundMain -->|"Không"| Fallback
+
+    Fallback --> FoundFallback
+    FoundFallback -->|"Có"| LogFallback
+    LogFallback --> Action
+
+    FoundFallback -->|"Không"| Fail
+
+    Action --> EndPassed
+    Fail --> EndFailed
+
+    classDef process fill:#E6F7FF,stroke:#1890FF,stroke-width:2px,color:#000000;
+    classDef decision fill:#FFFBE6,stroke:#FAAD14,stroke-width:2px,color:#000000;
+    classDef success fill:#F6FFED,stroke:#52C41A,stroke-width:2px,color:#000000;
+    classDef failure fill:#FFF1F0,stroke:#FF4D4F,stroke-width:2px,color:#000000;
+
+    class Start,Main,Fallback,LogFallback,Action process;
+    class FoundMain,FoundFallback decision;
+    class EndPassed success;
+    class Fail,EndFailed failure;

@@ -1,0 +1,54 @@
+%%{init: {
+  "theme": "base",
+  "sequence": {
+    "mirrorActors": false,
+    "showSequenceNumbers": true,
+    "actorMargin": 145,
+    "messageMargin": 100,
+    "boxMargin": 24,
+    "noteMargin": 24
+  },
+  "themeVariables": {
+    "fontFamily": "Arial",
+    "fontSize": "28px",
+    "primaryTextColor": "#000000",
+    "lineColor": "#000000"
+  }
+}}%%
+
+sequenceDiagram
+    autonumber
+
+    actor User as Người dùng
+    participant System as Hệ thống
+    participant W as Agent Worker
+    participant AI as LLM
+    participant Web as Website kiểm thử
+    participant S as Kho lưu trữ
+
+    rect rgb(246, 255, 237)
+    Note over User,S: Chạy kiểm thử bằng agent
+
+    User->>System: Nhấn Run
+    System->>W: Gửi test case
+
+    W->>AI: Suy luận hành động
+    W->>Web: Thao tác kiểm thử
+
+    alt Không nhận diện được phần tử
+        W->>AI: Quan sát lại giao diện
+        W->>Web: Thử cách nhận diện khác
+    else Nhận diện thành công
+        W->>Web: Tiếp tục thực thi
+    end
+
+    W->>S: Lưu evidence
+
+    alt Thành công
+        W-->>System: Trả kết quả
+    else Thất bại
+        W-->>System: Trả lỗi
+    end
+
+    System-->>User: Hiển thị báo cáo
+    end

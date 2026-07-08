@@ -1,0 +1,45 @@
+%%{init: {
+  "theme": "base",
+  "sequence": {
+    "mirrorActors": false,
+    "showSequenceNumbers": true,
+    "actorMargin": 120,
+    "messageMargin": 90,
+    "boxMargin": 20,
+    "noteMargin": 20
+  },
+  "themeVariables": {
+    "fontFamily": "Arial",
+    "fontSize": "26px",
+    "primaryTextColor": "#000000",
+    "lineColor": "#000000"
+  }
+}}%%
+
+sequenceDiagram
+    autonumber
+
+    participant W as Worker
+    participant S as Storage
+    participant BE as Backend
+    participant DB as CSDL
+    participant FE as Giao diện
+    actor User as Người dùng
+
+    rect rgb(230, 247, 255)
+    Note over W,User: Lưu evidence và báo cáo
+
+    W->>S: Lưu log
+    W->>S: Lưu screenshot
+    W->>S: Lưu action history
+    W->>S: Lưu report
+
+    W-->>BE: Callback kết quả
+    BE->>DB: Cập nhật test run
+    BE->>DB: Lưu summary
+
+    FE->>BE: Xem report
+    BE->>DB: Lấy dữ liệu
+    BE-->>FE: Trả report
+    FE-->>User: Hiển thị báo cáo
+    end
