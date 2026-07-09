@@ -1,0 +1,700 @@
+% =========================================================
+% CHAPTER 6
+% =========================================================
+
+\chapter[Thực nghiệm và đánh giá hệ thống]{Thực nghiệm và đánh giá\\hệ thống}
+\label{Chapter6}
+
+\section{Mục tiêu đánh giá}
+
+Sau khi hoàn thành các thành phần chính của hệ thống, quá trình thực nghiệm được thực hiện nhằm đánh giá mức độ đáp ứng các mục tiêu đã đặt ra trong phạm vi khóa luận. Việc đánh giá không chỉ xem xét một ca kiểm thử có chạy thành công hay không, mà còn quan sát toàn bộ quy trình kiểm thử từ khâu chuẩn bị project, sinh test case, chạy test trên trình duyệt, ghi nhận evidence, sinh replay script, chạy lại script và tổng hợp kết quả.
+
+Các mục tiêu đánh giá chính gồm:
+
+\begin{itemize}
+    \item Đánh giá khả năng sinh test case từ mô tả ngôn ngữ tự nhiên, bao gồm tiêu đề, mục tiêu kiểm thử, các bước thực hiện và điều kiện kỳ vọng.
+    \item Đánh giá khả năng thực thi test case bằng agent trên trình duyệt thật.
+    \item Đánh giá khả năng tái sử dụng kết quả chạy thành công thông qua replay script.
+    \item Kiểm tra khả năng sinh dữ liệu kiểm thử phục vụ các kịch bản có nhiều bộ dữ liệu đầu vào.
+    \item Phân tích các lỗi thường gặp trong quá trình chạy test như lỗi locator, lỗi assertion, lỗi môi trường hoặc lỗi do prompt chưa rõ ràng.
+    \item Đánh giá vai trò của các thành phần hỗ trợ như evidence, log, timeline, report và phân tích lỗi.
+    \item Thu thập phản hồi người dùng để đánh giá mức độ dễ sử dụng, mức độ hữu ích và các điểm cần cải thiện của hệ thống.
+\end{itemize}
+
+Trong phạm vi khóa luận, đánh giá được thực hiện theo hai hướng. Thứ nhất là đánh giá định lượng dựa trên log thực nghiệm được lưu trong hệ thống. Thứ hai là đánh giá định tính dựa trên phản hồi người dùng sau khi trải nghiệm hệ thống. Cách kết hợp này giúp đánh giá hệ thống từ cả góc nhìn kỹ thuật và góc nhìn sử dụng thực tế.
+
+\section{Môi trường và dữ liệu thực nghiệm}
+
+\subsection{Môi trường thực nghiệm}
+
+Môi trường thực nghiệm được thiết lập theo kiến trúc nhiều thành phần của hệ thống. Các thành phần frontend, backend, database và agent-worker được tách riêng để dễ theo dõi log, kiểm tra API và phân tích lỗi khi phiên chạy test thất bại.
+
+\begin{table}[H]
+\centering
+\caption{Môi trường thực nghiệm hệ thống}
+\label{tab:chapter6_experiment_environment}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.0cm}|p{4.2cm}|p{6.0cm}|}
+\hline
+\textbf{Thành phần} & \textbf{Công nghệ sử dụng} & \textbf{Vai trò trong thực nghiệm} \\
+\hline
+Frontend & ReactJS, Vite, Tailwind CSS, shadcn/ui & Thao tác tạo project, nhập prompt, tạo test case, chạy test và xem report. \\
+\hline
+Backend API & Node.js, Express.js & Lưu dữ liệu nghiệp vụ, tạo test run, điều phối worker và nhận callback kết quả. \\
+\hline
+Database & PostgreSQL & Lưu user, project, test case, generation log, test run, evidence, dataset và replay script. \\
+\hline
+Agent-worker & Python, FastAPI & Chạy agent, chạy replay script, chụp screenshot, ghi log và gửi kết quả về backend. \\
+\hline
+Browser automation & Browser-use, Playwright, Chromium & Điều khiển trình duyệt, quan sát giao diện, thao tác với website và phát lại script. \\
+\hline
+LLM & Gemini Flash theo cấu hình hệ thống & Hỗ trợ sinh test case, sinh dataset, điều phối agent và phân tích lỗi. \\
+\hline
+Website mục tiêu & OrangeHRM demo & Ứng dụng Web được dùng làm case study để đánh giá các luồng kiểm thử giao diện. \\
+\hline
+\end{tabular}
+\end{table}
+
+Trong quá trình thực nghiệm, hệ thống được cấu hình để giới hạn phạm vi website mục tiêu thông qua base URL và allowed domain. Điều này giúp tránh trường hợp agent hoặc replay script điều hướng ra ngoài phạm vi kiểm thử.
+
+\subsection{Nguồn dữ liệu đánh giá}
+
+Dữ liệu đánh giá được tổng hợp từ hai nhóm nguồn chính. Nhóm thứ nhất là log hệ thống được ghi nhận trong quá trình người dùng thao tác và chạy kiểm thử, bao gồm log sinh test case, log sinh dataset, log thực thi test case, log lỗi từng bước và thông tin liên quan đến thời gian xử lý. Nhóm thứ hai là dữ liệu khảo sát trải nghiệm người dùng sau khi dùng thử hệ thống.
+
+Các nguồn dữ liệu này được sử dụng nhằm đánh giá hệ thống từ hai góc nhìn khác nhau. Log hệ thống phản ánh khả năng vận hành thực tế của các chức năng như sinh test case, chạy agent, replay script và ghi nhận lỗi. Trong khi đó, dữ liệu khảo sát giúp bổ sung góc nhìn người dùng về mức độ dễ sử dụng, mức độ hữu ích và các điểm cần cải thiện của hệ thống.
+
+\begin{table}[H]
+\centering
+\caption{Nguồn dữ liệu sử dụng trong đánh giá}
+\label{tab:chapter6_data_sources}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.0cm}|p{5.2cm}|p{5.2cm}|}
+\hline
+\textbf{Nguồn dữ liệu} & \textbf{Nội dung ghi nhận} & \textbf{Vai trò trong đánh giá} \\
+\hline
+Log thực thi test case & Kết quả chạy, thời gian thực thi, chế độ chạy, trạng thái pass/fail và khả năng tái sử dụng. & Đánh giá khả năng thực thi kiểm thử trên trình duyệt và mức độ ổn định của hệ thống. \\
+\hline
+Log sinh test case & Prompt đầu vào, test case được sinh ra, thời gian sinh và thông tin token sử dụng. & Đánh giá khả năng hỗ trợ tạo test case từ mô tả ngôn ngữ tự nhiên. \\
+\hline
+Log sinh dữ liệu kiểm thử & Prompt sinh dữ liệu, số dòng dữ liệu sinh ra, trạng thái sinh dữ liệu và thời gian xử lý. & Đánh giá khả năng hỗ trợ chuẩn bị dữ liệu kiểm thử cho các kịch bản khác nhau. \\
+\hline
+Log lỗi từng bước & Hành động bị lỗi, loại lỗi, thông báo lỗi, URL tại thời điểm lỗi và thông tin bước thực thi. & Phân tích nguyên nhân thất bại và các yếu tố ảnh hưởng đến kết quả kiểm thử. \\
+\hline
+Khảo sát người dùng & Đánh giá theo thang điểm và phản hồi mở sau khi người dùng trải nghiệm hệ thống. & Bổ sung góc nhìn về trải nghiệm sử dụng, mức độ hữu ích và các điểm cần cải thiện. \\
+\hline
+\end{tabular}
+\end{table}
+
+Dữ liệu log được lọc theo các project có website mục tiêu liên quan đến OrangeHRM để phục vụ đánh giá case study.
+
+\subsection{Quy trình thực nghiệm}
+
+Quy trình thực nghiệm được thực hiện theo các bước sau:
+
+\begin{enumerate}
+    \item Tạo project kiểm thử và cấu hình website mục tiêu là OrangeHRM.
+    \item Nhập prompt mô tả yêu cầu kiểm thử bằng ngôn ngữ tự nhiên để sinh test case.
+    \item Kiểm tra lại test case được sinh ra, bao gồm mục tiêu kiểm thử, các bước thực hiện và điều kiện kỳ vọng.
+    \item Chạy test case lần đầu bằng agent trên trình duyệt thật.
+    \item Với các phiên chạy thành công, hệ thống ghi nhận lịch sử thao tác và sinh replay script để có thể chạy lại.
+    \item Chạy lại các kịch bản bằng replay script nhằm đánh giá khả năng tái sử dụng trong kiểm thử hồi quy.
+    \item Ghi nhận kết quả thực thi, thời gian chạy, trạng thái pass/fail, lỗi từng bước và thông tin token sử dụng.
+    \item Tổng hợp log hệ thống và phản hồi khảo sát người dùng để phân tích kết quả.
+\end{enumerate}
+
+Quy trình này giúp đánh giá hệ thống theo đúng workflow sử dụng thực tế: từ prompt ban đầu, sinh test case, chạy bằng agent, tạo replay script, chạy lại kịch bản và phân tích kết quả.
+
+\section{Case study: OrangeHRM}
+
+OrangeHRM được chọn làm case study vì đây là một ứng dụng Web quản lý nhân sự có cấu trúc giao diện và nghiệp vụ tương đối điển hình. Ứng dụng có màn hình đăng nhập, dashboard, thanh điều hướng, nhiều phân hệ chức năng và nhiều biểu mẫu nhập liệu. Những đặc điểm này phù hợp để đánh giá hệ thống kiểm thử tự động ứng dụng Web ở mức giao diện người dùng.
+
+Các lý do chọn OrangeHRM gồm:
+
+\begin{itemize}
+    \item Có luồng đăng nhập rõ ràng, phù hợp để đánh giá khả năng thao tác form và xác nhận trạng thái sau đăng nhập.
+    \item Có nhiều phân hệ và menu điều hướng, phù hợp để đánh giá khả năng agent tìm và chuyển đến đúng khu vực chức năng.
+    \item Có các màn hình danh sách, tìm kiếm và bộ lọc, phù hợp để đánh giá kịch bản nhập dữ liệu và kiểm tra kết quả hiển thị.
+    \item Có giao diện Web động, phù hợp để quan sát ảnh hưởng của tốc độ tải trang, trạng thái đăng nhập và locator đến kết quả kiểm thử.
+    \item Có thể xây dựng các kịch bản kiểm thử không phá hủy dữ liệu, chẳng hạn như đăng nhập, điều hướng, tìm kiếm và kiểm tra thông báo lỗi.
+\end{itemize}
+
+Phạm vi case study tập trung vào các luồng giao diện phổ biến thay vì kiểm thử toàn bộ nghiệp vụ nhân sự. Các thao tác có khả năng thay đổi dữ liệu quan trọng được hạn chế hoặc chỉ thực hiện với tài khoản kiểm thử nhằm tránh ảnh hưởng đến môi trường mục tiêu.
+
+\section{Thiết kế kịch bản và chỉ số đánh giá}
+
+\subsection{Các kịch bản đánh giá}
+
+Các kịch bản được thiết kế để bao phủ những năng lực quan trọng của hệ thống, từ giai đoạn tạo test case đến giai đoạn chạy lại và phân tích kết quả.
+
+{\footnotesize
+\begin{table}[H]
+\centering
+\caption{Các kịch bản đánh giá trên OrangeHRM}
+\label{tab:chapter6_evaluation_scenarios}
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{|p{1.6cm}|p{4.2cm}|p{5.2cm}|p{3.2cm}|}
+\hline
+\textbf{Mã} & \textbf{Kịch bản} & \textbf{Mục tiêu đánh giá} & \textbf{Chức năng liên quan} \\
+\hline
+SC01 & Đăng nhập với tài khoản hợp lệ & Kiểm tra khả năng nhập form, nhấn nút đăng nhập và xác nhận vào dashboard. & Agent, replay, report \\
+\hline
+SC02 & Đăng nhập với mật khẩu sai & Kiểm tra khả năng nhận diện thông báo lỗi và phân biệt expected failure. & Dataset, assertion, report \\
+\hline
+SC03 & Đăng nhập thiếu thông tin & Kiểm tra xử lý validation message khi username hoặc password bị bỏ trống. & Dataset, replay, evidence \\
+\hline
+SC04 & Điều hướng đến phân hệ quản lý nhân sự & Kiểm tra khả năng agent tìm menu và chuyển đến đúng màn hình chức năng. & Agent, object repository \\
+\hline
+SC05 & Tìm kiếm hoặc lọc dữ liệu trong danh sách & Kiểm tra thao tác nhập điều kiện tìm kiếm và kiểm tra kết quả hiển thị. & Agent, replay, assertion \\
+\hline
+SC06 & Sinh replay script từ phiên chạy thành công & Kiểm tra khả năng chuẩn hóa lịch sử agent thành script có thể chạy lại. & Replay script \\
+\hline
+SC07 & Chạy lại replay script & Kiểm tra tính ổn định của script trong kịch bản hồi quy. & Playwright, locator fallback \\
+\hline
+SC08 & Sinh và sử dụng nhiều bộ dữ liệu kiểm thử & Kiểm tra khả năng sinh dataset phục vụ các trường hợp đầu vào khác nhau. & Dataset generation \\
+\hline
+SC09 & Ghi nhận report, screenshot và log & Kiểm tra khả năng lưu lại evidence và hiển thị kết quả sau khi chạy. & Evidence, report \\
+\hline
+\end{tabular}
+\end{table}
+}
+
+Các kịch bản trên được chia thành ba nhóm. Nhóm thứ nhất kiểm tra luồng agent trên giao diện thật. Nhóm thứ hai kiểm tra khả năng tái sử dụng kết quả agent thông qua replay script. Nhóm thứ ba kiểm tra các chức năng hỗ trợ như dataset, evidence, report và phân tích lỗi.
+
+\subsection{Các chỉ số đánh giá}
+
+Để đánh giá hệ thống một cách nhất quán, khóa luận sử dụng kết hợp chỉ số định lượng và nhận xét định tính. Các chỉ số định lượng phù hợp với dữ liệu có thể đo được như số lần chạy thành công, thời gian sinh test case, thời gian chạy test hoặc số token sử dụng. Các nhận xét định tính được dùng cho những khía cạnh khó lượng hóa hơn như mức hữu ích của report hoặc khả năng hỗ trợ phân tích lỗi.
+
+\begin{table}[H]
+\centering
+\caption{Các chỉ số đánh giá hệ thống}
+\label{tab:chapter6_evaluation_metrics}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.0cm}|p{7.2cm}|p{3.0cm}|}
+\hline
+\textbf{Chỉ số} & \textbf{Ý nghĩa} & \textbf{Cách ghi nhận} \\
+\hline
+Tỷ lệ thực thi thành công & Tỷ lệ test run có kết quả Pass trên tổng số lần chạy. & Log thực thi test case \\
+\hline
+Thời gian sinh test case & Thời gian LLM sinh test case từ prompt. & Log sinh test case \\
+\hline
+Thời gian thực thi & Thời gian agent hoặc replay script chạy trên trình duyệt. & Log thực thi test case \\
+\hline
+Tỷ lệ tái sử dụng & Tỷ lệ test run có thể tái sử dụng dưới dạng script hoặc kết quả chạy lại. & Log thực thi test case \\
+\hline
+Số token sử dụng & Số token đầu vào và đầu ra khi sinh test case hoặc khi agent thực thi. & Log sinh test case và log thực thi agent \\
+\hline
+Phân loại lỗi & Nhóm lỗi thường gặp như bad locator, prompt misunderstanding hoặc app error. & Log lỗi từng bước \\
+\hline
+Mức độ hài lòng người dùng & Mức độ người dùng đánh giá hệ thống dễ dùng, hữu ích và có tiềm năng hỗ trợ kiểm thử. & Khảo sát \\
+\hline
+\end{tabular}
+\end{table}
+
+Với các chỉ số dạng tỷ lệ, công thức tổng quát được sử dụng như sau:
+
+\[
+\text{Tỷ lệ thành công} = \frac{\text{Số trường hợp đạt}}{\text{Tổng số trường hợp đánh giá}} \times 100\%
+\]
+
+\section{Kết quả thực nghiệm từ log hệ thống}
+
+\subsection{Tổng quan kết quả thực nghiệm}
+
+Bảng~\ref{tab:chapter6_overall_result} trình bày kết quả tổng hợp từ 167 lần thực thi trên case study OrangeHRM.
+
+\begin{table}[H]
+\centering
+\caption{Tổng hợp kết quả thực nghiệm trên OrangeHRM}
+\label{tab:chapter6_overall_result}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{8.5cm}|c|}
+\hline
+\textbf{Chỉ số} & \textbf{Giá trị} \\
+\hline
+Tổng số test case/task & 76 \\
+\hline
+Tổng số lần thực thi & 167 \\
+\hline
+Tỷ lệ Pass tổng thể & 83.2\% \\
+\hline
+Tỷ lệ Fail tổng thể & 16.8\% \\
+\hline
+Tỷ lệ tái sử dụng & 65.9\% \\
+\hline
+Thời gian thực thi trung bình & 70.12 giây \\
+\hline
+\end{tabular}
+\end{table}
+
+Các thông tin liên quan đến token và thời gian sinh test case được trình bày trong các bảng chi tiết của từng chức năng nhằm tránh trộn lẫn giữa dữ liệu tổng hợp theo test run và dữ liệu theo batch sinh test case.
+
+Kết quả thực nghiệm cho thấy hệ thống đạt tỷ lệ Pass tổng thể 83.2\% trên 167 lần thực thi. Tỷ lệ Fail là 16.8\%, phản ánh các trường hợp hệ thống gặp lỗi trong quá trình thao tác với giao diện Web, kiểm tra assertion hoặc xử lý locator.
+
+Tỷ lệ tái sử dụng đạt 65.9\% nếu tính trên tổng số lần thực thi. Chỉ số này phản ánh tỷ lệ các lần chạy có thể tạo ra hoặc gắn với script có khả năng sử dụng lại cho các lần kiểm thử sau. Tuy nhiên, chỉ số này không đồng nghĩa với tỷ lệ replay thành công, vì replay script còn phụ thuộc vào locator, assertion và trạng thái giao diện tại thời điểm chạy lại.
+
+Thời gian thực thi trung bình trên trình duyệt là 70.12 giây. Khi đối chiếu với kết quả sinh test case được trình bày riêng ở phần sau, có thể thấy phần tốn thời gian chính của hệ thống không nằm ở bước sinh test case, mà nằm ở quá trình agent hoặc replay script thao tác với trình duyệt, chờ trang tải, tìm phần tử và kiểm tra điều kiện kỳ vọng.
+
+\subsection{Kết quả theo nhóm kịch bản}
+
+Bảng~\ref{tab:chapter6_module_summary} trình bày kết quả thực nghiệm theo nhóm kịch bản chính.
+
+\begin{table}[H]
+\centering
+\caption{Tỷ lệ thực thi thành công theo nhóm kịch bản chính}
+\label{tab:chapter6_module_summary}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.6cm}|C{2.2cm}|p{7.2cm}|}
+\hline
+\textbf{Nhóm kịch bản} & \textbf{Tỷ lệ Pass} & \textbf{Nhận xét} \\
+\hline
+Đăng nhập và xác thực người dùng & 90.09\% & Đây là nhóm kịch bản đại diện cho các thao tác cơ bản của kiểm thử Web như nhập dữ liệu vào form, nhấn nút và kiểm tra trạng thái sau đăng nhập. \\
+\hline
+Các kịch bản mở rộng ngoài đăng nhập & 65.31\% & Bao gồm các kịch bản điều hướng, kiểm tra giao diện hoặc các prompt khó phân loại theo module cụ thể. \\
+\hline
+\end{tabular}
+\end{table}
+
+Kết quả theo nhóm kịch bản cho thấy nhóm đăng nhập và xác thực người dùng đạt tỷ lệ Pass 90.09\%. Điều này cho thấy hệ thống xử lý khá tốt các thao tác cơ bản của kiểm thử Web như nhập dữ liệu vào form, nhấn nút và kiểm tra trạng thái sau đăng nhập.
+
+Đối với các kịch bản mở rộng ngoài đăng nhập, tỷ lệ Pass đạt 65.31\%. Nhóm này bao gồm nhiều loại yêu cầu khác nhau như điều hướng, kiểm tra giao diện hoặc các prompt khó phân loại theo module cụ thể. Tỷ lệ Pass thấp hơn cho thấy khi phạm vi kịch bản mở rộng, hệ thống dễ bị ảnh hưởng bởi locator, trạng thái giao diện, dữ liệu đầu vào và độ rõ ràng của prompt.
+
+Một số module như Admin, PIM, Leave hoặc Time \& Attendance có xuất hiện trong log thực nghiệm, tuy nhiên số lần chạy còn thấp nên không được tách riêng để đưa ra nhận xét định lượng. Các kết quả này chỉ được dùng như quan sát bổ sung, chưa đủ cơ sở để kết luận về độ ổn định của hệ thống trên từng module.
+
+\subsection{Kết quả sinh test case}
+
+Chức năng sinh test case được đánh giá thông qua 64 batch sinh test case. Mỗi batch tương ứng với một lần người dùng nhập prompt và hệ thống gọi LLM để sinh ra test case hoặc danh sách ứng viên test case.
+
+\begin{table}[H]
+\centering
+\caption{Kết quả sinh test case từ prompt}
+\label{tab:chapter6_testcase_generation_result}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{8.5cm}|c|}
+\hline
+\textbf{Chỉ số} & \textbf{Giá trị} \\
+\hline
+Số batch sinh test case & 64 \\
+\hline
+Thời gian sinh thấp nhất & 2.00 giây \\
+\hline
+Thời gian sinh cao nhất & 5.63 giây \\
+\hline
+Thời gian sinh trung bình & 3.66 giây \\
+\hline
+Tổng token sử dụng & 56,614 \\
+\hline
+Token trung bình mỗi batch & 884.59 \\
+\hline
+Tổng input tokens & 26,910 \\
+\hline
+Tổng output tokens & 29,704 \\
+\hline
+\end{tabular}
+\end{table}
+
+Kết quả cho thấy thời gian sinh test case tương đối thấp, trung bình khoảng 3.66 giây mỗi batch. So với thời gian thực thi test trên trình duyệt, bước sinh test case không phải là nút thắt chính về thời gian. Vai trò chính của chức năng này là giảm công sức chuẩn bị kịch bản ban đầu, đặc biệt đối với người dùng chưa quen viết test case hoặc test script tự động.
+
+Tuy nhiên, test case sinh ra từ LLM vẫn cần được người dùng kiểm tra lại trước khi chạy chính thức. Các thông tin cần kiểm tra gồm dữ liệu đầu vào, điều kiện kỳ vọng, bước thao tác và phạm vi tác động lên website mục tiêu.
+
+\subsection{Kết quả sinh dataset}
+
+Bên cạnh sinh test case, hệ thống còn hỗ trợ sinh dataset để phục vụ các kịch bản có nhiều bộ dữ liệu đầu vào, chẳng hạn như đăng nhập hợp lệ, sai mật khẩu hoặc thiếu thông tin.
+
+\begin{table}[H]
+\centering
+\caption{Kết quả sinh dataset}
+\label{tab:chapter6_dataset_generation_result}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{8.5cm}|c|}
+\hline
+\textbf{Chỉ số} & \textbf{Giá trị} \\
+\hline
+Kết quả sinh dataset trong các lần ghi nhận & Thành công \\
+\hline
+Tổng số dòng dữ liệu sinh ra & 65 \\
+\hline
+Thời gian sinh thấp nhất & 1.71 giây \\
+\hline
+Thời gian sinh cao nhất & 4.59 giây \\
+\hline
+Thời gian sinh trung bình & 2.57 giây \\
+\hline
+Tổng token sử dụng & 13,075 \\
+\hline
+Token trung bình mỗi lần sinh & 1,089.58 \\
+\hline
+\end{tabular}
+\end{table}
+
+Trong các lần ghi nhận thuộc phạm vi thực nghiệm, chức năng sinh dataset đều hoàn thành thành công. Kết quả này cho thấy chức năng có thể hỗ trợ người dùng chuẩn bị dữ liệu kiểm thử với chi phí thời gian thấp, với thời gian sinh trung bình 2.57 giây. Tuy nhiên, dữ liệu hiện tại mới phản ánh quá trình sinh dataset, chưa phản ánh đầy đủ kết quả chạy từng dòng dữ liệu. Do đó, dataset generation được xem là chức năng hỗ trợ chuẩn bị dữ liệu, còn hiệu quả của data-driven testing cần được đánh giá sâu hơn khi hệ thống lưu đầy đủ log theo từng dataset row.
+
+\section{So sánh chế độ agent và replay script}
+
+Hệ thống hỗ trợ hai chế độ chạy chính: chạy ban đầu bằng agent và chạy lại bằng replay script. Bảng~\ref{tab:chapter6_agent_replay_result} trình bày kết quả so sánh dựa trên log thực nghiệm.
+
+\begin{table}[H]
+\centering
+\caption{So sánh kết quả thực thi giữa agent và replay script}
+\label{tab:chapter6_agent_replay_result}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.0cm}|c|c|c|c|}
+\hline
+\textbf{Chế độ chạy} & \textbf{Số lần chạy} & \textbf{Pass} & \textbf{Fail} & \textbf{Tỷ lệ Pass} \\
+\hline
+Agent initial run & 121 & 110 & 11 & 90.91\% \\
+\hline
+Replay script & 46 & 29 & 17 & 63.04\% \\
+\hline
+\end{tabular}
+\end{table}
+
+Kết quả cho thấy agent initial run đạt tỷ lệ Pass 90.91\%, cao hơn replay script với tỷ lệ Pass 63.04\%. Điều này phản ánh sự khác biệt giữa hai chế độ chạy. Agent có khả năng quan sát giao diện hiện tại và suy luận hành động tiếp theo, do đó linh hoạt hơn trong các tình huống giao diện thay đổi hoặc trạng thái trang chưa ổn định. Ngược lại, replay script phụ thuộc nhiều hơn vào các bước và locator đã lưu trước đó, nên dễ bị ảnh hưởng khi giao diện thay đổi, phần tử chưa sẵn sàng hoặc assertion không còn phù hợp.
+
+Bên cạnh tỷ lệ Pass, thời gian thực thi cần được phân tích riêng theo kết quả chạy để tránh diễn giải sai. Bảng~\ref{tab:chapter6_agent_replay_time_by_result} trình bày thời gian trung bình của từng nhóm pass/fail.
+
+\begin{table}[H]
+\centering
+\caption{So sánh thời gian thực thi theo kết quả chạy}
+\label{tab:chapter6_agent_replay_time_by_result}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{4.2cm}|c|c|}
+\hline
+\textbf{Nhóm thực thi} & \textbf{Điều kiện lọc} & \textbf{Tỷ lệ} & \textbf{Thời gian TB} \\
+\hline
+Agent thành công & Initial run có kết quả Pass & 90.91\% & 63.96 giây \\
+\hline
+Agent thất bại & Initial run có kết quả Fail & 9.09\% & 135.10 giây \\
+\hline
+Replay thành công & Replay script có kết quả Pass & 63.04\% & 54.59 giây \\
+\hline
+Replay thất bại & Replay script có kết quả Fail & 36.96\% & 94.43 giây \\
+\hline
+\end{tabular}
+\end{table}
+
+Khi xét riêng các lần chạy thành công, replay script có thời gian thực thi trung bình 54.59 giây, thấp hơn agent initial run thành công với thời gian trung bình 63.96 giây. Như vậy, đối với các kịch bản replay thành công, thời gian thực thi giảm khoảng 14.65\% so với agent. Kết quả này phù hợp với mục tiêu của replay script là giảm phụ thuộc vào quá trình suy luận của agent và phát lại các bước đã được lưu trước đó.
+
+Tuy nhiên, khi replay thất bại, thời gian trung bình tăng lên 94.43 giây. Nguyên nhân là các phiên thất bại thường phải chờ timeout ở bước tìm locator, điều hướng hoặc kiểm tra assertion. Vì vậy, nếu chỉ xét thời gian trung bình tổng thể mà không tách pass/fail, kết quả có thể gây hiểu nhầm rằng replay không nhanh hơn agent. Kết quả này cho thấy replay có lợi thế rõ hơn về thời gian trong các kịch bản đã ổn định và chạy thành công, nhưng chưa thể thay thế hoàn toàn agent ở các kịch bản mới hoặc có giao diện biến động.
+
+Bên cạnh kết quả trung bình, một kịch bản cụ thể cũng cho thấy lợi ích của replay script khi kịch bản đã ổn định. Bảng~\ref{tab:chapter6_replay_case_example} trình bày ví dụ so sánh giữa lần chạy ban đầu bằng agent và lần chạy lại bằng replay script trên cùng test case.
+
+\begin{table}[H]
+\centering
+\caption{Ví dụ so sánh thời gian giữa lần chạy agent và replay thành công}
+\label{tab:chapter6_replay_case_example}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.5cm}|c|c|c|}
+\hline
+\textbf{Lần chạy} & \textbf{Run ID} & \textbf{Thời gian} & \textbf{Kết quả} \\
+\hline
+Chạy ban đầu bằng agent & Run \#84 & 87.6 giây & Pass \\
+\hline
+Chạy lại bằng replay script & Run \#232 & 22.1 giây & Pass \\
+\hline
+\end{tabular}
+\end{table}
+
+Trong ví dụ này, lần chạy ban đầu bằng agent mất 87.6 giây, trong khi lần chạy lại bằng replay script chỉ mất 22.1 giây. Như vậy, thời gian thực thi giảm khoảng 74.77\%, tương đương replay nhanh hơn khoảng 4.0 lần so với lần chạy ban đầu. Kết quả này minh họa lợi ích của replay script đối với các kịch bản đã chạy thành công và có thể tái sử dụng.
+
+Tuy nhiên, mức cải thiện này phụ thuộc vào từng kịch bản cụ thể. Khi tính trung bình trên toàn bộ dữ liệu, kết quả có thể bị ảnh hưởng bởi các lần replay thất bại hoặc timeout.
+
+Tổng thời gian thực thi của agent là 8,522.1 giây, trong khi tổng thời gian thực thi của replay script là 3,188.5 giây. Tuy nhiên, do số lần chạy của agent và replay script không bằng nhau, tổng thời gian thực thi của hai nhóm không được dùng để so sánh trực tiếp. Thay vào đó, khóa luận sử dụng thời gian trung bình theo từng nhóm kết quả pass/fail để phản ánh chính xác hơn đặc điểm vận hành của từng chế độ.
+
+Từ kết quả trên có thể thấy agent và replay script có vai trò bổ sung cho nhau. Agent phù hợp với giai đoạn chạy ban đầu, khi hệ thống cần quan sát giao diện và suy luận hành động từ mục tiêu kiểm thử. Replay script phù hợp hơn với các kịch bản đã chạy thành công và có thể tái sử dụng, vì khi replay thành công, thời gian thực thi trung bình thấp hơn agent thành công khoảng 14.65\%.
+
+Tuy nhiên, replay script hiện vẫn có tỷ lệ thất bại cao hơn agent. Điều này cho thấy hệ thống cần tiếp tục cải thiện chất lượng locator, cơ chế chờ, assertion và khả năng tự phục hồi khi giao diện thay đổi. Vì vậy, hướng tiếp cận phù hợp là sử dụng agent để tạo và khám phá kịch bản ban đầu, sau đó dùng replay script để chạy lại các kịch bản đã ổn định trong kiểm thử hồi quy.
+
+\section{Phân tích lỗi trong quá trình thực nghiệm}
+
+\subsection{Phân loại lỗi theo failure type}
+
+Trong các phiên thực thi thất bại, một phần lỗi được hệ thống phân loại rõ ràng trong failure analysis. Do số lượng lỗi đã phân loại còn thấp, Bảng~\ref{tab:chapter6_failure_analysis} chỉ trình bày tỷ lệ theo loại lỗi để quan sát xu hướng thay vì nhấn mạnh vào số lượng tuyệt đối.
+
+\begin{table}[H]
+\centering
+\caption{Phân loại lỗi trong quá trình thực nghiệm}
+\label{tab:chapter6_failure_analysis}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{7.0cm}|c|}
+\hline
+\textbf{Loại lỗi} & \textbf{Tỷ lệ trong các lỗi đã phân loại} \\
+\hline
+Bad locator & 70.59\% \\
+\hline
+Prompt misunderstanding & 23.53\% \\
+\hline
+App error & 5.88\% \\
+\hline
+\end{tabular}
+\end{table}
+
+Lỗi phổ biến nhất là Bad locator, chiếm 70.59\% trong các lỗi đã được phân loại. Đây là nhóm lỗi xảy ra khi hệ thống không tìm thấy phần tử, phần tử chưa hiển thị hoặc locator không còn phù hợp tại thời điểm chạy. Kết quả này phù hợp với đặc thù của kiểm thử giao diện Web: các phần tử có thể được render động, thay đổi cấu trúc DOM hoặc xuất hiện chậm hơn so với thời điểm script tìm kiếm.
+
+Nhóm lỗi Prompt misunderstanding chiếm 23.53\%. Lỗi này xảy ra khi prompt, expected result hoặc điều kiện kiểm tra chưa đủ rõ, khiến agent hoặc assertion đánh giá sai kết quả. Ví dụ, một kịch bản đăng nhập không hợp lệ có thể được xem là thành công nếu expected result là hiển thị thông báo lỗi, nhưng có thể bị đánh giá fail nếu hệ thống chỉ kiểm tra việc điều hướng sang dashboard.
+
+Bên cạnh các lỗi đã được phân loại, vẫn còn một số lần thất bại chưa có failure type rõ ràng trong log. Điều này cho thấy hệ thống cần cải thiện việc gán nguyên nhân lỗi cho mọi phiên chạy thất bại, chẳng hạn bổ sung nhóm Unknown hoặc trích xuất nguyên nhân từ error message và step log.
+
+\subsection{Phân tích lỗi theo step thất bại}
+
+Bên cạnh phân loại lỗi theo run, hệ thống còn ghi nhận thông tin về các step thất bại. Do số lượng step lỗi được ghi nhận còn thấp, Bảng~\ref{tab:chapter6_step_failure_action} chỉ trình bày tỷ lệ theo loại hành động để quan sát xu hướng lỗi thay vì nhấn mạnh vào số lượng tuyệt đối.
+
+\begin{table}[H]
+\centering
+\caption{Tỷ lệ step thất bại theo loại hành động}
+\label{tab:chapter6_step_failure_action}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{7.0cm}|c|}
+\hline
+\textbf{Loại hành động} & \textbf{Tỷ lệ trong các step thất bại} \\
+\hline
+click & 41.67\% \\
+\hline
+assert\_url\_changed & 29.17\% \\
+\hline
+assert\_visible & 12.50\% \\
+\hline
+input & 8.33\% \\
+\hline
+fill & 4.17\% \\
+\hline
+write\_file & 4.17\% \\
+\hline
+\end{tabular}
+\end{table}
+
+Hành động click chiếm tỷ lệ cao nhất trong các step thất bại được ghi nhận. Điều này cho thấy thao tác click phụ thuộc nhiều vào khả năng xác định đúng phần tử, trạng thái hiển thị của phần tử và thời điểm trang đã sẵn sàng để tương tác. Các lỗi liên quan đến assertion như assert\_url\_changed và assert\_visible cũng chiếm tỷ lệ đáng kể, cho thấy việc thiết kế điều kiện kiểm tra kết quả là yếu tố quan trọng trong hệ thống kiểm thử tự động.
+
+Từ kết quả trên, có thể rút ra rằng việc cải thiện độ ổn định của hệ thống cần tập trung vào ba hướng: tăng chất lượng locator, bổ sung cơ chế chờ thông minh hơn và thiết kế assertion rõ ràng hơn cho từng loại test case.
+
+\section{Đánh giá các cơ chế hỗ trợ}
+
+\subsection{Object repository và self-healing}
+
+Object repository được thiết kế để lưu thông tin định vị phần tử và tái sử dụng trong replay script. Thay vì chỉ lưu một selector duy nhất, hệ thống có thể lưu nhiều thuộc tính như CSS selector, XPath, text, placeholder, accessible name hoặc các thông tin liên quan đến phần tử. Cách tiếp cận này giúp replay script có thêm lựa chọn khi locator chính không còn phù hợp.
+
+Trong dữ liệu thực nghiệm hiện tại, lỗi Bad locator là nhóm lỗi phổ biến nhất. Điều này cho thấy object repository và locator fallback là hướng cải thiện cần thiết. Tuy nhiên, log export hiện tại chưa ghi nhận đầy đủ số lần primary locator thất bại, số lần fallback được dùng và số lần self-healing thành công. Vì vậy, trong phạm vi Chương này, object repository và self-healing được đánh giá chủ yếu theo hướng định tính và thông qua phân tích lỗi locator.
+
+Kết quả thực nghiệm cho thấy self-healing nên được hiểu là cơ chế hỗ trợ phục hồi trước một số thay đổi nhỏ của locator, không phải khả năng tự động sửa mọi lỗi kiểm thử. Nếu giao diện thay đổi mạnh, phần tử bị xóa hoặc luồng nghiệp vụ thay đổi, người dùng vẫn cần cập nhật test case, replay script hoặc object repository.
+
+\subsection{Evidence, log và report}
+
+Evidence đóng vai trò quan trọng trong việc giúp người dùng hiểu một phiên chạy test. Một report hữu ích cần cho biết test pass hay fail, lỗi xảy ra ở bước nào, URL tại thời điểm lỗi, screenshot liên quan, log thao tác và error message.
+
+Trong dữ liệu thực nghiệm, hệ thống đã ghi nhận được execution result, execution time, run type, run note, failure type và step failure. Các thông tin này cho phép phân tích tổng quan tỷ lệ pass/fail, phân loại lỗi và xác định nhóm hành động thường thất bại. Tuy nhiên, để đánh giá đầy đủ hơn về evidence, hệ thống cần export thêm các chỉ số như số screenshot mỗi run, số step log mỗi run, số report có AI analysis và mức độ đầy đủ của timeline.
+
+Dù vậy, kết quả khảo sát người dùng cho thấy các thành phần report, screenshot, log và timeline được đánh giá tương đối tích cực. Điều này được trình bày chi tiết ở phần đánh giá trải nghiệm người dùng.
+
+\subsection{Phân tích lỗi bằng mô hình ngôn ngữ lớn}
+
+Phân tích lỗi bằng mô hình ngôn ngữ lớn có vai trò hỗ trợ người dùng đọc log và đưa ra gợi ý nguyên nhân thất bại. Cơ chế này đặc biệt hữu ích khi người dùng không quen đọc error message kỹ thuật hoặc không biết phân biệt lỗi do dữ liệu, lỗi do locator, lỗi do timeout và lỗi do ứng dụng.
+
+Trong phạm vi thực nghiệm hiện tại, hệ thống đã có dữ liệu failure type và notes để hỗ trợ phân tích lỗi. Tuy nhiên, chưa có bộ dữ liệu đánh giá riêng để chấm mức độ chính xác của AI analysis, ví dụ AI xác định đúng bước lỗi hay phân loại đúng nguyên nhân lỗi. Vì vậy, phần AI analysis được đánh giá chủ yếu thông qua phản hồi người dùng trong khảo sát. Trong các hướng phát triển tiếp theo, cần bổ sung bộ tiêu chí đánh giá AI analysis như: xác định đúng step lỗi, phân loại đúng root cause, gợi ý xử lý hữu ích và không sinh thông tin không có trong evidence.
+
+\section{Đánh giá trải nghiệm người dùng}
+
+\subsection{Mục tiêu khảo sát}
+
+Bên cạnh các số liệu thực nghiệm thu được từ log hệ thống, nhóm thực hiện thêm khảo sát nhỏ nhằm thu thập phản hồi của người dùng sau khi trải nghiệm hệ thống. Khảo sát tập trung vào các khía cạnh: giao diện và khả năng sử dụng, chức năng sinh test case, quá trình chạy test, report/evidence và mức độ hữu ích tổng thể.
+
+Khảo sát được thực hiện ở quy mô nhỏ với nhóm người dùng thử hệ thống. Các câu hỏi đánh giá sử dụng thang điểm 1--5, trong đó 1 thể hiện mức độ không đồng ý và 5 thể hiện mức độ đồng ý cao.
+
+Do đó, các kết quả khảo sát được sử dụng như nguồn tham khảo định tính nhằm bổ sung cho dữ liệu log thực nghiệm.
+
+\subsection{Đối tượng tham gia khảo sát}
+
+\begin{table}[H]
+\centering
+\caption{Nhóm người tham gia khảo sát}
+\label{tab:chapter6_survey_participants}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{10.0cm}|c|}
+\hline
+\textbf{Nhóm người dùng} & \textbf{Tỷ lệ} \\
+\hline
+Sinh viên ngành Công nghệ thông tin & 47.1\% \\
+\hline
+Lập trình viên & 17.6\% \\
+\hline
+Người dùng chưa có nhiều kinh nghiệm về kiểm thử phần mềm & 17.6\% \\
+\hline
+Tester / QA & 11.8\% \\
+\hline
+Khác & 5.9\% \\
+\hline
+\end{tabular}
+\end{table}
+
+Nhóm người tham gia khảo sát tương đối phù hợp với phạm vi đề tài vì bao gồm cả người có nền tảng công nghệ thông tin, lập trình viên, tester/QA và người chưa có nhiều kinh nghiệm kiểm thử phần mềm.
+
+\begin{table}[H]
+\centering
+\caption{Kinh nghiệm của người tham gia với kiểm thử tự động Web}
+\label{tab:chapter6_survey_experience}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{10.0cm}|c|}
+\hline
+\textbf{Mức độ kinh nghiệm} & \textbf{Tỷ lệ} \\
+\hline
+Chưa từng sử dụng công cụ kiểm thử tự động Web & 35.3\% \\
+\hline
+Đã từng sử dụng cơ bản & 29.4\% \\
+\hline
+Đã từng sử dụng thường xuyên & 17.6\% \\
+\hline
+Đã từng nghe qua nhưng chưa sử dụng & 17.6\% \\
+\hline
+\end{tabular}
+\end{table}
+
+Có 35.3\% người tham gia chưa từng sử dụng công cụ kiểm thử tự động Web. Điều này phù hợp với mục tiêu của hệ thống là giúp người dùng giảm rào cản khi tiếp cận kiểm thử tự động thông qua việc nhập yêu cầu bằng ngôn ngữ tự nhiên thay vì phải viết script ngay từ đầu.
+
+\subsection{Kết quả khảo sát theo nhóm tiêu chí}
+
+Bảng~\ref{tab:chapter6_user_survey_summary} tổng hợp điểm khảo sát theo các nhóm tiêu chí chính.
+
+\begin{table}[H]
+\centering
+\caption{Tổng hợp kết quả khảo sát theo nhóm tiêu chí}
+\label{tab:chapter6_user_survey_summary}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{7.0cm}|c|c|}
+\hline
+\textbf{Nhóm tiêu chí} & \textbf{Điểm trung bình} & \textbf{Tỷ lệ đánh giá 4--5} \\
+\hline
+Giao diện và khả năng sử dụng & 4.28/5 & 83.5\% \\
+\hline
+Sinh test case từ prompt & 4.24/5 & 80.9\% \\
+\hline
+Quá trình chạy test & 3.84/5 & 75.0\% \\
+\hline
+Kết quả, evidence và report & 4.13/5 & 80.4\% \\
+\hline
+Giá trị tổng thể và mức độ hài lòng & 4.04/5 & 76.5\% \\
+\hline
+\end{tabular}
+\end{table}
+
+Kết quả khảo sát cho thấy người dùng đánh giá tích cực giao diện, khả năng nhập yêu cầu kiểm thử bằng ngôn ngữ tự nhiên và chức năng sinh test case. Nhóm tiêu chí giao diện và khả năng sử dụng đạt điểm trung bình 4.28/5, trong khi nhóm sinh test case từ prompt đạt 4.24/5. Điều này cho thấy hệ thống có khả năng hỗ trợ người dùng tạo kịch bản kiểm thử ban đầu dễ dàng hơn so với việc viết test case hoặc test script hoàn toàn thủ công.
+
+Nhóm kết quả, evidence và report đạt điểm trung bình 4.13/5. Các câu hỏi liên quan đến log, timeline và phân tích lỗi được đánh giá khá tốt, cho thấy việc lưu evidence và hiển thị lại quá trình thực thi giúp người dùng hiểu rõ hơn kết quả kiểm thử.
+
+Tuy nhiên, nhóm tiêu chí liên quan đến quá trình chạy test có điểm trung bình thấp hơn, đạt 3.84/5. Trong đó, câu hỏi về việc người dùng có thể hiểu hệ thống đang thực hiện đến bước nào trong quá trình chạy test chỉ đạt 3.47/5. Đây là một điểm cần cải thiện, cho thấy hệ thống cần hiển thị trạng thái thực thi rõ ràng hơn theo thời gian thực, chẳng hạn bổ sung progress indicator, mô tả step đang chạy và phân biệt rõ các trạng thái đang chờ, đang thao tác, thất bại hoặc hoàn thành.
+
+\subsection{Mức độ chỉnh sửa test case sinh ra}
+
+Một nội dung quan trọng trong khảo sát là mức độ chỉnh sửa test case sinh ra trước khi sử dụng. Kết quả được trình bày trong Bảng~\ref{tab:chapter6_testcase_revision_survey}.
+
+\begin{table}[H]
+\centering
+\caption{Mức độ chỉnh sửa test case sinh ra trước khi sử dụng}
+\label{tab:chapter6_testcase_revision_survey}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{7.0cm}|c|c|}
+\hline
+\textbf{Mức độ chỉnh sửa} & \textbf{Số phản hồi} & \textbf{Tỷ lệ} \\
+\hline
+Không cần chỉnh sửa & 3 & 17.6\% \\
+\hline
+Chỉnh sửa rất ít & 5 & 29.4\% \\
+\hline
+Chỉnh sửa một phần & 9 & 52.9\% \\
+\hline
+\end{tabular}
+\end{table}
+
+Kết quả cho thấy 52.9\% người tham gia cho rằng test case cần chỉnh sửa một phần trước khi sử dụng, 29.4\% cho rằng chỉ cần chỉnh sửa rất ít và 17.6\% cho rằng không cần chỉnh sửa. Điều này cho thấy test case sinh ra từ mô hình ngôn ngữ lớn có giá trị như bản nháp ban đầu, giúp giảm công sức chuẩn bị kiểm thử, nhưng vẫn cần người dùng kiểm tra lại dữ liệu đầu vào, step và điều kiện kỳ vọng trước khi chạy chính thức.
+
+\section{Nhận xét tổng hợp}
+
+Dựa trên các kết quả định lượng từ log hệ thống và phản hồi khảo sát người dùng, có thể tổng hợp một số nhận xét chính về hai chế độ thực thi của hệ thống như sau. Bảng~\ref{tab:chapter6_agent_replay_comparison} so sánh hai chế độ chạy chính của hệ thống là agent và replay script.
+
+\begin{table}[H]
+\centering
+\caption{So sánh agent và replay script}
+\label{tab:chapter6_agent_replay_comparison}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3.6cm}|p{5.2cm}|p{5.2cm}|}
+\hline
+\textbf{Tiêu chí} & \textbf{Agent} & \textbf{Replay script} \\
+\hline
+Đầu vào & Goal hoặc prompt bằng ngôn ngữ tự nhiên. & Script đã được sinh hoặc chỉnh sửa. \\
+\hline
+Mức độ phụ thuộc LLM & Cao hơn vì cần suy luận hành động trong quá trình chạy. & Thấp hơn vì chạy theo các step đã lưu. \\
+\hline
+Tính linh hoạt & Phù hợp khi giao diện cần được quan sát và diễn giải theo ngữ cảnh. & Phù hợp với luồng đã ổn định và cần chạy lặp lại. \\
+\hline
+Tính xác định & Có thể thay đổi theo trạng thái giao diện và phản hồi của LLM. & Ổn định hơn về mặt luồng thao tác, nhưng phụ thuộc locator và assertion. \\
+\hline
+Khả năng bảo trì & Ít yêu cầu selector ban đầu, nhưng khó kiểm soát nếu prompt mơ hồ. & Cần bảo trì locator, assertion và dữ liệu khi website thay đổi. \\
+\hline
+Chi phí vận hành & Cao hơn do gọi LLM trong quá trình chạy. & Thấp hơn trong các lần chạy lặp lại vì chủ yếu sử dụng Playwright. \\
+\hline
+Vai trò phù hợp & Khám phá luồng, tạo kịch bản ban đầu, xử lý tình huống cần suy luận. & Kiểm thử hồi quy, chạy dataset, chạy suite. \\
+\hline
+\end{tabular}
+\end{table}
+
+Tổng hợp các kết quả trên cho thấy agent và replay script đóng vai trò bổ sung cho nhau. Agent phù hợp với giai đoạn khám phá và chạy test ban đầu, trong khi replay script phù hợp với các kịch bản đã ổn định và cần chạy lặp lại. Kết quả khảo sát cũng cho thấy người dùng đánh giá cao khả năng nhập yêu cầu kiểm thử bằng ngôn ngữ tự nhiên và sinh test case từ prompt, nhưng hệ thống vẫn cần cải thiện khả năng hiển thị trạng thái thực thi trong lúc chạy test.
+
+\begin{table}[H]
+\centering
+\caption{Tổng hợp mức độ đáp ứng các mục tiêu đánh giá}
+\label{tab:chapter6_evaluation_objective_summary}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{5.0cm}|p{5.0cm}|p{4.0cm}|}
+\hline
+\textbf{Mục tiêu đánh giá} & \textbf{Kết quả ghi nhận} & \textbf{Nhận xét} \\
+\hline
+Sinh test case từ mô tả tự nhiên & Thời gian sinh trung bình 3.66 giây mỗi batch. & Đáp ứng mục tiêu hỗ trợ tạo test case ban đầu. \\
+\hline
+Thực thi test bằng agent & Agent initial run đạt tỷ lệ Pass 90.91\%. & Phù hợp với giai đoạn chạy ban đầu và khám phá luồng. \\
+\hline
+Chạy lại bằng replay script & Replay script đạt tỷ lệ Pass 63.04\%; khi replay thành công, thời gian trung bình thấp hơn agent thành công 14.65\%. & Có tiềm năng cho kiểm thử hồi quy nhưng cần cải thiện locator và assertion. \\
+\hline
+Sinh dữ liệu kiểm thử & Chức năng sinh dataset hoàn thành trong các lần ghi nhận; thời gian sinh trung bình 2.57 giây. & Hỗ trợ chuẩn bị dữ liệu, nhưng cần đánh giá thêm theo từng dataset row. \\
+\hline
+Phân tích lỗi & Bad locator là lỗi phổ biến nhất trong các lỗi đã phân loại. & Giúp xác định hướng cải thiện object repository, locator fallback và timeout. \\
+\hline
+Trải nghiệm người dùng & Các nhóm tiêu chí chính đạt điểm trung bình từ 3.84/5 đến 4.28/5. & Người dùng đánh giá tích cực, nhưng cần cải thiện hiển thị tiến trình chạy test. \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Các yếu tố ảnh hưởng và giới hạn thực nghiệm}
+
+Kết quả thực nghiệm chịu ảnh hưởng bởi nhiều yếu tố khác nhau. Các yếu tố quan trọng gồm:
+
+\begin{itemize}
+    \item \textbf{Chất lượng prompt}: prompt càng rõ về mục tiêu, dữ liệu đầu vào và kết quả mong đợi thì test case và hành động agent càng dễ đúng.
+    \item \textbf{Trạng thái website}: trạng thái đăng nhập, dữ liệu hiện có, quyền tài khoản và phiên làm việc ảnh hưởng trực tiếp đến kết quả test.
+    \item \textbf{Tốc độ tải trang}: website tải chậm hoặc phản hồi bất đồng bộ có thể làm locator chưa sẵn sàng tại thời điểm agent hoặc replay thao tác.
+    \item \textbf{Độ ổn định của locator}: selector thay đổi hoặc phần tử được render động có thể làm replay script thất bại.
+    \item \textbf{Dữ liệu kiểm thử}: dữ liệu hết hạn, bị thay đổi hoặc không còn tồn tại có thể khiến test fail dù hệ thống kiểm thử vẫn hoạt động đúng.
+    \item \textbf{Cấu hình runtime}: timeout, browser profile, allowed domains và số phiên chạy đồng thời ảnh hưởng đến độ ổn định của worker.
+    \item \textbf{Phản hồi của LLM}: trong chế độ agent, kết quả có thể thay đổi theo cách mô hình diễn giải goal và trạng thái giao diện.
+    \item \textbf{Thiết kế assertion}: assertion quá chung có thể bỏ sót lỗi, trong khi assertion quá chặt có thể làm test fail khi giao diện thay đổi nhỏ.
+\end{itemize}
+
+Bên cạnh đó, quá trình đánh giá hiện tại còn có một số giới hạn:
+
+\begin{itemize}
+    \item Dữ liệu thực nghiệm tập trung nhiều vào nhóm Login, trong khi các module khác như PIM, Leave, Admin hoặc Time \& Attendance có số lần chạy còn ít.
+    \item Dữ liệu log được lọc theo các project có website mục tiêu liên quan đến OrangeHRM. Do đó, các bản ghi thuộc cùng website mục tiêu có thể đến từ nhiều project thử nghiệm khác nhau trong quá trình phát triển hệ thống. Vì vậy, kết quả cần được xem là dữ liệu thực nghiệm tổng hợp cho case study OrangeHRM, không phải benchmark tuyệt đối trên một project duy nhất.
+    \item Chỉ số Generated Tree Correct chưa được đánh giá thủ công; toàn bộ bản ghi trong log hiện tại vẫn ở trạng thái chưa đánh giá. Vì vậy, chỉ số này chưa được dùng để kết luận định lượng.
+    \item Dữ liệu về crawl website, test suite run, dataset row run, self-healing và AI analysis chưa được ghi nhận hoặc export đầy đủ thành các bảng định lượng riêng.
+    \item Khảo sát người dùng có số lượng phản hồi còn hạn chế, phù hợp để tham khảo định tính nhưng chưa đủ lớn để đại diện cho toàn bộ nhóm người dùng mục tiêu.
+\end{itemize}
+
+Những giới hạn trên cho thấy kết quả đánh giá cần được hiểu trong phạm vi case study và điều kiện thực nghiệm hiện tại. Để có kết luận tổng quát hơn, hệ thống cần được chạy trên nhiều website hơn, nhiều module nghiệp vụ hơn và với số lần lặp lại lớn hơn.
+
+\section{Kết chương}
+
+Chương này đã trình bày quá trình thực nghiệm và đánh giá hệ thống kiểm thử tự động ứng dụng Web thông qua case study OrangeHRM. Kết quả từ log hệ thống cho thấy trong 167 lần thực thi, hệ thống đạt 139 lần Pass và 28 lần Fail, tương ứng tỷ lệ Pass 83.2\%. Thời gian sinh test case trung bình theo batch là 3.66 giây, trong khi thời gian thực thi trung bình trên trình duyệt là 70.12 giây. Kết quả này cho thấy hệ thống có khả năng hỗ trợ quy trình kiểm thử từ prompt ngôn ngữ tự nhiên đến thực thi trên trình duyệt và ghi nhận kết quả.
+
+Khi so sánh hai chế độ chạy, agent initial run đạt tỷ lệ Pass 90.91\%, cao hơn replay script với tỷ lệ 63.04\%. Tuy nhiên, nếu chỉ xét các lần chạy thành công, replay script có thời gian trung bình 54.59 giây, thấp hơn agent thành công với 63.96 giây. Điều này cho thấy agent linh hoạt hơn trong giai đoạn khám phá và chạy test ban đầu, trong khi replay script phù hợp với các kịch bản đã ổn định và cần tiếp tục được cải thiện về locator, assertion và xử lý trạng thái để nâng cao tỷ lệ thành công.
+
+Phân tích lỗi cho thấy Bad locator là nhóm lỗi phổ biến nhất trong các lỗi đã được phân loại, chiếm 70.59\%. Điều này nhấn mạnh vai trò của object repository, locator fallback và cơ chế chờ phù hợp trong hệ thống kiểm thử giao diện Web. Ngoài ra, các lỗi liên quan đến prompt misunderstanding và assertion cũng cho thấy người dùng cần mô tả rõ mục tiêu kiểm thử, dữ liệu đầu vào và kết quả kỳ vọng.
+
+Kết quả khảo sát người dùng cho thấy hệ thống được đánh giá tích cực về giao diện, khả năng sinh test case từ prompt, report/evidence và giá trị hỗ trợ kiểm thử. Tuy nhiên, người dùng vẫn gặp khó khăn trong việc theo dõi hệ thống đang thực hiện đến bước nào trong quá trình chạy test. Đây là một hướng cải thiện quan trọng trong các phiên bản tiếp theo.
+
+Tổng hợp lại, kết quả thực nghiệm cho thấy hướng tiếp cận kết hợp mô hình ngôn ngữ lớn, agent, browser automation, replay script và evidence-based report là khả thi trong phạm vi case study OrangeHRM. Đồng thời, kết quả thực nghiệm cũng chỉ ra các giới hạn cần tiếp tục cải thiện như độ ổn định của replay script, khả năng tự phục hồi locator, đánh giá AI analysis và mở rộng thực nghiệm sang nhiều website khác.
