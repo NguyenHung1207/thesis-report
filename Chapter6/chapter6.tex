@@ -124,41 +124,41 @@ Phạm vi case study tập trung vào các luồng giao diện phổ biến thay
 
 \subsection{Các kịch bản đánh giá}
 
-Các kịch bản được thiết kế để bao phủ những năng lực quan trọng của hệ thống, từ giai đoạn tạo test case đến giai đoạn chạy lại và phân tích kết quả.
+Các kịch bản đánh giá được xây dựng từ các prompt kiểm thử giao diện trên OrangeHRM. Bảng~\ref{tab:chapter6_evaluation_scenarios} trình bày một số nhóm kịch bản đại diện được sử dụng trong quá trình thực nghiệm. Đây không phải là toàn bộ danh sách test case đã chạy, vì trong thực tế hệ thống còn được thử với nhiều test case có số bước dài hơn, kết hợp nhiều thao tác điều hướng, nhập dữ liệu và kiểm tra kết quả.
 
-{\footnotesize
+{\scriptsize
 \begin{table}[H]
 \centering
-\caption{Các kịch bản đánh giá trên OrangeHRM}
+\caption{Nhóm kịch bản và prompt đánh giá đại diện trên OrangeHRM}
 \label{tab:chapter6_evaluation_scenarios}
-\renewcommand{\arraystretch}{1.05}
-\begin{tabular}{|p{1.6cm}|p{4.2cm}|p{5.2cm}|p{3.2cm}|}
+\renewcommand{\arraystretch}{0.98}
+\begin{tabular}{|p{1.4cm}|p{4.0cm}|p{5.8cm}|p{3.0cm}|}
 \hline
-\textbf{Mã} & \textbf{Kịch bản} & \textbf{Mục tiêu đánh giá} & \textbf{Chức năng liên quan} \\
+\textbf{Mã} & \textbf{Nhóm kịch bản} & \textbf{Ví dụ prompt hoặc mục tiêu kiểm thử} & \textbf{Chức năng liên quan} \\
 \hline
-SC01 & Đăng nhập với tài khoản hợp lệ & Kiểm tra khả năng nhập form, nhấn nút đăng nhập và xác nhận vào dashboard. & Agent, replay, report \\
+SC01 & Đăng nhập thành công & Dùng Admin/admin123 và kiểm tra chuyển đến Dashboard. & Agent, assertion, replay \\
 \hline
-SC02 & Đăng nhập với mật khẩu sai & Kiểm tra khả năng nhận diện thông báo lỗi và phân biệt expected failure. & Dataset, assertion, report \\
+SC02 & Truy cập Dashboard & Đăng nhập hợp lệ và xác minh Dashboard được hiển thị. & Agent, assertion \\
 \hline
-SC03 & Đăng nhập thiếu thông tin & Kiểm tra xử lý validation message khi username hoặc password bị bỏ trống. & Dataset, replay, evidence \\
+SC03 & Điều hướng đến PIM & Đăng nhập, chọn PIM ở sidebar và kiểm tra trang PIM. & Agent, navigation, locator \\
 \hline
-SC04 & Điều hướng đến phân hệ quản lý nhân sự & Kiểm tra khả năng agent tìm menu và chuyển đến đúng màn hình chức năng. & Agent, object repository \\
+SC04 & Điều hướng đến Admin & Đăng nhập, chọn Admin ở sidebar và kiểm tra trang Admin. & Agent, navigation, locator \\
 \hline
-SC05 & Tìm kiếm hoặc lọc dữ liệu trong danh sách & Kiểm tra thao tác nhập điều kiện tìm kiếm và kiểm tra kết quả hiển thị. & Agent, replay, assertion \\
+SC05 & Điều hướng đến Leave & Đăng nhập, chọn Leave ở sidebar và kiểm tra trang Leave. & Agent, navigation, locator \\
 \hline
-SC06 & Sinh replay script từ phiên chạy thành công & Kiểm tra khả năng chuẩn hóa lịch sử agent thành script có thể chạy lại. & Replay script \\
+SC06 & Truy cập My Info & Đăng nhập, chọn My Info và kiểm tra trang thông tin cá nhân. & Agent, navigation, assertion \\
 \hline
-SC07 & Chạy lại replay script & Kiểm tra tính ổn định của script trong kịch bản hồi quy. & Playwright, locator fallback \\
+SC07 & Đăng nhập lỗi hoặc thiếu dữ liệu & Kiểm tra thông báo lỗi khi sai mật khẩu hoặc thiếu username/password. & Dataset, assertion \\
 \hline
-SC08 & Sinh và sử dụng nhiều bộ dữ liệu kiểm thử & Kiểm tra khả năng sinh dataset phục vụ các trường hợp đầu vào khác nhau. & Dataset generation \\
+SC08 & Tìm kiếm hoặc lọc danh sách & Nhập điều kiện tìm kiếm/bộ lọc và kiểm tra kết quả hiển thị. & Agent, replay, assertion \\
 \hline
-SC09 & Ghi nhận report, screenshot và log & Kiểm tra khả năng lưu lại evidence và hiển thị kết quả sau khi chạy. & Evidence, report \\
+SC09 & Kịch bản mở rộng phức tạp hơn & Kết hợp đăng nhập, điều hướng nhiều màn hình, nhập dữ liệu và kiểm tra URL/phần tử. & Agent, replay, assertion \\
 \hline
 \end{tabular}
 \end{table}
 }
 
-Các kịch bản trên được chia thành ba nhóm. Nhóm thứ nhất kiểm tra luồng agent trên giao diện thật. Nhóm thứ hai kiểm tra khả năng tái sử dụng kết quả agent thông qua replay script. Nhóm thứ ba kiểm tra các chức năng hỗ trợ như dataset, evidence, report và phân tích lỗi.
+Các kịch bản trên tập trung vào các thao tác người dùng thực tế trên OrangeHRM, đặc biệt là đăng nhập, kiểm tra Dashboard, điều hướng qua các phân hệ và kiểm tra kết quả hiển thị. Các cơ chế như replay script, evidence, screenshot, log và report không được xem là kịch bản kiểm thử nghiệp vụ riêng, mà được đánh giá như các thành phần hỗ trợ trong quá trình thực thi và phân tích kết quả.
 
 \subsection{Các chỉ số đánh giá}
 
@@ -408,22 +408,22 @@ Tuy nhiên, replay script hiện vẫn có tỷ lệ thất bại cao hơn agent
 
 \subsection{Phân loại lỗi theo failure type}
 
-Trong các phiên thực thi thất bại, một phần lỗi được hệ thống phân loại rõ ràng trong failure analysis. Do số lượng lỗi đã phân loại còn thấp, Bảng~\ref{tab:chapter6_failure_analysis} chỉ trình bày tỷ lệ theo loại lỗi để quan sát xu hướng thay vì nhấn mạnh vào số lượng tuyệt đối.
+Trong các phiên thực thi thất bại, một phần lỗi được hệ thống phân loại rõ ràng trong failure analysis. Do số lượng lỗi đã phân loại còn thấp, Bảng~\ref{tab:chapter6_failure_analysis} trình bày đồng thời số lượng và tỷ lệ theo loại lỗi để minh bạch dữ liệu nhưng vẫn chỉ xem đây là quan sát xu hướng.
 
 \begin{table}[H]
 \centering
 \caption{Phân loại lỗi trong quá trình thực nghiệm}
 \label{tab:chapter6_failure_analysis}
 \renewcommand{\arraystretch}{1.2}
-\begin{tabular}{|p{7.0cm}|c|}
+\begin{tabular}{|p{6.5cm}|c|c|}
 \hline
-\textbf{Loại lỗi} & \textbf{Tỷ lệ trong các lỗi đã phân loại} \\
+\textbf{Loại lỗi} & \textbf{Số lần} & \textbf{Tỷ lệ} \\
 \hline
-Bad locator & 70.59\% \\
+Bad locator & 12 & 70.59\% \\
 \hline
-Prompt misunderstanding & 23.53\% \\
+Prompt misunderstanding & 4 & 23.53\% \\
 \hline
-App error & 5.88\% \\
+App error & 1 & 5.88\% \\
 \hline
 \end{tabular}
 \end{table}
@@ -436,28 +436,28 @@ Bên cạnh các lỗi đã được phân loại, vẫn còn một số lần t
 
 \subsection{Phân tích lỗi theo step thất bại}
 
-Bên cạnh phân loại lỗi theo run, hệ thống còn ghi nhận thông tin về các step thất bại. Do số lượng step lỗi được ghi nhận còn thấp, Bảng~\ref{tab:chapter6_step_failure_action} chỉ trình bày tỷ lệ theo loại hành động để quan sát xu hướng lỗi thay vì nhấn mạnh vào số lượng tuyệt đối.
+Bên cạnh phân loại lỗi theo run, hệ thống còn ghi nhận thông tin về các step thất bại. Do số lượng step lỗi được ghi nhận còn thấp, Bảng~\ref{tab:chapter6_step_failure_action} trình bày đồng thời số lượng và tỷ lệ theo loại hành động để minh bạch dữ liệu nhưng vẫn chỉ xem đây là quan sát xu hướng.
 
 \begin{table}[H]
 \centering
-\caption{Tỷ lệ step thất bại theo loại hành động}
+\caption{Thống kê step thất bại theo loại hành động}
 \label{tab:chapter6_step_failure_action}
 \renewcommand{\arraystretch}{1.2}
-\begin{tabular}{|p{7.0cm}|c|}
+\begin{tabular}{|p{6.0cm}|c|c|}
 \hline
-\textbf{Loại hành động} & \textbf{Tỷ lệ trong các step thất bại} \\
+\textbf{Loại hành động} & \textbf{Số step thất bại} & \textbf{Tỷ lệ} \\
 \hline
-click & 41.67\% \\
+click & 10 & 41.67\% \\
 \hline
-assert\_url\_changed & 29.17\% \\
+assert\_url\_changed & 7 & 29.17\% \\
 \hline
-assert\_visible & 12.50\% \\
+assert\_visible & 3 & 12.50\% \\
 \hline
-input & 8.33\% \\
+input & 2 & 8.33\% \\
 \hline
-fill & 4.17\% \\
+fill & 1 & 4.17\% \\
 \hline
-write\_file & 4.17\% \\
+write\_file & 1 & 4.17\% \\
 \hline
 \end{tabular}
 \end{table}
