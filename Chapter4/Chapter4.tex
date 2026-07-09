@@ -1,170 +1,310 @@
 % =========================================================
-% CHAPTER 5
+% CHAPTER 4
 % =========================================================
 
-\chapter{Xây dựng và tích hợp hệ thống}
-\label{Chapter5}
+\chapter{Kiến trúc và thiết kế hệ thống}
+\label{Chapter4}
 
-\section{Môi trường và công nghệ sử dụng}
+\section{Kiến trúc tổng thể hệ thống}
 
-Dựa trên kiến trúc đã trình bày ở Chương~\ref{Chapter4}, hệ thống được xây dựng theo mô hình nhiều thành phần, gồm frontend, backend API, cơ sở dữ liệu và agent-worker. Cách tách này giúp hệ thống dễ phát triển, dễ bảo trì và phù hợp với bài toán kiểm thử tự động ứng dụng web, trong đó thành phần chạy trình duyệt có thể tiêu tốn nhiều tài nguyên.
+Từ các yêu cầu đã phân tích ở Chương~\ref{Chapter3}, hệ thống được thiết kế theo hướng tách biệt giữa giao diện người dùng, backend quản lý nghiệp vụ, cơ sở dữ liệu và agent-worker thực thi kiểm thử trên trình duyệt. Mục tiêu của kiến trúc là hỗ trợ quy trình kiểm thử tự động ứng dụng web, bao gồm tạo project, tạo test case từ mô tả tự nhiên, chạy test bằng agent, lưu evidence, sinh replay script và chạy lại kịch bản kiểm thử.
 
-Bảng~\ref{tab:chapter5_tech_stack} trình bày các công nghệ chính được sử dụng trong quá trình hiện thực hệ thống.
+Các mục tiêu thiết kế chính gồm:
+
+\begin{itemize}
+    \item \textbf{Tách biệt trách nhiệm}: frontend xử lý giao diện, backend xử lý nghiệp vụ và điều phối, agent-worker xử lý browser automation.
+    \item \textbf{Hỗ trợ kiểm thử bằng ngôn ngữ tự nhiên}: người dùng có thể mô tả mục tiêu kiểm thử bằng prompt hoặc goal.
+    \item \textbf{Kết hợp agent và replay script}: agent dùng cho lần chạy linh hoạt ban đầu, replay script dùng cho các lần kiểm thử hồi quy.
+    \item \textbf{Lưu vết đầy đủ}: mỗi lần chạy cần có trạng thái, verdict, log, screenshot, evidence và thông tin lỗi.
+    \item \textbf{Tăng khả năng bảo trì}: hệ thống hỗ trợ object repository, state anchors và self-healing ở mức locator fallback trong quá trình agent thực thi.
+    \item \textbf{Kiểm soát chi phí và tài nguyên}: giảm số lần gọi LLM khi đã có replay script ổn định và giới hạn số phiên trình duyệt chạy đồng thời.
+\end{itemize}
+
+\subsection{Kiến trúc component cấp hệ thống}
+
+Kiến trúc tổng thể của hệ thống gồm các thành phần chính: frontend, backend API, PostgreSQL database, agent-worker, Browser-use, Playwright, LLM và website mục tiêu. Các thành phần phối hợp với nhau thông qua API và callback để hoàn thành quy trình kiểm thử.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{images/chapter4/system_architecture.png}
+\caption{Kiến trúc tổng thể của hệ thống kiểm thử tự động ứng dụng web}
+\label{fig:system_architecture}
+\end{figure}
+
+Người dùng thao tác trên frontend để quản lý project, test case, dữ liệu kiểm thử và báo cáo. Frontend gửi yêu cầu đến backend API. Backend kiểm tra quyền truy cập, lưu dữ liệu nghiệp vụ vào PostgreSQL và gửi yêu cầu thực thi sang agent-worker. Agent-worker sử dụng Browser-use, Playwright và LLM để chạy test trên trình duyệt, sau đó callback kết quả về backend.
+
+\subsection{Công nghệ sử dụng}
+
+Bảng~\ref{tab:chapter4_technology_components} tóm tắt các công nghệ chính được sử dụng trong hệ thống.
 
 \begin{table}[H]
 \centering
-\caption{Môi trường và công nghệ sử dụng}
-\label{tab:chapter5_tech_stack}
+\caption{Công nghệ sử dụng theo thành phần}
+\label{tab:chapter4_technology_components}
 \renewcommand{\arraystretch}{1.2}
-\begin{tabular}{|p{4.0cm}|p{4.0cm}|p{6.2cm}|}
+\begin{tabular}{|p{4.0cm}|p{4.2cm}|p{6.0cm}|}
 \hline
 \textbf{Thành phần} & \textbf{Công nghệ} & \textbf{Vai trò} \\
 \hline
-Frontend & ReactJS, Vite, shadcn/ui, Tailwind CSS & Xây dựng giao diện quản lý project, test case, dataset, object repository và report. \\
+Frontend & ReactJS, Vite, shadcn/ui, Tailwind CSS & Cung cấp giao diện quản lý project, test case, test suite, test data, object repository và report. \\
 \hline
-Backend API & Node.js, Express.js & Cung cấp API, xử lý nghiệp vụ, quản lý dữ liệu và điều phối yêu cầu chạy test. \\
+Backend API & Node.js, Express.js & Xử lý API, quản lý dữ liệu nghiệp vụ, điều phối yêu cầu chạy test và nhận callback từ worker. \\
 \hline
-Database & PostgreSQL 16 & Lưu trữ user, project, test case, test run, evidence, replay script và object repository. \\
+Database & PostgreSQL 16 & Lưu trữ user, project, test case, replay script, test run, evidence, report, dataset, test suite và các dữ liệu hỗ trợ quá trình kiểm thử. \\
 \hline
-Agent-worker & Python, FastAPI & Thực thi test trên trình duyệt, chạy agent, chạy replay script và callback kết quả. \\
+Agent-worker & Python, FastAPI & Nhận yêu cầu thực thi, khởi tạo trình duyệt, chạy agent hoặc replay script và trả kết quả về backend. \\
 \hline
-Browser automation & Browser-use, Playwright & Browser-use hỗ trợ agent chạy theo mục tiêu tự nhiên; Playwright điều khiển trình duyệt và chạy replay script. \\
+Browser automation & Browser-use, Playwright & Browser-use hỗ trợ goal-based agent; Playwright điều khiển trình duyệt và chạy replay script. \\
 \hline
-AI/LLM & Google Gemini Flash & Hỗ trợ xử lý prompt, sinh test case, hỗ trợ agent suy luận hành động và gợi ý phân tích lỗi. \\
+AI/LLM & Google Gemini Flash & Hỗ trợ xử lý mô tả tự nhiên, sinh test case, hỗ trợ agent suy luận hành động và gợi ý phân tích lỗi. \\
 \hline
 \end{tabular}
 \end{table}
 
-Trong quá trình xây dựng, frontend không trực tiếp chạy kiểm thử trên trình duyệt, backend không trực tiếp điều khiển browser, còn agent-worker không quản lý dữ liệu nghiệp vụ dài hạn. Mỗi thành phần đảm nhiệm một vai trò riêng để hệ thống dễ mở rộng và dễ kiểm soát lỗi.
+\subsection{Luồng giao tiếp tổng quan}
 
-\section{Xây dựng các thành phần chính}
+Về tổng thể, frontend gửi yêu cầu nghiệp vụ đến backend. Backend lưu dữ liệu vào database và gửi yêu cầu chạy test sang worker khi cần thực thi. Worker chạy test trên trình duyệt, ghi nhận log, screenshot, action history và callback kết quả về backend. Backend cập nhật test run, evidence summary, replay script nếu có và trả dữ liệu để frontend hiển thị báo cáo.
 
-\subsection{Giao diện người dùng}
+\section{Thiết kế dữ liệu và lưu trữ}
 
-Giao diện người dùng được xây dựng bằng ReactJS, Vite, shadcn/ui và Tailwind CSS. Frontend là nơi người dùng thao tác với toàn bộ quy trình kiểm thử, từ tạo project, tạo test case, chạy test, xem lịch sử thực thi đến phân tích kết quả.
+Cơ sở dữ liệu được thiết kế để phục vụ vòng đời kiểm thử tự động, từ tạo project, tạo test case, chạy test, lưu evidence, sinh replay script đến phân tích lỗi. PostgreSQL 16 được sử dụng làm cơ sở dữ liệu chính.
 
-Các nhóm màn hình chính gồm màn hình xác thực, dashboard, project detail, test case detail, dataset management, object repository, recorded script và test run report. Giao diện được thiết kế theo hướng giúp người dùng thao tác với project, prompt, test case và báo cáo mà không cần trực tiếp viết mã kiểm thử. Các thông tin kỹ thuật như selector, replay script hoặc assertion chỉ được hiển thị ở những khu vực cần chỉnh sửa nâng cao.
+Trong chương này, phần thiết kế dữ liệu không trình bày toàn bộ schema vật lý của hệ thống. Thay vào đó, nội dung chỉ tập trung vào các bảng cốt lõi giúp người đọc hiểu dữ liệu được tổ chức như thế nào để phục vụ vòng đời kiểm thử. Các bảng phụ trợ như cấu hình runtime, phiên đăng nhập, lịch sử sinh dữ liệu bằng AI hoặc bảng phân loại không được thể hiện chi tiết trong ERD chính nhằm giữ sơ đồ gọn và dễ đọc.
 
-\subsection{Backend API}
-
-Backend API được xây dựng bằng Node.js và Express.js. Thành phần này giữ vai trò trung tâm trong việc xử lý nghiệp vụ, quản lý dữ liệu và điều phối các yêu cầu chạy test sang agent-worker.
-
-Các nhóm API chính gồm authentication, project, scan, test case, execution, replay script, dataset, object repository và report. Khi người dùng yêu cầu chạy test, backend tạo bản ghi test run, chuẩn bị payload gồm thông tin test case, input params, runtime config, browser profile và callback URL, sau đó gửi sang agent-worker. Khi worker hoàn tất, backend nhận callback, cập nhật trạng thái test run, lưu evidence summary và trả kết quả để frontend hiển thị.
-
-\subsection{Agent-worker}
-
-Agent-worker được xây dựng bằng Python và FastAPI. Đây là thành phần chịu trách nhiệm thực thi kiểm thử trên trình duyệt, bao gồm chạy test bằng Browser-use agent, chạy replay script bằng Playwright và hỗ trợ fast-forward inspect.
-
-Agent-worker hỗ trợ hai chế độ thực thi chính:
+Các nguyên tắc thiết kế dữ liệu gồm:
 
 \begin{itemize}
-    \item \textbf{Goal-based agent}: worker nhận goal, prompt, plan snapshot và input params, sau đó tạo task cho Browser-use agent để chạy kiểm thử trên trình duyệt.
-    \item \textbf{Replay script}: worker đọc script JSON đã lưu và dùng Playwright để chạy lại các bước như navigate, fill, click và assertion.
+    \item \textbf{Truy vết đầy đủ}: mỗi test run cần liên kết được với project, test case, replay script, evidence và người kích hoạt.
+    \item \textbf{Tách dữ liệu theo vòng đời kiểm thử}: dữ liệu được tổ chức xoay quanh project, test case, replay script, test run, evidence, report, dataset và test suite.
+    \item \textbf{Hỗ trợ dữ liệu bán cấu trúc}: replay script, evidence summary, runtime config hoặc thông tin hỗ trợ định vị phần tử có thể được lưu dạng JSON/JSONB để dễ mở rộng.
+    \item \textbf{Hỗ trợ kiểm thử hồi quy}: hệ thống lưu lịch sử chạy, replay script và evidence để phục vụ các lần kiểm thử sau.
+    \item \textbf{Hỗ trợ phân tích lỗi}: test run, step log, evidence và failure analysis được tách riêng để người dùng có thể xem lại quá trình thực thi.
 \end{itemize}
 
-Trong quá trình chạy, worker ghi nhận action history, current URL, screenshot, log, trạng thái từng bước, verdict cuối cùng và error message nếu có. Sau khi chạy xong, worker callback kết quả về backend. Nếu phiên chạy bằng agent thành công, hệ thống có thể chuyển lịch sử hành động thành replay script để sử dụng cho các lần chạy sau.
+\subsection{Mô hình dữ liệu cốt lõi}
 
-\subsection{Cơ sở dữ liệu}
+Hình~\ref{fig:db_core_lifecycle} trình bày mô hình dữ liệu cốt lõi của hệ thống. Sơ đồ này không nhằm thay thế toàn bộ schema vật lý, mà chỉ thể hiện các bảng quan trọng nhất giúp hình dung dữ liệu đi qua vòng đời kiểm thử như thế nào.
 
-Cơ sở dữ liệu sử dụng PostgreSQL 16 để lưu trữ dữ liệu nghiệp vụ và dữ liệu thực thi của hệ thống. Các nhóm dữ liệu chính gồm người dùng và project, test case và script, test run và evidence, dataset, test suite và object repository.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{images/chapter4/db_core_lifecycle.png}
+\caption{Mô hình dữ liệu cốt lõi phục vụ vòng đời kiểm thử}
+\label{fig:db_core_lifecycle}
+\end{figure}
 
-Một số dữ liệu có cấu trúc linh hoạt như replay script, plan snapshot, variables schema, selector collection, runtime config snapshot và evidence summary được lưu dưới dạng JSON/JSONB. Cách lưu này giúp hệ thống dễ mở rộng khi cần bổ sung loại action, assertion, metadata hoặc evidence mới.
+Trong mô hình này, \texttt{users} và \texttt{projects} quản lý người dùng và project kiểm thử. Bảng \texttt{test\_cases} lưu mục tiêu kiểm thử ở mức nghiệp vụ, còn \texttt{test\_case\_versions} giúp truy vết nội dung test case theo từng phiên bản. Sau khi agent chạy thành công, hệ thống có thể lưu kịch bản phát lại trong \texttt{execution\_scripts} để phục vụ kiểm thử hồi quy.
 
-\section{Tích hợp các công nghệ lõi}
+Khi người dùng chạy kiểm thử, mỗi lần chạy được lưu trong \texttt{test\_runs}. Các log theo bước được lưu trong \texttt{run\_step\_logs}, trong khi các bằng chứng như screenshot, log hoặc artifact được lưu trong \texttt{evidences}. Bảng \texttt{reports} tổng hợp kết quả hiển thị cho người dùng, còn \texttt{failure\_analyses} lưu thông tin phân tích lỗi khi test thất bại.
 
-\subsection{Tích hợp Browser-use}
+Ngoài ra, \texttt{test\_datasets} hỗ trợ chạy test với nhiều bộ dữ liệu khác nhau, còn nhóm bảng test suite hoặc test sheet giúp gom nhiều test case thành một nhóm chạy. Những bảng này phục vụ chức năng mở rộng, nhưng không phải trọng tâm chính của kiến trúc agent/replay.
 
-Browser-use được tích hợp trong agent-worker để hỗ trợ chế độ goal-based agent. Khi nhận yêu cầu chạy test, worker xây dựng task text từ goal, prompt, plan snapshot, input params, base URL và allowed domains. Task này được truyền cho Browser-use agent để agent quan sát giao diện, suy luận hành động và thao tác trên website mục tiêu.
+\subsection{Các nhóm dữ liệu chính}
 
-Quá trình chạy bằng Browser-use được tổ chức theo vòng lặp quan sát -- suy luận -- hành động. Sau mỗi bước, worker ghi nhận log, screenshot và action history để phục vụ báo cáo và sinh replay script.
+Các bảng dữ liệu có thể được nhìn theo bốn nhóm nghiệp vụ chính như Bảng~\ref{tab:chapter4_data_groups}. Cách trình bày này giúp phần thiết kế dữ liệu ngắn gọn hơn, đồng thời vẫn cho thấy vai trò của từng nhóm bảng trong hệ thống.
 
-\subsection{Tích hợp Playwright}
+\begin{table}[H]
+\centering
+\caption{Các nhóm dữ liệu chính trong hệ thống}
+\label{tab:chapter4_data_groups}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3.8cm}|p{4.8cm}|p{5.8cm}|}
+\hline
+\textbf{Nhóm dữ liệu} & \textbf{Bảng tiêu biểu} & \textbf{Vai trò} \\
+\hline
+Project và test case & \texttt{users}, \texttt{projects}, \texttt{test\_cases}, \texttt{test\_case\_versions} & Lưu người dùng, project, mục tiêu kiểm thử và nội dung test case theo phiên bản. \\
+\hline
+Replay script & \texttt{execution\_scripts} & Lưu kịch bản phát lại được sinh từ phiên chạy agent thành công để phục vụ kiểm thử hồi quy. \\
+\hline
+Execution và evidence & \texttt{test\_runs}, \texttt{run\_step\_logs}, \texttt{evidences}, \texttt{reports}, \texttt{failure\_analyses} & Lưu trạng thái chạy test, log từng bước, bằng chứng, báo cáo và thông tin phân tích lỗi. \\
+\hline
+Dataset và test suite & \texttt{test\_datasets}, \texttt{test\_sheets}, \texttt{test\_sheet\_runs} & Hỗ trợ chạy test với nhiều bộ dữ liệu và gom nhiều test case thành nhóm chạy. \\
+\hline
+Cấu hình và bảo mật & \texttt{agent\_runtime\_configs}, \texttt{browser\_profiles}, \texttt{sessions}, \texttt{project\_secrets} & Lưu cấu hình chạy, phiên đăng nhập và các dữ liệu nhạy cảm cần kiểm soát truy cập. \\
+\hline
+\end{tabular}
+\end{table}
 
-Playwright được sử dụng làm lớp điều khiển trình duyệt trong hệ thống. Trong chế độ agent, Playwright hỗ trợ mở trình duyệt và thực hiện các hành động do agent yêu cầu. Trong chế độ replay, Playwright trực tiếp chạy script JSON đã lưu.
+\subsection{Các quyết định schema đáng chú ý}
 
-Các thao tác chính gồm mở trang web, tìm phần tử bằng locator hoặc selector collection, thực hiện click/fill/navigate, kiểm tra assertion, chụp screenshot và ghi nhận thông tin phục vụ evidence. Việc sử dụng Playwright giúp các lần chạy replay ổn định hơn vì không cần LLM suy luận lại toàn bộ luồng kiểm thử.
+\begin{table}[H]
+\centering
+\caption{Các quyết định schema đáng chú ý}
+\label{tab:chapter4_schema_decisions}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.2cm}|p{10.0cm}|}
+\hline
+\textbf{Quyết định} & \textbf{Lý do} \\
+\hline
+Tách test case và test run & Test case mô tả mục tiêu kiểm thử, còn test run mô tả một lần thực thi cụ thể. Cách tách này giúp một test case có thể được chạy nhiều lần và có nhiều kết quả khác nhau. \\
+\hline
+Quản lý test case theo version & Test case có thể thay đổi theo thời gian, nên cần lưu version để truy vết nội dung test case tại thời điểm chạy. \\
+\hline
+Lưu replay script dạng JSON & Replay script có cấu trúc linh hoạt, có thể chứa nhiều loại action, assertion, params và metadata. \\
+\hline
+Tách evidence khỏi test run & Một test run có thể có nhiều evidence như screenshot, log, DOM snapshot, video hoặc trace. Tách evidence giúp hệ thống mở rộng loại bằng chứng mà không làm bảng test run quá lớn. \\
+\hline
+Lưu snapshot khi chạy & Runtime config, browser profile hoặc dataset có thể thay đổi, nên cần lưu snapshot để phân tích lại test run chính xác. \\
+\hline
+Lưu dữ liệu bán cấu trúc bằng JSON/JSONB & Các dữ liệu như replay script, evidence summary hoặc selector collection có cấu trúc linh hoạt, nên lưu dạng JSON/JSONB để dễ mở rộng mà không phải thay đổi schema quá thường xuyên. \\
+\hline
+\end{tabular}
+\end{table}
 
-\subsection{Tích hợp Google Gemini Flash}
+Ngoài cấu trúc bảng, hệ thống cần quản lý rõ trạng thái của các tiến trình bất đồng bộ như scan, test run, replay run và suite run. Một số trạng thái chính gồm pending, running, passed, failed, error và cancelled. Việc chuẩn hóa trạng thái giúp frontend hiển thị tiến độ, backend cập nhật kết quả và người dùng dễ truy vết quá trình thực thi.
 
-Google Gemini Flash được sử dụng trong các tác vụ liên quan đến ngôn ngữ tự nhiên và phân tích ngữ cảnh. Trong hệ thống, mô hình hỗ trợ phân tích prompt, sinh test case, hỗ trợ agent suy luận hành động và gợi ý nguyên nhân khi test thất bại.
+\section{Thiết kế các luồng xử lý cốt lõi}
 
-Tuy nhiên, hệ thống không phụ thuộc hoàn toàn vào LLM trong mọi lần chạy. Sau khi agent chạy thành công và replay script được tạo, các lần kiểm thử hồi quy có thể dùng Playwright để chạy lại script mà không cần gọi LLM ở từng bước. Cách kết hợp này giúp giảm chi phí vận hành và tăng tính xác định của quá trình kiểm thử.
+Phần này mô tả các luồng xử lý chính của hệ thống. Các luồng được trình bày theo vòng đời kiểm thử: chuẩn bị project, tạo test case, chạy kiểm thử bằng agent, sinh replay script, chạy replay và ghi nhận kết quả.
 
-\section{Xây dựng các chức năng kiểm thử}
+\subsection{Luồng tạo project, scan/crawl website và sinh test case}
 
-\subsection{Scan/crawl website}
+Luồng scan/crawl website được dùng để xây dựng thông tin nền ban đầu về website trong phạm vi project, bao gồm các URL có thể truy cập, sitemap và interaction map. Chức năng này không phân tích sâu toàn bộ logic giao diện mà chỉ cung cấp ngữ cảnh ban đầu cho các bước tạo test case và chạy agent.
 
-Chức năng scan/crawl website được xây dựng để ghi nhận thông tin nền ban đầu về website trong phạm vi project. Quá trình scan bắt đầu từ base URL và duyệt qua các trang có thể truy cập trong phạm vi cấu hình. Kết quả scan được lưu dưới dạng sitemap, interaction map, trạng thái scan, thời điểm chạy và thông tin lỗi nếu có.
+Luồng sinh test case bắt đầu từ prompt hoặc goal do người dùng nhập vào. Backend kết hợp prompt với thông tin project hoặc scan result nếu có, sau đó gọi AI để sinh test case gồm title, goal và test plan. Test case được lưu để người dùng xem lại, chỉnh sửa hoặc chạy thử.
 
-Thông tin scan không thay thế khả năng quan sát của agent, mà đóng vai trò cung cấp ngữ cảnh ban đầu cho việc tạo test case và thực thi kiểm thử.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{images/chapter4/flow_project_testcase_creation.png}
+\caption{Luồng tạo project và sinh test case}
+\label{fig:flow_project_testcase_creation}
+\end{figure}
 
-\subsection{Sinh test case}
+\subsection{Luồng chạy bằng goal-based agent}
 
-Chức năng sinh test case cho phép người dùng nhập prompt hoặc goal bằng ngôn ngữ tự nhiên. Hệ thống sử dụng AI để phân tích nội dung này và tạo ra test case có cấu trúc gồm tiêu đề, mục tiêu kiểm thử, test plan và các thông tin liên quan.
+Goal-based agent là chế độ chạy linh hoạt nhất của hệ thống. Agent đọc mục tiêu kiểm thử, quan sát giao diện hiện tại và quyết định hành động tiếp theo dựa trên trạng thái thực tế của website. Khi agent gặp khó khăn trong việc nhận diện phần tử giao diện, cơ chế locator fallback được xử lý như một nhánh trong chính luồng agent execution, thay vì tách thành một luồng riêng.
 
-Sau khi test case được sinh, người dùng có thể xem lại, chỉnh sửa hoặc lưu vào project. Test case được lưu cùng prompt gốc, execution mode, plan snapshot, variables schema và AI model nếu có để hỗ trợ truy vết và chỉnh sửa sau này.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{images/chapter4/flow_agent_test_execution.png}
+\caption{Luồng chạy test bằng goal-based agent}
+\label{fig:flow_agent_test_execution}
+\end{figure}
 
-\subsection{Quản lý test data và test suite}
+Trong luồng này, người dùng chọn test case và yêu cầu chạy bằng agent. Backend tạo test run và gửi yêu cầu sang worker. Worker sử dụng Browser-use, Playwright và LLM để quan sát giao diện, suy luận hành động và thao tác trên website mục tiêu. Nếu locator hoặc cách nhận diện phần tử ban đầu không còn phù hợp, agent có thể quan sát lại giao diện, sử dụng ngữ cảnh hoặc thông tin phần tử có sẵn để thử cách nhận diện khác và tiếp tục thực thi. Trong quá trình chạy, hệ thống ghi nhận log, screenshot, action history và evidence. Khi test kết thúc, worker trả kết quả về backend. Nếu phiên chạy thành công, hệ thống có thể sinh replay script từ lịch sử hành động để phục vụ các lần chạy lại sau.
 
-Chức năng test data cho phép người dùng tạo và quản lý các bộ dữ liệu đầu vào cho test case. Dataset có thể được tạo thủ công hoặc sinh tự động bằng AI dựa trên mục tiêu kiểm thử. Khi chạy replay script với dataset, hệ thống thay thế các tham số trong script bằng dữ liệu tương ứng và lưu kết quả riêng cho từng dòng dữ liệu.
+\subsection{Luồng chạy bằng replay script}
 
-Test suite được xây dựng để gom nhóm nhiều test case và chạy theo lô. Người dùng có thể tạo suite, thêm test case vào suite, sắp xếp thứ tự chạy và khởi tạo suite run. Sau khi chạy, hệ thống tổng hợp kết quả từng test case trong suite để phục vụ kiểm thử hồi quy.
+Replay script được sử dụng khi test case đã có kịch bản phát lại. Đây là chế độ phù hợp cho kiểm thử hồi quy vì không cần agent suy luận lại toàn bộ luồng kiểm thử.
 
-\subsection{Replay script}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{images/chapter4/flow_replay_execution.png}
+\caption{Luồng chạy test bằng replay script}
+\label{fig:flow_replay_execution}
+\end{figure}
 
-Replay script là kịch bản phát lại được sinh từ lịch sử hành động sau khi agent chạy thành công. Script được lưu dưới dạng JSON, bao gồm danh sách step, action type, params, assertion và metadata liên quan.
+Trong chế độ replay, worker đọc script JSON đã lưu và sử dụng Playwright để chạy các step theo thứ tự. Replay script ưu tiên tính ổn định và khả năng lặp lại, nên không gọi LLM để tự suy luận lại toàn bộ luồng kiểm thử. Nếu locator, action hoặc assertion trong script không còn phù hợp, test run được ghi nhận là failed hoặc error, đồng thời hệ thống lưu evidence để người dùng phân tích và cập nhật lại test case, object repository hoặc replay script khi cần.
 
-Khi chạy replay, worker sử dụng Playwright để thực thi từng step theo thứ tự. Nếu step tham chiếu object repository, worker lấy selector collection của object và thử locator theo thứ tự ưu tiên. Replay script không sử dụng LLM fallback, do đó quá trình chạy có tính xác định hơn so với chế độ agent.
+\subsection{Luồng sinh report và evidence}
 
-\section{Xây dựng cơ chế hỗ trợ}
+Trong quá trình chạy test, worker ghi nhận log, screenshot, action history và kết quả từng bước. Khi test kết thúc, worker tổng hợp verdict, error message và evidence summary rồi callback về backend. Backend cập nhật test run, lưu evidence và cung cấp dữ liệu để frontend hiển thị report.
 
-\subsection{Object repository và locator fallback}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{images/chapter4/flow_report_evidence.png}
+\caption{Luồng lưu evidence và sinh báo cáo}
+\label{fig:flow_report_evidence}
+\end{figure}
 
-Object repository được xây dựng để lưu trữ thông tin định vị phần tử giao diện theo project. Mỗi object đại diện cho một phần tử có ý nghĩa trong kiểm thử, chẳng hạn như ô nhập username, ô nhập password, nút login hoặc một trường dữ liệu trong form.
+Report cần thể hiện rõ test pass/fail, lỗi xảy ra ở bước nào và evidence liên quan. Với người dùng kỹ thuật, hệ thống có thể hiển thị thêm log chi tiết, action history, assertion failure hoặc thông tin locator để phục vụ quá trình sửa lỗi.
 
-Thay vì chỉ lưu một selector duy nhất, hệ thống lưu selector collection gồm nhiều thuộc tính định vị khác nhau như test id, id ổn định, name attribute, CSS selector, accessible name, placeholder, title hoặc XPath. Khi chạy replay, hệ thống thử locator chính trước rồi thử locator dự phòng nếu locator chính thất bại. Nếu tất cả locator đều thất bại, test run được đánh dấu failed/error và evidence được lưu lại để người dùng phân tích.
+\section{Thiết kế agent-worker và cơ chế thực thi}
 
-\subsection{AI analysis và report}
+Agent-worker là thành phần kỹ thuật lõi của hệ thống vì đây là nơi trực tiếp khởi tạo trình duyệt, điều phối Browser-use agent, chạy replay script bằng Playwright và ghi nhận evidence. Việc tách agent-worker khỏi backend giúp backend tập trung vào nghiệp vụ và API, trong khi worker xử lý các tác vụ nặng hơn như browser automation, gọi LLM và lưu bằng chứng thực thi.
 
-Sau mỗi lần chạy test, hệ thống tổng hợp kết quả thành report. Report bao gồm trạng thái cuối cùng, verdict, thời gian chạy, danh sách bước đã thực hiện, screenshot, log, evidence và error message nếu có.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{images/chapter4/agent_worker_design.png}
+\caption{Thiết kế bên trong agent-worker}
+\label{fig:agent_worker_design}
+\end{figure}
 
-Khi test thất bại, hệ thống có thể sử dụng AI để hỗ trợ gợi ý nguyên nhân lỗi, chẳng hạn do ứng dụng không thỏa điều kiện kiểm tra, locator không tìm thấy phần tử, timeout, dữ liệu đầu vào không phù hợp hoặc agent chọn sai hành động. Kết quả phân tích này chỉ đóng vai trò hỗ trợ, không thay thế việc kiểm tra lại của người dùng.
+Khi chạy bằng goal-based agent, worker nhận test case và runtime config từ backend, sau đó khởi tạo browser context trong phạm vi website được phép truy cập. Worker sử dụng Browser-use agent để quan sát giao diện và gọi LLM nhằm suy luận hành động tiếp theo. Các thao tác trên trình duyệt được thực hiện thông qua Playwright. Trong quá trình này, worker ghi nhận action history, log, screenshot và các evidence liên quan.
 
-\section{Bảo mật và xử lý dữ liệu nhạy cảm}
+Khi chạy bằng replay script, worker không cần gọi LLM ở từng bước mà đọc script JSON đã lưu và dùng Playwright để phát lại các action theo thứ tự. Cách này phù hợp với kiểm thử hồi quy vì giảm chi phí gọi LLM và giúp kết quả ổn định hơn so với chế độ agent.
 
-Trong quá trình xây dựng hệ thống, một số nhóm dữ liệu cần được xem là nhạy cảm, bao gồm tài khoản người dùng, mật khẩu, API key, thông tin xác thực website, dữ liệu test account, screenshot và log. Do đó, hệ thống cần áp dụng các nguyên tắc bảo vệ dữ liệu trong quá trình hiện thực.
+Agent-worker cũng cần có các cơ chế kiểm soát vận hành như timeout, giới hạn số phiên trình duyệt chạy đồng thời, allowed domains và xử lý lỗi khi website không tải được, locator thất bại hoặc assertion không đạt. Các lỗi này được ghi nhận vào test run và evidence để người dùng có thể phân tích sau khi chạy.
 
-Các cơ chế chính gồm:
+\section{Thiết kế cơ chế hỗ trợ bảo trì kiểm thử}
 
-\begin{itemize}
-    \item Không lưu mật khẩu người dùng ở dạng thô.
-    \item Không để lộ API key hoặc cấu hình LLM ở frontend.
-    \item Kiểm tra quyền truy cập project trước khi cho phép xem hoặc chỉnh sửa test case, dataset, replay script và evidence.
-    \item Giới hạn domain được phép truy cập khi chạy agent hoặc replay script.
-    \item Không ghi token, API key hoặc mật khẩu thật vào log nếu không cần thiết.
-    \item Xem nội dung website là dữ liệu không tin cậy để hạn chế rủi ro prompt injection.
-    \item Khuyến khích sử dụng tài khoản test hoặc tài khoản staging khi chạy kiểm thử.
-\end{itemize}
+\subsection{Object Repository và State Anchors}
 
-Do hệ thống có khả năng tự động thao tác trên website, việc giới hạn phạm vi kiểm thử là đặc biệt quan trọng. Mỗi project cần xác định base URL và allowed domains để hạn chế trường hợp agent hoặc replay script điều hướng ra ngoài phạm vi mong muốn.
+Object Repository được dùng để lưu thông tin định vị phần tử giao diện theo hướng có thể tái sử dụng. Mỗi object có thể chứa tên object, page key, mô tả, selector collection, attribute snapshot và nguồn tạo object. Thông tin này giúp hệ thống có thêm dữ liệu tham chiếu khi agent cần nhận diện phần tử giao diện trong quá trình thực thi, đồng thời hỗ trợ tái sử dụng thông tin phần tử cho các lần chạy sau.
 
-\section{Khó khăn trong quá trình xây dựng}
+State Anchors là các điều kiện xác nhận trạng thái quan trọng của giao diện, chẳng hạn như URL thay đổi, văn bản xuất hiện, phần tử hiển thị, giá trị input đúng hoặc thông báo lỗi xuất hiện. Khi chạy test, hệ thống không chỉ thực hiện action mà còn cần kiểm tra các anchor/assertion này để xác định test case đạt hay không đạt.
 
-Trong quá trình xây dựng hệ thống, nhóm gặp một số khó khăn chính sau:
+Self-healing ở mức locator fallback không được tách thành một quy trình độc lập trong thiết kế, mà được xem là một phần của luồng chạy bằng agent. Khi agent không nhận diện được phần tử theo cách ban đầu, hệ thống có thể sử dụng lại ngữ cảnh giao diện, thuộc tính phần tử hoặc thông tin trong object repository để hỗ trợ agent thử cách nhận diện khác. Cơ chế này chỉ hỗ trợ một số thay đổi nhỏ của giao diện và không thay thế việc cập nhật lại test case khi luồng nghiệp vụ thay đổi lớn.
 
-\begin{itemize}
-    \item \textbf{Tích hợp nhiều công nghệ}: hệ thống kết hợp ReactJS, Node.js, PostgreSQL, Python FastAPI, Browser-use, Playwright và LLM, nên cần cơ chế giao tiếp rõ ràng giữa các thành phần.
-    \item \textbf{Quản lý trạng thái chạy test}: một test run có thể kéo dài, timeout hoặc phát sinh lỗi, nên cần lưu trạng thái và callback kết quả chính xác.
-    \item \textbf{Chuyển lịch sử agent thành replay script}: hành động do agent thực hiện cần được chuẩn hóa thành các step có cấu trúc để có thể chạy lại bằng Playwright.
-    \item \textbf{Xử lý locator không ổn định}: giao diện web có thể thay đổi, khiến selector cũ không còn hoạt động, nên cần object repository và locator fallback.
-    \item \textbf{Kiểm soát chi phí khi dùng LLM}: replay script được dùng để giảm số lần gọi LLM trong kiểm thử hồi quy.
-    \item \textbf{Ghi nhận evidence hợp lý}: screenshot, log và action history cần đủ để phân tích lỗi nhưng không nên làm hệ thống quá tải.
-\end{itemize}
+\subsection{Quản lý test suite và dữ liệu kiểm thử}
 
-Những khó khăn trên ảnh hưởng trực tiếp đến cách hiện thực hệ thống. Vì vậy, nhóm ưu tiên tách thành phần, lưu vết đầy đủ, dùng replay script để giảm chi phí LLM và bổ sung object repository để hỗ trợ bảo trì kịch bản kiểm thử.
+Test suite giúp gom nhóm nhiều test case theo một mục tiêu kiểm thử lớn hơn, ví dụ nhóm kiểm thử đăng nhập, quản lý dữ liệu hoặc kiểm thử hồi quy cho một module. Khi chạy test suite, hệ thống lần lượt chạy các test case trong danh sách và tổng hợp kết quả pass, failed hoặc error.
+
+Dữ liệu kiểm thử giúp chạy cùng một test case với nhiều bộ input khác nhau. Ví dụ, một test case đăng nhập có thể được chạy với tài khoản hợp lệ, sai mật khẩu, thiếu username hoặc dữ liệu sai định dạng. Cách thiết kế này giúp người dùng không cần tạo nhiều test case gần giống nhau chỉ để thay đổi dữ liệu đầu vào.
+
+\section{Thiết kế bảo mật và kiểm soát vận hành}
+
+Do hệ thống có khả năng tự động mở trình duyệt, gọi LLM và thao tác trên website mục tiêu, các cơ chế bảo mật và kiểm soát vận hành cần được thiết kế ngay từ đầu. Bảng~\ref{tab:chapter4_security_operation} tóm tắt các nhóm kiểm soát chính.
+
+\begin{table}[H]
+\centering
+\caption{Các nhóm kiểm soát bảo mật và vận hành}
+\label{tab:chapter4_security_operation}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.0cm}|p{10.2cm}|}
+\hline
+\textbf{Nhóm kiểm soát} & \textbf{Nội dung thiết kế} \\
+\hline
+Xác thực và phân quyền & Người dùng phải đăng nhập trước khi truy cập hệ thống. Mỗi project, test case, dataset, evidence và replay script cần gắn với người dùng hoặc phạm vi truy cập tương ứng. \\
+\hline
+Bảo vệ backend API & Backend kiểm tra request, kiểm tra dữ liệu đầu vào, kiểm tra quyền truy cập project và không để lộ API key, token hoặc cấu hình LLM ở frontend. \\
+\hline
+Bảo vệ agent-worker & Worker chỉ nhận request từ backend hoặc nguồn tin cậy, có timeout, giới hạn số phiên browser đồng thời và giới hạn domain được phép truy cập. \\
+\hline
+Bảo vệ dữ liệu kiểm thử & Screenshot, log, dataset và evidence có thể chứa thông tin nhạy cảm, nên cần được lưu ở vị trí có kiểm soát truy cập và tránh ghi token, API key hoặc mật khẩu vào log. \\
+\hline
+Kiểm soát phạm vi website & Mỗi test run cần có allowed domains hoặc cơ chế giới hạn domain để tránh agent hoặc replay script điều hướng ra ngoài phạm vi kiểm thử. \\
+\hline
+Nội dung website và prompt injection & Nội dung trên website mục tiêu được xem là dữ liệu không tin cậy. Worker không cho phép nội dung website ghi đè quy tắc vận hành của agent, không đưa API key hoặc token vào prompt và cần giới hạn hành động trong phạm vi kiểm thử đã cấu hình. \\
+\hline
+\end{tabular}
+\end{table}
+
+Đối với các website cần đăng nhập, hệ thống nên khuyến khích sử dụng tài khoản staging hoặc tài khoản test có quyền hạn giới hạn. Không nên sử dụng tài khoản thật trên môi trường production nếu chưa có cơ chế kiểm soát phù hợp.
+
+\section{Cơ sở lựa chọn thiết kế và các đánh đổi}
+
+Các quyết định thiết kế chính của hệ thống được tổng hợp trong Bảng~\ref{tab:chapter4_design_decisions}. Bảng này giúp làm rõ không chỉ hệ thống được thiết kế như thế nào, mà còn vì sao nhóm chọn hướng thiết kế đó.
+
+\begin{table}[H]
+\centering
+\caption{Tổng hợp các quyết định kiến trúc lớn của Chương 4}
+\label{tab:chapter4_design_decisions}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{4.0cm}|p{5.2cm}|p{5.0cm}|}
+\hline
+\textbf{Quyết định} & \textbf{Lý do chọn} & \textbf{Đánh đổi} \\
+\hline
+Tách backend và agent-worker & Backend tập trung vào nghiệp vụ, worker tập trung vào chạy trình duyệt và LLM. & Cần callback, đồng bộ trạng thái và xử lý lỗi giữa hai service. \\
+\hline
+Sử dụng LLM và agent trong lần chạy ban đầu & Giúp người dùng tạo và thực thi kiểm thử từ mô tả tự nhiên, giảm rào cản viết script; đồng thời hỗ trợ self-healing ở mức locator fallback khi giao diện thay đổi nhỏ. & Kết quả có thể không hoàn toàn xác định, cần lưu evidence và chuyển phiên chạy thành replay script khi thành công. \\
+\hline
+Kết hợp agent và replay script & Agent phù hợp cho lần chạy linh hoạt ban đầu; replay phù hợp cho kiểm thử hồi quy và giảm chi phí LLM. & Cần chuyển lịch sử agent thành script và bảo trì script khi giao diện thay đổi. \\
+\hline
+Lưu replay script dạng JSON & Dễ mở rộng action, assertion, params và metadata. & Cần validate script trước khi chạy để tránh lỗi runtime. \\
+\hline
+Tách evidence khỏi test run & Cho phép lưu nhiều loại bằng chứng cho một lần chạy. & Cần quản lý lưu trữ và quyền truy cập evidence chặt chẽ. \\
+\hline
+Dùng object repository và state anchors & Cung cấp thêm thông tin nhận diện phần tử và điều kiện xác nhận trạng thái, giúp agent thực thi ổn định hơn khi giao diện thay đổi nhỏ. & Cần logic lưu, cập nhật và lựa chọn selector/attribute phù hợp. \\
+\hline
+Giới hạn domain khi chạy worker & Giảm rủi ro agent truy cập ngoài phạm vi kiểm thử. & Người dùng cần cấu hình project và allowed domains đúng. \\
+\hline
+\end{tabular}
+\end{table}
+
+Nhìn chung, các quyết định trên đều xoay quanh một mục tiêu chung: giữ cho hệ thống đủ linh hoạt để tận dụng AI agent, nhưng vẫn có cơ chế xác định, truy vết và kiểm soát khi chạy kiểm thử hồi quy.
 
 \section{Kết chương}
 
-Chương này đã trình bày quá trình xây dựng và tích hợp hệ thống kiểm thử tự động ứng dụng web. Nội dung chương bao gồm môi trường công nghệ, các thành phần chính, cách tích hợp Browser-use, Playwright và Google Gemini Flash, cũng như các chức năng kiểm thử như scan/crawl website, sinh test case, quản lý test data, test suite và replay script.
+Chương này đã trình bày kiến trúc và thiết kế hệ thống kiểm thử tự động ứng dụng web. Hệ thống được thiết kế theo hướng tách biệt giữa frontend, backend API, cơ sở dữ liệu và agent-worker, giúp phân tách rõ phần giao diện, nghiệp vụ, lưu trữ và thực thi kiểm thử.
 
-Chương cũng trình bày các cơ chế hỗ trợ như object repository, locator fallback, AI analysis và report, đồng thời nêu các vấn đề bảo mật và khó khăn trong quá trình xây dựng. Đây là cơ sở để đánh giá kết quả đạt được của hệ thống ở chương tiếp theo.
+Chương cũng trình bày thiết kế dữ liệu ở mức cốt lõi, các luồng xử lý chính, thiết kế agent-worker, cơ chế hỗ trợ bảo trì kiểm thử, nguyên tắc bảo mật và các đánh đổi quan trọng. Đặc biệt, chương đã làm rõ vai trò của agent-worker trong việc điều phối Browser-use, Playwright và LLM để thực thi kiểm thử, đồng thời phân biệt giữa chế độ chạy linh hoạt bằng agent và chế độ chạy ổn định hơn bằng replay script. Đây là cơ sở để trình bày quá trình hiện thực và tích hợp hệ thống ở chương tiếp theo.
