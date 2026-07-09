@@ -1,0 +1,79 @@
+%%{init: {
+  "theme": "base",
+  "flowchart": {
+    "curve": "linear",
+    "defaultRenderer": "elk",
+    "nodeSpacing": 85,
+    "rankSpacing": 90
+  },
+  "themeVariables": {
+    "fontFamily": "Arial",
+    "fontSize": "22px",
+    "primaryTextColor": "#000000",
+    "lineColor": "#000000"
+  }
+}}%%
+
+flowchart TD
+
+    User["Người dùng<br/>(QA / Lập trình viên)"]
+
+    subgraph L1["Tầng giao diện"]
+        Frontend["Ứng dụng giao diện<br/>React + Vite"]
+    end
+
+    subgraph L2["Tầng ứng dụng"]
+        Backend["API phía máy chủ<br/>Node.js / Express"]
+    end
+
+    subgraph L3["Tầng thực thi"]
+        Worker["Agent Worker<br/>Python / FastAPI"]
+        Automation["Tự động hóa trình duyệt<br/>Browser-use + Playwright"]
+    end
+
+    subgraph L4["Tầng trí tuệ nhân tạo"]
+        Gemini["Suy luận bằng LLM<br/>Gemini Flash"]
+    end
+
+    subgraph L5["Tầng dữ liệu"]
+        PostgreSQL[("PostgreSQL 16<br/>Dữ liệu hệ thống")]
+        Storage[("Kho lưu bằng chứng<br/>Log / Ảnh chụp / Báo cáo")]
+    end
+
+    subgraph L6["Hệ thống mục tiêu"]
+        Website["Ứng dụng web<br/>cần kiểm thử"]
+    end
+
+    User -->|"Quản lý kiểm thử<br/>Xem báo cáo"| Frontend
+
+    Frontend -->|"Gửi yêu cầu API"| Backend
+
+    Backend -->|"Lưu / truy xuất dữ liệu"| PostgreSQL
+    Backend -->|"Yêu cầu chạy kiểm thử"| Worker
+
+    Worker -->|"Thực thi / phát lại / kiểm tra"| Automation
+    Worker -->|"Phân tích lỗi"| Gemini
+
+    Automation -->|"Tương tác giao diện"| Website
+
+    Worker -->|"Lưu bằng chứng"| Storage
+    Worker -.->|"Trạng thái / kết quả"| Backend
+
+    Backend -->|"Lưu thông tin lần chạy"| PostgreSQL
+    Backend -->|"Trả báo cáo / lịch sử"| Frontend
+
+    classDef presentation fill:#E6F7FF,stroke:#1890FF,stroke-width:2px,color:#000000;
+    classDef application fill:#FFF1F0,stroke:#FF4D4F,stroke-width:2px,color:#000000;
+    classDef execution fill:#F6FFED,stroke:#52C41A,stroke-width:2px,color:#000000;
+    classDef ai fill:#F9F0FF,stroke:#722ED1,stroke-width:2px,color:#000000;
+    classDef data fill:#FFFBE6,stroke:#FAAD14,stroke-width:2px,color:#000000;
+    classDef target fill:#F5F5F5,stroke:#8C8C8C,stroke-width:2px,color:#000000;
+    classDef actor fill:#FFFFFF,stroke:#000000,stroke-width:2px,color:#000000;
+
+    class User actor;
+    class Frontend presentation;
+    class Backend application;
+    class Worker,Automation execution;
+    class Gemini ai;
+    class PostgreSQL,Storage data;
+    class Website target;

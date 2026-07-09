@@ -1,0 +1,49 @@
+%%{init: {
+  "theme": "base",
+  "sequence": {
+    "mirrorActors": false,
+    "showSequenceNumbers": true,
+    "actorMargin": 120,
+    "messageMargin": 90,
+    "boxMargin": 20,
+    "noteMargin": 20
+  },
+  "themeVariables": {
+    "fontFamily": "Arial",
+    "fontSize": "26px",
+    "primaryTextColor": "#000000",
+    "lineColor": "#000000"
+  }
+}}%%
+
+sequenceDiagram
+    autonumber
+
+    actor User as Người dùng
+    participant FE as Giao diện
+    participant BE as Backend
+    participant DB as CSDL
+    participant AI as LLM
+
+    rect rgb(230, 247, 255)
+    Note over User,DB: Tạo project
+
+    User->>FE: Nhập thông tin
+    FE->>BE: Gửi yêu cầu
+    BE->>DB: Lưu project
+    BE-->>FE: Trả kết quả
+    FE-->>User: Hiển thị project
+    end
+
+    rect rgb(249, 240, 255)
+    Note over User,AI: Sinh test case
+
+    User->>FE: Nhập goal
+    FE->>BE: Gửi goal
+    BE->>DB: Lấy ngữ cảnh
+    BE->>AI: Sinh test case
+    AI-->>BE: Trả test case
+    BE->>DB: Lưu test case
+    BE-->>FE: Trả kết quả
+    FE-->>User: Hiển thị test case
+    end

@@ -3,75 +3,65 @@
 
 \section{Bối cảnh và vấn đề nghiên cứu}
 
-Trong những năm gần đây, ứng dụng web đã trở thành một trong những nền tảng phần mềm phổ biến nhất để cung cấp dịch vụ số cho người dùng cá nhân, doanh nghiệp và tổ chức. Các hệ thống thương mại điện tử, ngân hàng số, giáo dục trực tuyến, quản lý nội bộ, chăm sóc khách hàng và nhiều phần mềm doanh nghiệp khác đều được triển khai thông qua trình duyệt web nhờ khả năng truy cập linh hoạt, dễ cập nhật và không phụ thuộc nhiều vào thiết bị người dùng.
+Ứng dụng web hiện nay được sử dụng rộng rãi trong nhiều lĩnh vực như thương mại điện tử, quản trị nội bộ, giáo dục trực tuyến, chăm sóc khách hàng và các hệ thống doanh nghiệp. Cùng với sự phát triển đó, giao diện web ngày càng phức tạp hơn do có nhiều trạng thái tương tác, dữ liệu bất đồng bộ, thành phần động và luồng nghiệp vụ thay đổi thường xuyên.
 
-Cùng với sự phát triển của kiến trúc ứng dụng hiện đại, đặc biệt là các ứng dụng một trang, giao diện web ngày càng có nhiều trạng thái, dữ liệu bất đồng bộ, thành phần động và luồng nghiệp vụ thay đổi liên tục. Điều này khiến hoạt động đảm bảo chất lượng phần mềm trở nên khó khăn hơn, đặc biệt trong các nhóm phát triển có chu kỳ cập nhật ngắn. Mỗi thay đổi ở mã nguồn, giao diện hoặc quy trình nghiệp vụ đều có thể tạo ra lỗi hồi quy, tức là một chức năng từng hoạt động đúng ở phiên bản trước có thể bị sai lệch ở phiên bản sau.
+Những thay đổi liên tục của ứng dụng web đặt ra yêu cầu cao đối với hoạt động kiểm thử. Mỗi lần cập nhật giao diện, sửa lỗi hoặc bổ sung chức năng đều có thể làm phát sinh lỗi hồi quy. Nếu các lỗi này không được phát hiện kịp thời, chúng có thể ảnh hưởng đến trải nghiệm người dùng, độ tin cậy của hệ thống và chất lượng sản phẩm. Các nghiên cứu về chất lượng phần mềm cũng cho thấy chi phí xử lý lỗi thường tăng lên khi lỗi được phát hiện ở giai đoạn muộn~\cite{BoehmBasili2001}.
 
-Kiểm thử phần mềm vì vậy không chỉ là hoạt động phát hiện lỗi trước khi bàn giao sản phẩm, mà còn là cơ chế kiểm soát rủi ro trong toàn bộ vòng đời phát triển. Nhiều nghiên cứu trong kỹ nghệ phần mềm đã chỉ ra rằng chi phí phát hiện và khắc phục lỗi tăng lên đáng kể khi lỗi được phát hiện muộn. Boehm và Basili cho rằng việc tìm và sửa lỗi sau khi phần mềm đã được bàn giao có thể tốn kém hơn nhiều lần so với việc phát hiện lỗi ở giai đoạn yêu cầu hoặc thiết kế~\cite{BoehmBasili2001}. Điều này cho thấy giá trị của việc phát hiện lỗi sớm, đặc biệt trong bối cảnh ứng dụng web thường xuyên thay đổi và phục vụ số lượng lớn người dùng.
+Kiểm thử thủ công vẫn cần thiết vì con người có khả năng đánh giá ngữ cảnh và phát hiện các bất thường về trải nghiệm. Tuy nhiên, khi số lượng chức năng tăng lên và chu kỳ phát hành ngắn hơn, việc lặp lại nhiều kịch bản kiểm thử bằng thao tác thủ công trở nên tốn thời gian và dễ sai sót. Vì vậy, kiểm thử tự động là hướng tiếp cận quan trọng để hỗ trợ chạy lại các kịch bản kiểm thử và phát hiện lỗi sớm hơn.
 
-Kiểm thử tự động là một hướng giải quyết quan trọng cho vấn đề trên. Thay vì yêu cầu người kiểm thử thực hiện lặp lại từng thao tác trên giao diện, hệ thống kiểm thử tự động có thể mô phỏng hành vi người dùng, thực thi kịch bản kiểm thử, so sánh kết quả thực tế với kết quả mong đợi và tạo báo cáo sau mỗi lần chạy. Các công cụ như Selenium WebDriver, Cypress và Playwright đã trở thành nền tảng quen thuộc trong kiểm thử ứng dụng web. Selenium cung cấp khả năng tự động hóa trình duyệt phục vụ kiểm thử ứng dụng web~\cite{Selenium2026}, trong khi Playwright hỗ trợ điều khiển nhiều trình duyệt như Chromium, Firefox và WebKit thông qua một API thống nhất~\cite{Playwright2026}.
+Hiện nay, các công cụ như Selenium và Playwright đã hỗ trợ tốt việc tự động hóa trình duyệt~\cite{Selenium2026,Playwright2026}. Tuy nhiên, các công cụ này thường yêu cầu người dùng viết script, khai báo selector, XPath hoặc hiểu cấu trúc DOM của trang web. Khi giao diện thay đổi, selector có thể không còn phù hợp, khiến kịch bản kiểm thử thất bại dù chức năng nghiệp vụ vẫn hoạt động đúng.
 
-Tuy nhiên, việc xây dựng và duy trì kịch bản kiểm thử tự động cho ứng dụng web vẫn còn nhiều khó khăn. Phần lớn công cụ kiểm thử hiện tại yêu cầu người dùng mô tả thao tác thông qua mã nguồn, CSS selector, XPath hoặc các thuộc tính cụ thể trong cây DOM. Cách tiếp cận này có độ chính xác cao khi giao diện ổn định, nhưng dễ bị ảnh hưởng khi cấu trúc HTML, tên lớp CSS, bố cục giao diện hoặc thư viện thành phần thay đổi. Trong nhiều trường hợp, kịch bản kiểm thử thất bại không phải vì ứng dụng có lỗi nghiệp vụ, mà vì bộ chọn phần tử không còn phù hợp với phiên bản giao diện mới.
-
-Bên cạnh đó, kiểm thử thủ công cũng gặp giới hạn khi số lượng chức năng tăng lên và chu kỳ phát hành bị rút ngắn. Các ca kiểm thử hồi quy phải được thực hiện lặp lại sau mỗi lần cập nhật phần mềm, dẫn đến tiêu tốn nhiều thời gian, công sức và dễ phát sinh sai sót do yếu tố con người. Ngược lại, kiểm thử tự động truyền thống tuy giúp giảm thao tác lặp lại, nhưng lại đòi hỏi người thực hiện có hiểu biết về lập trình, cấu trúc web, công cụ kiểm thử và quy trình phát triển phần mềm. Điều này tạo ra khoảng cách giữa người hiểu rõ nghiệp vụ và người có khả năng viết mã kiểm thử.
-
-Từ thực tế trên, có thể thấy khoảng cách giữa mục tiêu nghiệp vụ của ca kiểm thử và cách biểu diễn kỹ thuật của kịch bản kiểm thử là một nguyên nhân quan trọng tạo ra chi phí bảo trì. Người kiểm thử thường muốn mô tả mục tiêu ở mức ngữ nghĩa, chẳng hạn như đăng nhập bằng tài khoản hợp lệ rồi kiểm tra trang chính hiển thị đúng, trong khi công cụ kiểm thử truyền thống lại yêu cầu mô tả ở mức kỹ thuật như selector, XPath hoặc chuỗi thao tác cố định. Khi giao diện thay đổi nhưng mục tiêu nghiệp vụ vẫn giữ nguyên, kịch bản kiểm thử đáng lẽ vẫn có thể tiếp tục được sử dụng. Đây là khoảng trống mà hướng tiếp cận dựa trên tác nhân AI và mô hình ngôn ngữ lớn có thể hỗ trợ giải quyết.
+Từ thực tế trên, đề tài tập trung vào bài toán xây dựng một hệ thống hỗ trợ kiểm thử tự động ứng dụng web, trong đó người dùng có thể mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên. Hệ thống sử dụng mô hình ngôn ngữ lớn để hỗ trợ sinh test case, kết hợp Browser-use agent và Playwright để thực thi kiểm thử, lưu lại kịch bản và tạo báo cáo kết quả.
 
 \section{Giải pháp đề xuất}
 
-Sự phát triển của các mô hình ngôn ngữ lớn mở ra một hướng tiếp cận mới cho bài toán kiểm thử tự động ứng dụng web. Khi kết hợp khả năng hiểu ngôn ngữ tự nhiên, quan sát giao diện và điều khiển trình duyệt, một tác nhân AI có thể tiếp nhận mục tiêu kiểm thử do người dùng mô tả, phân tích trạng thái hiện tại của ứng dụng, suy luận hành động tiếp theo và thực thi thao tác trên trình duyệt. Gemini API của Google hỗ trợ xử lý ngôn ngữ tự nhiên và hiểu nội dung từ dữ liệu phi cấu trúc như hình ảnh, tài liệu và video~\cite{GeminiAPI2026}, tạo điều kiện để áp dụng mô hình ngôn ngữ lớn vào các bài toán liên quan đến giao diện.
+Đề tài hướng đến việc xây dựng một nền tảng web hỗ trợ kiểm thử tự động cho ứng dụng web, đặc biệt trên môi trường staging hoặc môi trường kiểm thử có kiểm soát. Thay vì yêu cầu người dùng trực tiếp viết script, hệ thống cho phép người dùng nhập prompt hoặc goal bằng ngôn ngữ tự nhiên để mô tả mục tiêu kiểm thử.
 
-Khóa luận này đề xuất xây dựng hệ thống kiểm thử tự động ứng dụng web dựa trên tác nhân AI. Hệ thống cho phép người dùng tạo project kiểm thử, khai báo website mục tiêu, mô tả ca kiểm thử bằng ngôn ngữ tự nhiên, chạy test bằng agent, ghi nhận bằng chứng thực thi và xem báo cáo kết quả. Thay vì yêu cầu người dùng viết mã kiểm thử hoặc khai báo selector, hệ thống hướng đến việc để người dùng mô tả mục tiêu ở mức gần với nghiệp vụ, còn tác nhân kiểm thử đảm nhận việc chuyển mục tiêu đó thành các hành động cụ thể trên giao diện.
+Quy trình tổng quát của hệ thống gồm các bước chính: người dùng tạo project kiểm thử, khai báo website mục tiêu thông qua base URL, nhập mô tả kiểm thử, sau đó hệ thống dùng LLM để sinh test case có cấu trúc. Trong phạm vi đề tài, Google Gemini Flash được sử dụng để hỗ trợ xử lý ngôn ngữ tự nhiên, sinh test case, hỗ trợ agent suy luận hành động và phân tích lỗi~\cite{GeminiAPI2026}.
 
-Về mặt kỹ thuật, hệ thống được xây dựng dưới dạng nền tảng web đa tầng. Frontend được dùng để người dùng quản lý project, test case, test suite, dữ liệu kiểm thử và báo cáo. Backend chịu trách nhiệm xử lý nghiệp vụ, lưu trữ thông tin kiểm thử và điều phối yêu cầu chạy test. Cơ sở dữ liệu PostgreSQL được sử dụng để lưu các thực thể chính như user, project, test case, test run, evidence, dataset, replay script và object repository. Thành phần agent-worker được xây dựng độc lập bằng Python và FastAPI để thực thi kiểm thử trên trình duyệt, sử dụng Browser-use để tổ chức vòng lặp tác nhân và Playwright để điều khiển trình duyệt~\cite{BrowserUse2024,Playwright2026}.
+Sau khi test case được tạo, Browser-use agent nhận test case làm đầu vào và tương tác với website thông qua trình duyệt~\cite{BrowserUse2024}. Playwright được sử dụng làm lớp điều khiển trình duyệt để mở trang, nhập liệu, nhấn nút, kiểm tra trạng thái và chạy lại script~\cite{Playwright2026}. Trong quá trình chạy, hệ thống ghi nhận log, screenshot, action history, verdict và evidence để phục vụ việc xem lại kết quả.
 
-Hệ thống hỗ trợ hai chế độ thực thi chính. Ở chế độ tác nhân AI, Browser-use agent tiếp nhận mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, quan sát giao diện hiện tại, sử dụng mô hình ngôn ngữ lớn để suy luận và thực hiện hành động trên trình duyệt. Sau khi phiên chạy thành công, hệ thống chuyển lịch sử thao tác thành replay script dạng JSON. Ở chế độ replay, Playwright chạy lại script đã ghi mà không cần gọi mô hình ngôn ngữ ở từng bước, giúp giảm chi phí vận hành và phù hợp hơn với kiểm thử hồi quy.
-
-Ngoài ra, hệ thống còn lưu log, screenshot, action history và report sau mỗi lần chạy. Khi ca kiểm thử thất bại, các bằng chứng này giúp người dùng truy vết quá trình thực thi, xác định bước xảy ra lỗi và phân biệt lỗi do ứng dụng, dữ liệu, môi trường hay do tác nhân suy luận chưa đúng. Hướng tiếp cận này không nhằm thay thế hoàn toàn các phương pháp kiểm thử hiện tại, mà đóng vai trò như một lớp hỗ trợ giúp giảm rào cản tạo test case, giảm phụ thuộc vào selector cố định và tăng khả năng bảo trì kịch bản kiểm thử.
+Điểm trọng tâm của giải pháp là kết hợp giữa chế độ chạy linh hoạt bằng agent và chế độ chạy lại bằng replay script. Agent được dùng để khám phá và thực thi luồng kiểm thử ban đầu. Khi phiên chạy thành công, hệ thống chuẩn hóa lịch sử thao tác thành replay script để sử dụng cho các lần kiểm thử sau. Cách tiếp cận này giúp tận dụng khả năng linh hoạt của LLM/agent, đồng thời giảm chi phí và tăng tính ổn định khi kiểm thử hồi quy.
 
 \section{Mục tiêu đề tài}
 
-Mục tiêu tổng quát của khóa luận là xây dựng một hệ thống kiểm thử tự động ứng dụng web có khả năng thực thi ca kiểm thử dựa trên mô tả ngôn ngữ tự nhiên. Hệ thống cần cung cấp giao diện quản lý kịch bản kiểm thử, cơ chế lưu trữ kết quả, thành phần tác nhân thực thi và báo cáo bằng chứng sau mỗi lần chạy.
+Mục tiêu tổng quát của đề tài là xây dựng một hệ thống kiểm thử tự động ứng dụng web có khả năng hỗ trợ người dùng tạo, thực thi, lưu vết và đánh giá các ca kiểm thử thông qua một nền tảng web.
 
 Các mục tiêu cụ thể bao gồm:
 
 \begin{itemize}
-    \item Xây dựng nền tảng web cho phép người dùng tạo project, khai báo website mục tiêu và quản lý các ca kiểm thử.
-    
-    \item Hỗ trợ người dùng tạo test case từ prompt hoặc goal bằng ngôn ngữ tự nhiên.
-    
-    \item Tích hợp agent-worker có khả năng điều khiển trình duyệt, quan sát giao diện và thực hiện hành động kiểm thử bằng Browser-use, Playwright và mô hình ngôn ngữ lớn.
-    
+    \item Xây dựng nền tảng web cho phép người dùng tạo project kiểm thử và khai báo website mục tiêu.
+    \item Hỗ trợ tạo test case từ prompt hoặc goal bằng ngôn ngữ tự nhiên.
+    \item Tích hợp LLM để hỗ trợ sinh test case, hỗ trợ agent trong quá trình chạy và gợi ý nguyên nhân khi test thất bại.
+    \item Tích hợp Browser-use agent và Playwright để thực thi kiểm thử trên trình duyệt.
     \item Ghi nhận log, screenshot, action history, verdict và evidence sau mỗi lần chạy test.
-    
-    \item Sinh replay script từ phiên chạy agent thành công để hỗ trợ các lần kiểm thử hồi quy.
-    
-    \item Hỗ trợ chạy lại test bằng replay script, có thể kết hợp với dữ liệu kiểm thử và cơ chế thử locator dự phòng.
-    
-    \item Cung cấp báo cáo giúp người dùng xem kết quả chạy test và phân tích nguyên nhân khi ca kiểm thử thất bại.
+    \item Sinh và chạy lại replay script nhằm hỗ trợ kiểm thử hồi quy và giảm sự phụ thuộc vào LLM trong các lần chạy sau.
+    \item Hỗ trợ quản lý test data, test suite, object repository và báo cáo kết quả kiểm thử.
 \end{itemize}
-
-Trọng tâm của khóa luận không chỉ nằm ở việc tự động hóa một số thao tác trên trình duyệt, mà còn nằm ở việc thiết kế một quy trình kiểm thử trong đó mô hình ngôn ngữ lớn có thể tham gia vào quá trình suy luận hành động, còn hệ thống vẫn lưu được bằng chứng, script và kết quả để phục vụ kiểm thử hồi quy.
 
 \section{Phạm vi đề tài}
 
-Về phạm vi chức năng, hệ thống tập trung vào việc hỗ trợ người dùng tạo và thực thi ca kiểm thử tự động cho ứng dụng web. Hệ thống tiếp nhận mô tả kiểm thử bằng ngôn ngữ tự nhiên, quan sát giao diện đang chạy trên trình duyệt, sử dụng tác nhân AI để suy luận hành động, thực thi thao tác thông qua công cụ tự động hóa trình duyệt, ghi nhận bằng chứng và tạo báo cáo kết quả sau mỗi lần chạy.
+Về phạm vi chức năng, hệ thống tập trung vào kiểm thử các luồng thao tác trên giao diện người dùng của ứng dụng web, chẳng hạn như mở trang, đăng nhập, nhập dữ liệu, nhấn nút, điều hướng và kiểm tra nội dung hiển thị.
 
-Hệ thống cũng hỗ trợ cơ chế replay script. Replay script được sinh từ lịch sử thao tác của agent sau một phiên chạy thành công và được lưu dưới dạng JSON. Cơ chế này nhằm hỗ trợ chạy lại kịch bản kiểm thử nhanh hơn, ổn định hơn và giảm sự phụ thuộc vào mô hình ngôn ngữ lớn trong các lần chạy hồi quy.
+Hệ thống phù hợp nhất với môi trường staging hoặc môi trường kiểm thử có kiểm soát. Đây là môi trường an toàn hơn để chạy các kịch bản tự động, sử dụng tài khoản test và ghi nhận bằng chứng kiểm thử. Website production không phải là phạm vi chính của đề tài do có nhiều rủi ro liên quan đến dữ liệu thật, quyền truy cập và tác động ngoài ý muốn.
 
-Về phạm vi áp dụng, khóa luận tập trung vào kiểm thử giao diện người dùng của ứng dụng web chạy trên trình duyệt máy tính để bàn. Hệ thống sử dụng Playwright làm thành phần điều khiển trình duyệt và sử dụng mô hình Gemini làm thành phần suy luận chính trong phạm vi xây dựng và đánh giá. Các thử nghiệm chính tập trung trên trình duyệt Chromium; khả năng mở rộng sang Firefox và WebKit được xem xét thông qua hỗ trợ của Playwright.
+Về phạm vi kỹ thuật, đề tài tập trung vào kiểm thử giao diện web trên trình duyệt máy tính để bàn thông qua Browser-use và Playwright. Đề tài chưa đi sâu vào kiểm thử hiệu năng, kiểm thử bảo mật chuyên sâu, kiểm thử API độc lập, kiểm thử ứng dụng di động, kiểm thử chịu tải hoặc kiểm thử tương thích trình duyệt ở quy mô lớn.
 
-Khóa luận không đi sâu vào kiểm thử ứng dụng di động, kiểm thử hiệu năng, kiểm thử bảo mật hoặc kiểm thử API độc lập. Ngoài ra, hệ thống không được xem là công cụ thay thế hoàn toàn kỹ sư kiểm thử hoặc các phương pháp kiểm thử hiện tại. Hiệu quả của hệ thống phụ thuộc vào chất lượng quan sát giao diện, khả năng suy luận của mô hình ngôn ngữ lớn, độ ổn định của môi trường kiểm thử và mức độ phức tạp của từng luồng nghiệp vụ.
+Hệ thống cũng không nhằm tự động xử lý mọi tình huống phức tạp trên website. Các trường hợp như CAPTCHA, OTP, xác thực đa yếu tố, cơ chế chống bot mạnh hoặc thao tác liên quan đến thanh toán thật không thuộc trọng tâm xử lý của đề tài. Các cơ chế như locator fallback và self-healing chỉ hỗ trợ một số thay đổi nhỏ của giao diện; khi website thay đổi mạnh về luồng nghiệp vụ, người dùng vẫn cần xem lại test case hoặc replay script.
 
 \section{Đóng góp của đề tài}
 
-Đóng góp chính của đề tài là đề xuất và xây dựng một hệ thống kiểm thử tự động ứng dụng web theo hướng biểu diễn mục tiêu kiểm thử ở tầng ngữ nghĩa thay vì tầng kỹ thuật. Người dùng có thể mô tả ca kiểm thử bằng ngôn ngữ tự nhiên, trong khi hệ thống đảm nhận việc quan sát giao diện, suy luận hành động và thực thi thao tác tương ứng trên trình duyệt.
+Đóng góp chính của đề tài là xây dựng một hệ thống web hỗ trợ quy trình kiểm thử tự động ứng dụng web từ giai đoạn tạo test case, chạy test, lưu kết quả đến xem báo cáo trên cùng một nền tảng.
 
-Đề tài cũng đóng góp ở việc kết hợp giữa tác nhân AI, mô hình ngôn ngữ lớn và công cụ tự động hóa trình duyệt để hình thành workflow kiểm thử gồm các bước quan sát, suy luận và hành động. Cách tiếp cận này tạo cơ sở cho việc giảm sự phụ thuộc vào selector cố định, đồng thời mở ra khả năng thích nghi tốt hơn trước một số thay đổi của giao diện web.
+Cụ thể, đề tài có các đóng góp sau:
 
-Bên cạnh đó, hệ thống ghi nhận bằng chứng kiểm thử sau từng bước, bao gồm ảnh chụp màn hình, mô tả hành động, nhật ký thao tác và kết quả phân tích lỗi. Những dữ liệu này giúp người dùng truy vết quá trình thực thi, kiểm chứng kết quả và xác định nguyên nhân khi ca kiểm thử thất bại.
-
-Một đóng góp khác là việc kết hợp giữa agent-based execution và replay-based execution. Agent được sử dụng để chạy linh hoạt và tạo script ban đầu, trong khi replay script được sử dụng cho các lần chạy lại có tính xác định hơn. Cách kết hợp này giúp hệ thống vừa tận dụng được khả năng suy luận của mô hình ngôn ngữ lớn, vừa hướng đến khả năng vận hành ổn định hơn trong kiểm thử hồi quy.
+\begin{itemize}
+    \item Đề xuất quy trình kết hợp giữa agent-based execution và replay-based execution, trong đó agent dùng cho lần chạy linh hoạt ban đầu, còn replay script dùng cho các lần kiểm thử hồi quy.
+    \item Tích hợp LLM vào quy trình kiểm thử để hỗ trợ sinh test case từ mô tả tự nhiên, hỗ trợ agent thực thi kiểm thử và gợi ý nguyên nhân khi test thất bại.
+    \item Kết hợp Browser-use agent và Playwright để thực thi kiểm thử trên trình duyệt, ghi nhận lịch sử thao tác và hỗ trợ chạy lại kịch bản kiểm thử.
+    \item Lưu lại log, screenshot, action history, verdict và report nhằm hỗ trợ người dùng truy vết, phân tích kết quả và cập nhật test case khi cần.
+    \item Thiết kế các cơ chế hỗ trợ bảo trì kiểm thử như object repository, locator fallback, state anchors và fast-forward inspect ở mức phù hợp với phạm vi đề tài.
+\end{itemize}
 
 \section{Cấu trúc báo cáo}
 
