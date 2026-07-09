@@ -3,7 +3,7 @@
 
 \section{Tổng quan hệ thống}
 
-Hệ thống được xây dựng là một nền tảng web hỗ trợ kiểm thử tự động ứng dụng web. Mục tiêu chính của hệ thống là giúp người dùng tạo, quản lý, thực thi và xem lại kết quả các ca kiểm thử cho website mục tiêu mà không cần trực tiếp viết mã kiểm thử phức tạp ngay từ đầu. Thay vì yêu cầu người dùng tự xây dựng script bằng các framework kiểm thử truyền thống, hệ thống cho phép người dùng mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, sau đó sử dụng AI agent kết hợp với browser automation để thực hiện kiểm thử trên trình duyệt.
+Hệ thống được xây dựng là một nền tảng web hỗ trợ kiểm thử tự động ứng dụng web. Mục tiêu chính của hệ thống là giúp người dùng tạo, quản lý, thực thi và xem lại kết quả các ca kiểm thử cho website mục tiêu mà không cần trực tiếp viết mã kiểm thử phức tạp ngay từ đầu. Thay vì yêu cầu người dùng tự viết script bằng các framework kiểm thử truyền thống, hệ thống cho phép người dùng mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, sau đó sử dụng AI agent kết hợp với browser automation để thực hiện kiểm thử trên trình duyệt.
 
 Về mặt sử dụng, hệ thống hỗ trợ người dùng tạo project kiểm thử, khai báo website mục tiêu, scan/crawl website, tạo test case từ prompt hoặc goal, sinh dữ liệu kiểm thử, chạy test case bằng agent, lưu lại lịch sử thực thi, sinh replay script và chạy lại các kịch bản đã ghi nhận. Trong quá trình chạy bằng agent, hệ thống có thể hỗ trợ xử lý một số thay đổi nhỏ của giao diện ở mức locator fallback. Sau mỗi lần chạy, hệ thống lưu log, screenshot, action history, verdict và evidence để người dùng có thể xem lại quá trình thực thi, đánh giá kết quả và phân tích nguyên nhân khi ca kiểm thử thất bại.
 

@@ -11,17 +11,7 @@ Kiểm thử thủ công vẫn cần thiết vì con người có khả năng đ
 
 Hiện nay, các công cụ như Selenium và Playwright đã hỗ trợ tốt việc tự động hóa trình duyệt~\cite{Selenium2026,Playwright2026}. Tuy nhiên, các công cụ này thường yêu cầu người dùng viết script, khai báo selector, XPath hoặc hiểu cấu trúc DOM của trang web. Khi giao diện thay đổi, selector có thể không còn phù hợp, khiến kịch bản kiểm thử thất bại dù chức năng nghiệp vụ vẫn hoạt động đúng.
 
-Từ thực tế trên, đề tài tập trung vào bài toán xây dựng một hệ thống hỗ trợ kiểm thử tự động ứng dụng web, trong đó người dùng có thể mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên. Hệ thống sử dụng mô hình ngôn ngữ lớn để hỗ trợ sinh test case, kết hợp Browser-use agent và Playwright để thực thi kiểm thử, lưu lại kịch bản và tạo báo cáo kết quả.
-
-\section{Giải pháp đề xuất}
-
-Đề tài hướng đến việc xây dựng một nền tảng web hỗ trợ kiểm thử tự động cho ứng dụng web, đặc biệt trên môi trường staging hoặc môi trường kiểm thử có kiểm soát. Thay vì yêu cầu người dùng trực tiếp viết script, hệ thống cho phép người dùng nhập prompt hoặc goal bằng ngôn ngữ tự nhiên để mô tả mục tiêu kiểm thử.
-
-Quy trình tổng quát của hệ thống gồm các bước chính: người dùng tạo project kiểm thử, khai báo website mục tiêu thông qua base URL, nhập mô tả kiểm thử, sau đó hệ thống dùng LLM để sinh test case có cấu trúc. Trong phạm vi đề tài, Google Gemini Flash được sử dụng để hỗ trợ xử lý ngôn ngữ tự nhiên, sinh test case, hỗ trợ agent suy luận hành động và phân tích lỗi~\cite{GeminiAPI2026}.
-
-Sau khi test case được tạo, Browser-use agent nhận test case làm đầu vào và tương tác với website thông qua trình duyệt~\cite{BrowserUse2024}. Playwright được sử dụng làm lớp điều khiển trình duyệt để mở trang, nhập liệu, nhấn nút, kiểm tra trạng thái và chạy lại script~\cite{Playwright2026}. Trong quá trình chạy, hệ thống ghi nhận log, screenshot, action history, verdict và evidence để phục vụ việc xem lại kết quả.
-
-Điểm trọng tâm của giải pháp là kết hợp giữa chế độ chạy linh hoạt bằng agent và chế độ chạy lại bằng replay script. Agent được dùng để khám phá và thực thi luồng kiểm thử ban đầu. Khi phiên chạy thành công, hệ thống chuẩn hóa lịch sử thao tác thành replay script để sử dụng cho các lần kiểm thử sau. Cách tiếp cận này giúp tận dụng khả năng linh hoạt của LLM/agent, đồng thời giảm chi phí và tăng tính ổn định khi kiểm thử hồi quy.
+Từ thực tế trên, đề tài tập trung vào bài toán xây dựng một hệ thống hỗ trợ kiểm thử tự động ứng dụng web, trong đó người dùng có thể mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên. Hệ thống hướng đến việc giảm rào cản viết script kiểm thử, hỗ trợ thực thi kiểm thử trên trình duyệt, lưu lại bằng chứng thực thi và phục vụ việc chạy lại các kịch bản kiểm thử trong những lần sau.
 
 \section{Mục tiêu đề tài}
 
@@ -32,10 +22,10 @@ Các mục tiêu cụ thể bao gồm:
 \begin{itemize}
     \item Xây dựng nền tảng web cho phép người dùng tạo project kiểm thử và khai báo website mục tiêu.
     \item Hỗ trợ tạo test case từ prompt hoặc goal bằng ngôn ngữ tự nhiên.
-    \item Tích hợp LLM để hỗ trợ sinh test case, hỗ trợ agent trong quá trình chạy và gợi ý nguyên nhân khi test thất bại.
+    \item Tích hợp mô hình ngôn ngữ lớn để hỗ trợ sinh test case, hỗ trợ agent trong quá trình chạy kiểm thử và gợi ý nguyên nhân khi test thất bại.
     \item Tích hợp Browser-use agent và Playwright để thực thi kiểm thử trên trình duyệt.
     \item Ghi nhận log, screenshot, action history, verdict và evidence sau mỗi lần chạy test.
-    \item Sinh và chạy lại replay script nhằm hỗ trợ kiểm thử hồi quy và giảm sự phụ thuộc vào LLM trong các lần chạy sau.
+    \item Sinh và chạy lại replay script nhằm hỗ trợ kiểm thử hồi quy và giảm sự phụ thuộc vào mô hình ngôn ngữ lớn trong các lần chạy sau.
     \item Hỗ trợ quản lý test data, test suite, object repository và báo cáo kết quả kiểm thử.
 \end{itemize}
 
@@ -49,33 +39,48 @@ Về phạm vi kỹ thuật, đề tài tập trung vào kiểm thử giao diệ
 
 Hệ thống cũng không nhằm tự động xử lý mọi tình huống phức tạp trên website. Các trường hợp như CAPTCHA, OTP, xác thực đa yếu tố, cơ chế chống bot mạnh hoặc thao tác liên quan đến thanh toán thật không thuộc trọng tâm xử lý của đề tài. Các cơ chế như locator fallback và self-healing chỉ hỗ trợ một số thay đổi nhỏ của giao diện; khi website thay đổi mạnh về luồng nghiệp vụ, người dùng vẫn cần xem lại test case hoặc replay script.
 
-\section{Đóng góp của đề tài}
+\section{Giải pháp đề xuất}
 
-Đóng góp chính của đề tài là xây dựng một hệ thống web hỗ trợ quy trình kiểm thử tự động ứng dụng web từ giai đoạn tạo test case, chạy test, lưu kết quả đến xem báo cáo trên cùng một nền tảng.
+Để đạt được các mục tiêu trên trong phạm vi đã xác định, đề tài đề xuất xây dựng một nền tảng web hỗ trợ kiểm thử tự động cho ứng dụng web, đặc biệt trên môi trường staging hoặc môi trường kiểm thử có kiểm soát. Thay vì yêu cầu người dùng trực tiếp viết script, hệ thống cho phép người dùng nhập prompt hoặc goal bằng ngôn ngữ tự nhiên để mô tả mục tiêu kiểm thử.
 
-Cụ thể, đề tài có các đóng góp sau:
+Quy trình tổng quát của hệ thống gồm các bước chính: người dùng tạo project kiểm thử, khai báo website mục tiêu thông qua base URL, nhập mô tả kiểm thử, sau đó hệ thống sử dụng mô hình ngôn ngữ lớn để sinh test case có cấu trúc. Trong phạm vi đề tài, Google Gemini Flash được sử dụng để hỗ trợ xử lý ngôn ngữ tự nhiên, sinh test case, hỗ trợ agent suy luận hành động và phân tích lỗi~\cite{GeminiAPI2026}.
+
+Sau khi test case được tạo, Browser-use agent nhận test case làm đầu vào và tương tác với website thông qua trình duyệt~\cite{BrowserUse2024}. Playwright được sử dụng làm lớp điều khiển trình duyệt để mở trang, nhập liệu, nhấn nút, kiểm tra trạng thái và chạy lại script~\cite{Playwright2026}. Trong quá trình chạy, hệ thống ghi nhận log, screenshot, action history, verdict và evidence để phục vụ việc xem lại kết quả.
+
+Điểm trọng tâm của giải pháp là kết hợp giữa chế độ chạy linh hoạt bằng agent và chế độ chạy lại bằng replay script. Agent được dùng để khám phá và thực thi luồng kiểm thử ban đầu. Khi phiên chạy thành công, hệ thống chuẩn hóa lịch sử thao tác thành replay script để sử dụng cho các lần kiểm thử sau. Cách tiếp cận này giúp tận dụng khả năng linh hoạt của mô hình ngôn ngữ lớn và agent, đồng thời giảm chi phí và tăng tính ổn định khi kiểm thử hồi quy.
+
+\section{Kết quả đạt được}
+
+Sau quá trình thực hiện, đề tài đã xây dựng được một hệ thống web hỗ trợ kiểm thử tự động ứng dụng web với các chức năng chính phục vụ vòng đời kiểm thử từ tạo test case, chạy kiểm thử, lưu vết thực thi đến xem báo cáo kết quả.
+
+Các kết quả chính đạt được bao gồm:
 
 \begin{itemize}
-    \item Đề xuất quy trình kết hợp giữa agent-based execution và replay-based execution, trong đó agent dùng cho lần chạy linh hoạt ban đầu, còn replay script dùng cho các lần kiểm thử hồi quy.
-    \item Tích hợp LLM vào quy trình kiểm thử để hỗ trợ sinh test case từ mô tả tự nhiên, hỗ trợ agent thực thi kiểm thử và gợi ý nguyên nhân khi test thất bại.
-    \item Kết hợp Browser-use agent và Playwright để thực thi kiểm thử trên trình duyệt, ghi nhận lịch sử thao tác và hỗ trợ chạy lại kịch bản kiểm thử.
-    \item Lưu lại log, screenshot, action history, verdict và report nhằm hỗ trợ người dùng truy vết, phân tích kết quả và cập nhật test case khi cần.
-    \item Thiết kế các cơ chế hỗ trợ bảo trì kiểm thử như object repository, locator fallback, state anchors và fast-forward inspect ở mức phù hợp với phạm vi đề tài.
+    \item Xây dựng giao diện web cho phép người dùng quản lý project, test case, test run, replay script, test data, test suite, object repository, evidence và report.
+    \item Xây dựng backend API để quản lý dữ liệu nghiệp vụ, kiểm tra dữ liệu đầu vào, điều phối yêu cầu kiểm thử và lưu trữ kết quả thực thi.
+    \item Tích hợp mô hình ngôn ngữ lớn vào quy trình kiểm thử để hỗ trợ sinh test case từ mô tả tự nhiên, sinh dữ liệu kiểm thử, hỗ trợ agent trong quá trình thực thi và gợi ý nguyên nhân khi test thất bại.
+    \item Tích hợp Browser-use agent để thực thi kiểm thử theo goal hoặc test case trên trình duyệt.
+    \item Tích hợp Playwright để điều khiển trình duyệt và chạy lại replay script cho các lần kiểm thử hồi quy.
+    \item Lưu lại log, screenshot, action history, verdict, evidence và report nhằm hỗ trợ người dùng xem lại quá trình thực thi, truy vết kết quả và phân tích lỗi.
+    \item Thiết kế quy trình kết hợp giữa agent-based execution và replay-based execution, trong đó agent được sử dụng cho lần chạy linh hoạt ban đầu, còn replay script được sử dụng cho các lần kiểm thử hồi quy sau.
+    \item Xây dựng các cơ chế hỗ trợ bảo trì kiểm thử như object repository, locator fallback và state anchors ở mức phù hợp với phạm vi đề tài.
 \end{itemize}
+
+Nhìn chung, hệ thống đã hiện thực được luồng kiểm thử tự động cốt lõi: từ mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, chuyển thành test case, thực thi trên trình duyệt, ghi nhận bằng chứng và hỗ trợ chạy lại trong các lần kiểm thử sau. Kết quả này là cơ sở để đánh giá khả năng ứng dụng của việc kết hợp mô hình ngôn ngữ lớn, agent và replay script trong bài toán kiểm thử tự động ứng dụng web.
 
 \section{Cấu trúc báo cáo}
 
-Báo cáo được tổ chức thành tám chương, trình bày lần lượt từ bối cảnh đề tài, nền tảng kỹ thuật, phân tích yêu cầu, thiết kế hệ thống, hiện thực, đánh giá kết quả, bàn luận cho đến kết luận và hướng phát triển.
+Báo cáo được tổ chức thành tám chương, trình bày lần lượt từ bối cảnh đề tài, nền tảng kỹ thuật, phân tích yêu cầu, thiết kế hệ thống, hiện thực, đánh giá kết quả, tổ chức thực hiện cho đến kết luận và hướng phát triển.
 
-Chương 1 trình bày tổng quan đề tài, bao gồm bối cảnh thực tiễn, vấn đề cần giải quyết, giải pháp đề xuất, mục tiêu, phạm vi và đóng góp chính của khóa luận.
+Chương 1 trình bày tổng quan đề tài, bao gồm bối cảnh thực tiễn, vấn đề cần giải quyết, mục tiêu, phạm vi, giải pháp đề xuất và kết quả đạt được của khóa luận.
 
 Chương 2 trình bày nền tảng kỹ thuật và các giải pháp liên quan, bao gồm kiểm thử phần mềm, kiểm thử tự động ứng dụng web, mô hình ngôn ngữ lớn, AI agent và các công cụ browser automation.
 
-Chương 3 phân tích bối cảnh hệ thống, nhóm người dùng, yêu cầu chức năng, yêu cầu phi chức năng và các use case chính của hệ thống.
+Chương 3 phân tích tổng quan hệ thống, nhóm người dùng, yêu cầu chức năng, yêu cầu phi chức năng và các use case chính của hệ thống.
 
-Chương 4 trình bày kiến trúc và thiết kế hệ thống, bao gồm kiến trúc tổng thể, mô hình dữ liệu, các luồng xử lý cốt lõi, cơ chế hỗ trợ bảo trì kiểm thử và các quyết định thiết kế quan trọng.
+Chương 4 trình bày kiến trúc và thiết kế hệ thống, bao gồm kiến trúc tổng thể, thiết kế dữ liệu ở mức cốt lõi, các luồng xử lý chính, cơ chế hỗ trợ bảo trì kiểm thử và các quyết định thiết kế quan trọng.
 
-Chương 5 trình bày quá trình hiện thực hệ thống, bao gồm cách xây dựng frontend, backend API, cơ sở dữ liệu, agent-worker, cơ chế chạy test bằng agent, replay script, object repository, evidence và report.
+Chương 5 trình bày quá trình xây dựng và tích hợp hệ thống, bao gồm cách hiện thực frontend, backend API, cơ sở dữ liệu, agent-worker, cơ chế chạy test bằng agent, replay script, object repository, evidence và report.
 
 Chương 6 trình bày thực nghiệm và đánh giá hệ thống. Nội dung chương này tập trung vào mục tiêu đánh giá, môi trường thực nghiệm, case study OrangeHRM, kịch bản thử nghiệm, kết quả chạy test và mức độ đáp ứng các mục tiêu đã đặt ra.
 

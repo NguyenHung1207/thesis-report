@@ -3,17 +3,42 @@
   "sequence": {
     "mirrorActors": false,
     "showSequenceNumbers": true,
-    "actorMargin": 145,
-    "messageMargin": 100,
-    "boxMargin": 24,
-    "noteMargin": 24
+    "actorMargin": 260,
+    "messageMargin": 210,
+    "boxMargin": 55,
+    "noteMargin": 55,
+    "useMaxWidth": false
   },
   "themeVariables": {
     "fontFamily": "Arial",
-    "fontSize": "28px",
+    "fontSize": "90px",
     "primaryTextColor": "#000000",
     "lineColor": "#000000"
-  }
+  },
+  "themeCSS": "
+    .actor text,
+    .messageText,
+    .noteText,
+    .loopText,
+    .labelText,
+    .sequenceNumber {
+      font-size: 90px !important;
+      font-family: Arial !important;
+      fill: #000000 !important;
+    }
+
+    .actor {
+      font-size: 90px !important;
+    }
+
+    .messageText {
+      font-size: 90px !important;
+    }
+
+    .noteText {
+      font-size: 90px !important;
+    }
+  "
 }}%%
 
 sequenceDiagram
