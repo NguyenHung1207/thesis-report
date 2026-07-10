@@ -1,4 +1,244 @@
-\chapter{Ngữ pháp tiếng Nôm}
-\label{Appendix2}
+\chapter{Danh sách các API dùng trong hệ thống}
+\label{appendix:api_list}
 
-Đây là phụ lục 2.
+Phụ lục này liệt kê các API chính được sử dụng trong hệ thống. Danh sách được đối chiếu từ mã nguồn hiện thực, gồm file định tuyến tổng \path{server/src/routes.js}, các router trong \path{server/src/modules} và API của agent-worker trong \path{agent-worker/app/main.py}. Các API callback nội bộ từ worker về backend được tách riêng trong bảng để làm rõ cơ chế cập nhật trạng thái bất đồng bộ.
+
+\section{Backend API}
+
+{\scriptsize
+\begin{longtable}{|p{2.8cm}|p{1.6cm}|p{5.4cm}|p{4.5cm}|}
+\caption{Danh sách API chính của backend}
+\label{tab:appendix_backend_apis} \\
+\hline
+\textbf{Nhóm API} & \textbf{Phương thức} & \textbf{Endpoint} & \textbf{Mục đích sử dụng} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Nhóm API} & \textbf{Phương thức} & \textbf{Endpoint} & \textbf{Mục đích sử dụng} \\
+\hline
+\endhead
+
+Health check & GET & \path{/api/health} & Kiểm tra trạng thái backend và kết nối cơ sở dữ liệu. \\
+\hline
+Authentication & POST & \path{/api/auth/register} & Đăng ký tài khoản người dùng. \\
+\hline
+Authentication & POST & \path{/api/auth/login} & Đăng nhập và phát hành token xác thực. \\
+\hline
+Authentication & POST & \path{/api/auth/google} & Đăng nhập bằng Google OAuth. \\
+\hline
+Authentication & POST & \path{/api/auth/forgot-password} & Gửi yêu cầu quên mật khẩu và tạo OTP. \\
+\hline
+Authentication & POST & \path{/api/auth/verify-otp} & Xác minh OTP đặt lại mật khẩu. \\
+\hline
+Authentication & POST & \path{/api/auth/reset-password} & Đặt lại mật khẩu sau khi OTP hợp lệ. \\
+\hline
+Authentication & PATCH & \path{/api/auth/complete-onboarding} & Cập nhật trạng thái hoàn thành onboarding của người dùng. \\
+\hline
+Dashboard & GET & \path{/api/dashboard} & Lấy dữ liệu tổng quan để hiển thị dashboard. \\
+\hline
+Project & POST & \path{/api/projects} & Tạo project kiểm thử mới. \\
+\hline
+Project & GET & \path{/api/projects} & Lấy danh sách project của người dùng. \\
+\hline
+Project & GET & \path{/api/projects/recent} & Lấy danh sách project truy cập gần đây. \\
+\hline
+Project & GET & \path{/api/projects/:projectId} & Xem thông tin chi tiết project. \\
+\hline
+Project & PUT & \path{/api/projects/:projectId} & Cập nhật tên, mô tả, base URL hoặc cấu hình project. \\
+\hline
+Project & DELETE & \path{/api/projects/:projectId} & Xóa hoặc vô hiệu hóa project. \\
+\hline
+Scan/crawl & POST & \path{/api/scans/projects/:projectId/trigger} & Khởi tạo scan/crawl website mục tiêu của project. \\
+\hline
+Scan/crawl & GET & \path{/api/scans/projects/:projectId/latest} & Lấy lần scan/crawl gần nhất của project. \\
+\hline
+Scan/crawl & GET & \path{/api/scans/:scanId} & Xem chi tiết một lần scan/crawl. \\
+\hline
+Scan/crawl & POST & \path{/api/scans/:scanId/cancel} & Hủy một lần scan/crawl đang chạy. \\
+\hline
+Test case & GET & \path{/api/test-cases} & Lấy danh sách test case theo điều kiện lọc. \\
+\hline
+Test case & GET & \path{/api/test-cases/ai-generation/latest} & Lấy batch sinh test case gần nhất. \\
+\hline
+Test case & DELETE & \path{/api/test-cases/ai-generation/unselected} & Xóa các test case ứng viên chưa được chọn. \\
+\hline
+Test case & POST & \path{/api/test-cases/ai-generation/candidates/:candidateId/refine} & Refine một test case ứng viên bằng AI. \\
+\hline
+Test case & PUT & \path{/api/test-cases/ai-generation/candidates/:candidateId} & Cập nhật nội dung test case ứng viên. \\
+\hline
+Test case & POST & \path{/api/test-cases/generate} & Sinh test case từ prompt hoặc goal. \\
+\hline
+Test case & POST & \path{/api/test-cases/save} & Lưu các test case đã sinh hoặc đã chọn. \\
+\hline
+Test case & GET & \path{/api/test-cases/:id} & Xem chi tiết test case. \\
+\hline
+Test case & GET & \path{/api/test-cases/:id/runs} & Lấy lịch sử chạy của test case. \\
+\hline
+Test case & GET & \path{/api/test-cases/:id/scripts} & Lấy replay script gắn với test case. \\
+\hline
+Test case & POST & \path{/api/test-cases/:id/refine} & Refine nội dung test case đã lưu. \\
+\hline
+Test case & POST & \path{/api/test-cases/:id/apply-refinement} & Áp dụng nội dung refine vào test case. \\
+\hline
+Test case & POST & \path{/api/test-cases/:id/commit} & Commit phiên bản test case sau khi chỉnh sửa. \\
+\hline
+Test case & PUT & \path{/api/test-cases/:id} & Cập nhật test case. \\
+\hline
+Test case & DELETE & \path{/api/test-cases/:id} & Xóa test case. \\
+\hline
+Test run & GET & \path{/api/test-runs} & Lấy danh sách test run gần đây. \\
+\hline
+Test run & POST & \path{/api/test-runs} & Tạo test run mới. \\
+\hline
+Test run & POST & \path{/api/test-runs/replay} & Chạy lại bằng replay script. \\
+\hline
+Test run & POST & \path{/api/test-runs/batch-replay} & Chạy replay theo lô hoặc theo nhiều bộ dữ liệu. \\
+\hline
+Test run & GET & \path{/api/test-runs/batches} & Lấy danh sách batch run của test case. \\
+\hline
+Test run & GET & \path{/api/test-runs/batches/:batchId} & Xem chi tiết một batch run. \\
+\hline
+Test run & POST & \path{/api/test-runs/:id/replay} & Chạy replay từ một test run cụ thể. \\
+\hline
+Test run & GET & \path{/api/test-runs/:id} & Xem chi tiết test run, step log và evidence summary. \\
+\hline
+Test run & POST & \path{/api/test-runs/:id/analyze} & Phân tích lỗi của test run bằng AI. \\
+\hline
+Agent execution & POST & \path{/api/agent/run} & Bắt đầu chạy test case bằng agent. \\
+\hline
+Agent execution & POST & \path{/api/agent/replay} & Bắt đầu chạy replay script thông qua agent-worker. \\
+\hline
+Replay script & PATCH & \path{/api/agent/execution-scripts/:id/steps} & Parameterize hoặc cập nhật danh sách step của replay script. \\
+\hline
+Replay script & DELETE & \path{/api/agent/execution-scripts/:id} & Xóa replay script. \\
+\hline
+Replay script & POST & \path{/api/agent/execution-scripts/:id/fast-forward-inspect} & Fast-forward script tới một step để lấy screenshot và DOM phục vụ sửa script. \\
+\hline
+Replay script & POST & \path{/api/agent/execution-scripts/:id/suggest-fix} & Gợi ý sửa step hoặc locator cho replay script. \\
+\hline
+Dataset & POST & \path{/api/datasets/generate} & Sinh dataset bằng AI từ mô tả của người dùng. \\
+\hline
+Dataset & GET & \path{/api/datasets} & Lấy danh sách dataset. \\
+\hline
+Dataset & GET & \path{/api/datasets/:id} & Xem chi tiết dataset. \\
+\hline
+Dataset & POST & \path{/api/datasets} & Tạo dataset mới. \\
+\hline
+Dataset & PUT & \path{/api/datasets/:id} & Cập nhật dataset. \\
+\hline
+Dataset & DELETE & \path{/api/datasets/:id} & Xóa dataset. \\
+\hline
+Test suite & GET & \path{/api/test-suites} & Lấy danh sách test suite/test sheet. \\
+\hline
+Test suite & POST & \path{/api/test-suites} & Tạo test suite mới. \\
+\hline
+Test suite & GET & \path{/api/test-suites/:id} & Xem chi tiết test suite. \\
+\hline
+Test suite & PUT & \path{/api/test-suites/:id} & Cập nhật test suite. \\
+\hline
+Test suite & DELETE & \path{/api/test-suites/:id} & Xóa test suite. \\
+\hline
+Test suite & POST & \path{/api/test-suites/:id/items} & Thêm test case vào test suite. \\
+\hline
+Test suite & DELETE & \path{/api/test-suites/:id/items/:itemId} & Xóa một test case khỏi test suite. \\
+\hline
+Test suite & PUT & \path{/api/test-suites/:id/items/reorder} & Sắp xếp lại thứ tự test case trong test suite. \\
+\hline
+Test suite & GET & \path{/api/test-suites/:id/run-options} & Lấy tùy chọn chạy test suite. \\
+\hline
+Test suite & POST & \path{/api/test-suites/:id/run} & Chạy test suite theo lô. \\
+\hline
+Test suite run & GET & \path{/api/test-suite-runs} & Lấy danh sách lần chạy test suite. \\
+\hline
+Test suite run & GET & \path{/api/test-suite-runs/:runId} & Xem chi tiết một lần chạy test suite. \\
+\hline
+Test suite run & POST & \path{/api/test-suite-runs/:runId/analyze} & Phân tích kết quả hoặc lỗi của test suite run. \\
+\hline
+Test collection & GET & \path{/api/test-collections} & Lấy danh sách collection. \\
+\hline
+Test collection & GET & \path{/api/test-collections/tree} & Lấy cây collection và test case. \\
+\hline
+Test collection & POST & \path{/api/test-collections} & Tạo collection mới. \\
+\hline
+Test collection & GET & \path{/api/test-collections/:id} & Xem chi tiết collection. \\
+\hline
+Test collection & PUT & \path{/api/test-collections/:id} & Cập nhật collection. \\
+\hline
+Test collection & DELETE & \path{/api/test-collections/:id} & Xóa collection. \\
+\hline
+Test collection & POST & \path{/api/test-collections/:id/items} & Thêm test case vào collection. \\
+\hline
+Test collection & DELETE & \path{/api/test-collections/:id/items/:itemId} & Xóa test case khỏi collection. \\
+\hline
+Object repository & GET & \path{/api/projects/:projectId/test-objects} & Lấy danh sách object giao diện trong project. \\
+\hline
+Object repository & POST & \path{/api/projects/:projectId/test-objects} & Tạo object giao diện mới. \\
+\hline
+Object repository & GET & \path{/api/projects/:projectId/test-objects/:id} & Xem chi tiết object giao diện. \\
+\hline
+Object repository & PUT & \path{/api/projects/:projectId/test-objects/:id} & Cập nhật object, selector collection hoặc attribute snapshot. \\
+\hline
+Object repository & DELETE & \path{/api/projects/:projectId/test-objects/:id} & Xóa object khỏi repository. \\
+\hline
+Object repository & PATCH & \path{/api/projects/:projectId/test-objects/:id/confirm} & Xác nhận object hoặc locator đã được kiểm tra. \\
+\hline
+Object repository & GET & \path{/api/projects/:projectId/test-objects/:id/candidates} & Lấy danh sách candidate locator/object. \\
+\hline
+Object repository & POST & \path{/api/projects/:projectId/test-objects/:id/candidates/:candidateId/accept} & Chấp nhận một candidate locator/object. \\
+\hline
+Object repository & DELETE & \path{/api/projects/:projectId/test-objects/:id/candidates/:candidateId} & Bỏ qua một candidate locator/object. \\
+\hline
+Callback nội bộ & POST & \path{/api/agent/callbacks/step} & Nhận trạng thái từng bước, screenshot hoặc lỗi từ agent-worker; xác thực bằng \texttt{x-agent-callback-secret}. \\
+\hline
+Callback nội bộ & POST & \path{/api/agent/callbacks/final} & Nhận verdict cuối cùng, evidence summary và thông tin replay script; xác thực bằng \texttt{x-agent-callback-secret}. \\
+\hline
+Callback nội bộ & POST & \path{/api/scans/:scanId/progress} & Nhận tiến độ scan/crawl từng trang từ worker; xác thực bằng callback secret. \\
+\hline
+Callback nội bộ & POST & \path{/api/scans/:scanId/callback} & Nhận kết quả cuối cùng của scan/crawl từ worker; xác thực bằng callback secret. \\
+\hline
+Screenshot & GET & \path{/screenshots/:fileName} & Truy xuất screenshot theo tên file từ thư mục lưu trữ. \\
+\hline
+Screenshot & GET & \path{/screenshots/db/:evidenceId} & Truy xuất screenshot được lưu trực tiếp trong database theo evidence ID. \\
+\hline
+Tài liệu API & GET & \path{/api-docs} & Hiển thị Swagger UI trong môi trường không phải production. \\
+\hline
+Tài liệu API & GET & \path{/api-docs.json} & Xuất OpenAPI specification trong môi trường không phải production. \\
+\hline
+\end{longtable}
+}
+
+\section{Agent-worker API}
+
+{\scriptsize
+\begin{longtable}{|p{2.8cm}|p{1.6cm}|p{5.4cm}|p{4.5cm}|}
+\caption{Danh sách API chính của agent-worker}
+\label{tab:appendix_worker_apis} \\
+\hline
+\textbf{Nhóm API} & \textbf{Phương thức} & \textbf{Endpoint} & \textbf{Mục đích sử dụng} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Nhóm API} & \textbf{Phương thức} & \textbf{Endpoint} & \textbf{Mục đích sử dụng} \\
+\hline
+\endhead
+
+Health check & GET & \path{/health} & Kiểm tra trạng thái sẵn sàng và giới hạn concurrency của agent-worker. \\
+\hline
+Execution & POST & \path{/run} & Nhận yêu cầu thực thi test run từ backend, gồm chế độ agent hoặc replay tùy theo execution mode trong payload. \\
+\hline
+Screenshot & GET & \path{/screenshots} & Trả về screenshot theo tham số đường dẫn \path{path}. \\
+\hline
+Screenshot & GET & \path{/screenshots/:file_path} & Trả về screenshot theo đường dẫn tương đối trong thư mục screenshot của worker. \\
+\hline
+Replay editor & POST & \path{/fast-forward-inspect} & Fast-forward replay script đến một step, chụp screenshot và trả danh sách phần tử tương tác để hỗ trợ sửa script. \\
+\hline
+Scan/crawl & POST & \path{/crawl} & Nhận yêu cầu crawl website và chạy ở chế độ nền. \\
+\hline
+Scan/crawl & POST & \path{/crawl/:scan_id/cancel} & Hủy một tác vụ crawl đang chạy. \\
+\hline
+\end{longtable}
+}
+
+Trong quá trình vận hành, frontend chỉ gọi backend API. Agent-worker chỉ nhận request thực thi từ backend và callback kết quả về backend. Các callback cập nhật step, evidence hoặc kết quả cuối cùng cần kèm callback secret để backend kiểm tra nguồn gửi trước khi cập nhật dữ liệu test run.
