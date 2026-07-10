@@ -5,17 +5,17 @@
 
 Ứng dụng web hiện nay được sử dụng rộng rãi trong nhiều lĩnh vực như thương mại điện tử, quản trị nội bộ, giáo dục trực tuyến, chăm sóc khách hàng và các hệ thống doanh nghiệp. Cùng với sự phát triển đó, giao diện web ngày càng phức tạp hơn do có nhiều trạng thái tương tác, dữ liệu bất đồng bộ, thành phần động và luồng nghiệp vụ thay đổi thường xuyên.
 
-Những thay đổi liên tục của ứng dụng web đặt ra yêu cầu cao đối với hoạt động kiểm thử. Mỗi lần cập nhật giao diện, sửa lỗi hoặc bổ sung chức năng đều có thể làm phát sinh lỗi hồi quy. Nếu các lỗi này không được phát hiện kịp thời, chúng có thể ảnh hưởng đến trải nghiệm người dùng, độ tin cậy của hệ thống và chất lượng sản phẩm. Các nghiên cứu về chất lượng phần mềm cũng cho thấy chi phí xử lý lỗi thường tăng lên khi lỗi được phát hiện ở giai đoạn muộn~\cite{BoehmBasili2001}.
+Những thay đổi liên tục của website đặt ra yêu cầu cao đối với hoạt động kiểm thử. Mỗi lần cập nhật giao diện, sửa lỗi hoặc bổ sung chức năng đều có thể làm phát sinh lỗi hồi quy. Nếu các lỗi này không được phát hiện kịp thời, chúng có thể ảnh hưởng đến trải nghiệm người dùng, độ tin cậy của hệ thống và chất lượng sản phẩm. Các nghiên cứu về chất lượng phần mềm cũng cho thấy chi phí xử lý lỗi thường tăng lên khi lỗi được phát hiện ở giai đoạn muộn~\cite{BoehmBasili2001}.
 
 Kiểm thử thủ công vẫn cần thiết vì con người có khả năng đánh giá ngữ cảnh và phát hiện các bất thường về trải nghiệm. Tuy nhiên, khi số lượng chức năng tăng lên và chu kỳ phát hành ngắn hơn, việc lặp lại nhiều kịch bản kiểm thử bằng thao tác thủ công trở nên tốn thời gian và dễ sai sót. Vì vậy, kiểm thử tự động là hướng tiếp cận quan trọng để hỗ trợ chạy lại các kịch bản kiểm thử và phát hiện lỗi sớm hơn.
 
 Hiện nay, các công cụ như Selenium và Playwright đã hỗ trợ tốt việc tự động hóa trình duyệt~\cite{Selenium2026,Playwright2026}. Tuy nhiên, các công cụ này thường yêu cầu người dùng viết script, khai báo selector, XPath hoặc hiểu cấu trúc DOM của trang web. Khi giao diện thay đổi, selector có thể không còn phù hợp, khiến kịch bản kiểm thử thất bại dù chức năng nghiệp vụ vẫn hoạt động đúng.
 
-Từ thực tế trên, đề tài tập trung vào bài toán xây dựng một hệ thống hỗ trợ kiểm thử tự động ứng dụng web, trong đó người dùng có thể mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên. Hệ thống hướng đến việc giảm rào cản viết script kiểm thử, hỗ trợ thực thi kiểm thử trên trình duyệt, lưu lại bằng chứng thực thi và phục vụ việc chạy lại các kịch bản kiểm thử trong những lần sau.
+Từ thực tế trên, đề tài tập trung vào bài toán xây dựng một hệ thống hỗ trợ kiểm thử tự động website, trong đó người dùng có thể mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên. Hệ thống hướng đến việc giảm rào cản viết script kiểm thử, hỗ trợ thực thi kiểm thử trên trình duyệt, lưu lại bằng chứng thực thi và phục vụ việc chạy lại các kịch bản kiểm thử trong những lần sau.
 
 \section{Mục tiêu đề tài}
 
-Mục tiêu tổng quát của đề tài là xây dựng một hệ thống kiểm thử tự động ứng dụng web có khả năng hỗ trợ người dùng tạo, thực thi, lưu vết và đánh giá các ca kiểm thử thông qua một nền tảng web.
+Mục tiêu tổng quát của đề tài là xây dựng một hệ thống kiểm thử tự động website có khả năng hỗ trợ người dùng tạo, thực thi, lưu vết và đánh giá các ca kiểm thử thông qua một nền tảng web.
 
 Các mục tiêu cụ thể bao gồm:
 
@@ -31,7 +31,7 @@ Các mục tiêu cụ thể bao gồm:
 
 \section{Phạm vi đề tài}
 
-Về phạm vi chức năng, hệ thống tập trung vào kiểm thử các luồng thao tác trên giao diện người dùng của ứng dụng web, chẳng hạn như mở trang, đăng nhập, nhập dữ liệu, nhấn nút, điều hướng và kiểm tra nội dung hiển thị.
+Về phạm vi chức năng, hệ thống tập trung vào kiểm thử các luồng thao tác trên giao diện người dùng của website, chẳng hạn như mở trang, đăng nhập, nhập dữ liệu, nhấn nút, điều hướng và kiểm tra nội dung hiển thị.
 
 Hệ thống phù hợp nhất với môi trường staging hoặc môi trường kiểm thử có kiểm soát. Đây là môi trường an toàn hơn để chạy các kịch bản tự động, sử dụng tài khoản test và ghi nhận bằng chứng kiểm thử. Website production không phải là phạm vi chính của đề tài do có nhiều rủi ro liên quan đến dữ liệu thật, quyền truy cập và tác động ngoài ý muốn.
 
@@ -41,7 +41,7 @@ Hệ thống cũng không nhằm tự động xử lý mọi tình huống phứ
 
 \section{Giải pháp đề xuất}
 
-Để đạt được các mục tiêu trên trong phạm vi đã xác định, đề tài đề xuất xây dựng một nền tảng web hỗ trợ kiểm thử tự động cho ứng dụng web, đặc biệt trên môi trường staging hoặc môi trường kiểm thử có kiểm soát. Thay vì yêu cầu người dùng trực tiếp viết script, hệ thống cho phép người dùng nhập prompt hoặc goal bằng ngôn ngữ tự nhiên để mô tả mục tiêu kiểm thử.
+Để đạt được các mục tiêu trên trong phạm vi đã xác định, đề tài đề xuất xây dựng một nền tảng web hỗ trợ kiểm thử tự động cho website, đặc biệt trên môi trường staging hoặc môi trường kiểm thử có kiểm soát. Thay vì yêu cầu người dùng trực tiếp viết script, hệ thống cho phép người dùng nhập prompt hoặc goal bằng ngôn ngữ tự nhiên để mô tả mục tiêu kiểm thử.
 
 Quy trình tổng quát của hệ thống gồm các bước chính: người dùng tạo project kiểm thử, khai báo website mục tiêu thông qua base URL, nhập mô tả kiểm thử, sau đó hệ thống sử dụng mô hình ngôn ngữ lớn để sinh test case có cấu trúc. Trong phạm vi đề tài, Google Gemini Flash được sử dụng để hỗ trợ xử lý ngôn ngữ tự nhiên, sinh test case, hỗ trợ agent suy luận hành động và phân tích lỗi~\cite{GeminiAPI2026}.
 
@@ -51,7 +51,7 @@ Sau khi test case được tạo, Browser-use agent nhận test case làm đầu
 
 \section{Kết quả đạt được}
 
-Sau quá trình thực hiện, đề tài đã xây dựng được một hệ thống web hỗ trợ kiểm thử tự động ứng dụng web với các chức năng chính phục vụ vòng đời kiểm thử từ tạo test case, chạy kiểm thử, lưu vết thực thi đến xem báo cáo kết quả.
+Sau quá trình thực hiện, đề tài đã xây dựng được một hệ thống web hỗ trợ kiểm thử tự động website với các chức năng chính phục vụ vòng đời kiểm thử từ tạo test case, chạy kiểm thử, lưu vết thực thi đến xem báo cáo kết quả.
 
 Các kết quả chính đạt được bao gồm:
 
@@ -66,7 +66,7 @@ Các kết quả chính đạt được bao gồm:
     \item Xây dựng các cơ chế hỗ trợ bảo trì kiểm thử như object repository, locator fallback và state anchors ở mức phù hợp với phạm vi đề tài.
 \end{itemize}
 
-Nhìn chung, hệ thống đã hiện thực được luồng kiểm thử tự động cốt lõi: từ mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, chuyển thành test case, thực thi trên trình duyệt, ghi nhận bằng chứng và hỗ trợ chạy lại trong các lần kiểm thử sau. Kết quả này là cơ sở để đánh giá khả năng ứng dụng của việc kết hợp mô hình ngôn ngữ lớn, agent và replay script trong bài toán kiểm thử tự động ứng dụng web.
+Nhìn chung, hệ thống đã hiện thực được luồng kiểm thử tự động cốt lõi: từ mô tả mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, chuyển thành test case, thực thi trên trình duyệt, ghi nhận bằng chứng và hỗ trợ chạy lại trong các lần kiểm thử sau. Kết quả này là cơ sở để đánh giá khả năng ứng dụng của việc kết hợp mô hình ngôn ngữ lớn, agent và replay script trong bài toán kiểm thử tự động website.
 
 \section{Cấu trúc báo cáo}
 
@@ -74,7 +74,7 @@ Báo cáo được tổ chức thành tám chương, trình bày lần lượt t
 
 Chương 1 trình bày tổng quan đề tài, bao gồm bối cảnh thực tiễn, vấn đề cần giải quyết, mục tiêu, phạm vi, giải pháp đề xuất và kết quả đạt được của khóa luận.
 
-Chương 2 trình bày nền tảng kỹ thuật và các giải pháp liên quan, bao gồm kiểm thử phần mềm, kiểm thử tự động ứng dụng web, mô hình ngôn ngữ lớn, AI agent và các công cụ browser automation.
+Chương 2 trình bày nền tảng kỹ thuật và các giải pháp liên quan, bao gồm kiểm thử phần mềm, kiểm thử tự động website, mô hình ngôn ngữ lớn, AI agent và các công cụ browser automation.
 
 Chương 3 phân tích tổng quan hệ thống, nhóm người dùng, yêu cầu chức năng, yêu cầu phi chức năng và các use case chính của hệ thống.
 
