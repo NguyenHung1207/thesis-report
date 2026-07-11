@@ -1,0 +1,103 @@
+\chapter*{Bảng thuật ngữ}
+\label{glossary}
+
+Bảng thuật ngữ này giải thích các khái niệm được sử dụng xuyên suốt báo cáo. Một số thuật ngữ được giữ nguyên bằng tiếng Anh do đây là cách gọi phổ biến trong lĩnh vực kiểm thử phần mềm, tự động hóa trình duyệt và hệ thống sử dụng mô hình ngôn ngữ lớn.
+
+{\small
+\begin{longtable}{|p{4.2cm}|p{10.0cm}|}
+\caption{Bảng thuật ngữ sử dụng trong báo cáo}
+\label{tab:glossary_terms} \\
+\hline
+\textbf{Thuật ngữ} & \textbf{Giải thích} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Thuật ngữ} & \textbf{Giải thích} \\
+\hline
+\endhead
+
+Agent & Thành phần có khả năng quan sát trạng thái giao diện, suy luận hành động tiếp theo và thực hiện thao tác kiểm thử dựa trên mục tiêu được mô tả. \\
+\hline
+Agent-worker & Service chịu trách nhiệm khởi tạo trình duyệt, chạy agent, chạy replay script, ghi nhận evidence và callback kết quả về backend. \\
+\hline
+AI analysis & Chức năng dùng mô hình ngôn ngữ lớn để hỗ trợ phân tích lỗi, đọc log và gợi ý nguyên nhân khi test thất bại. \\
+\hline
+Allowed domains & Danh sách domain được phép truy cập khi chạy test, dùng để giới hạn phạm vi website mục tiêu và tránh điều hướng ngoài ý muốn. \\
+\hline
+Assertion & Điều kiện kiểm tra kết quả sau một hoặc nhiều bước thao tác, ví dụ kiểm tra URL, văn bản hiển thị hoặc phần tử xuất hiện. \\
+\hline
+Backend API & Thành phần cung cấp API cho frontend, xử lý nghiệp vụ, kiểm tra quyền truy cập, lưu dữ liệu và điều phối yêu cầu chạy test. \\
+\hline
+Base URL & URL gốc của website mục tiêu trong một project kiểm thử. \\
+\hline
+Browser automation & Kỹ thuật điều khiển trình duyệt tự động để mở trang, nhập dữ liệu, nhấn nút, điều hướng và kiểm tra trạng thái giao diện. \\
+\hline
+Browser profile & Cấu hình phiên trình duyệt, có thể gồm loại trình duyệt, viewport, chế độ headless hoặc dữ liệu phiên đăng nhập. \\
+\hline
+Browser-use & Công cụ hỗ trợ agent quan sát giao diện website và thực hiện hành động trên trình duyệt theo mục tiêu tự nhiên. \\
+\hline
+Callback & Cơ chế để agent-worker gửi trạng thái từng bước, evidence hoặc kết quả cuối cùng về backend sau khi xử lý bất đồng bộ. \\
+\hline
+Case study & Phương pháp đánh giá hệ thống trong một ngữ cảnh cụ thể. Trong khóa luận này, case study chính được thực hiện trên OrangeHRM. \\
+\hline
+Dataset & Tập dữ liệu kiểm thử dùng làm đầu vào cho test case hoặc replay script, ví dụ các bộ username/password khác nhau. \\
+\hline
+Data-driven testing & Cách chạy cùng một kịch bản kiểm thử với nhiều bộ dữ liệu đầu vào để đánh giá nhiều trường hợp khác nhau. \\
+\hline
+DOM & Cấu trúc biểu diễn các phần tử HTML của website trong trình duyệt, thường được dùng khi xác định locator hoặc selector. \\
+\hline
+Evidence & Bằng chứng được ghi nhận trong quá trình chạy test, chẳng hạn screenshot, log, action history, DOM snapshot hoặc trace. \\
+\hline
+Failure analysis & Dữ liệu hoặc quá trình phân tích nguyên nhân test thất bại, bao gồm failure type, error message, step lỗi và gợi ý xử lý. \\
+\hline
+Frontend & Giao diện người dùng của hệ thống, nơi người dùng quản lý project, test case, dataset, test run, replay script và report. \\
+\hline
+Goal & Mục tiêu kiểm thử ở mức tự nhiên mà người dùng muốn hệ thống thực hiện, thường được dùng làm đầu vào cho agent. \\
+\hline
+LLM & Mô hình ngôn ngữ lớn, được dùng để xử lý prompt, sinh test case, hỗ trợ agent suy luận và phân tích lỗi. \\
+\hline
+Locator & Cách định vị một phần tử giao diện trên website, ví dụ CSS selector, XPath, text, placeholder hoặc accessible name. \\
+\hline
+Locator fallback & Cơ chế thử cách định vị khác khi locator ban đầu không còn phù hợp hoặc không tìm thấy phần tử tại thời điểm chạy. \\
+\hline
+Object repository & Kho lưu thông tin nhận diện phần tử giao diện, gồm selector collection, attribute snapshot và dữ liệu tham chiếu phục vụ bảo trì kiểm thử. \\
+\hline
+OrangeHRM & Website demo quản lý nhân sự được sử dụng làm case study chính trong phần thực nghiệm và đánh giá hệ thống. \\
+\hline
+Playwright & Framework browser automation được dùng để điều khiển trình duyệt và chạy lại replay script. \\
+\hline
+Prompt & Mô tả bằng ngôn ngữ tự nhiên do người dùng nhập vào để yêu cầu hệ thống sinh test case, sinh dataset hoặc chạy một mục tiêu kiểm thử. \\
+\hline
+Replay script & Kịch bản phát lại được sinh từ phiên chạy agent thành công, gồm các step có cấu trúc để có thể chạy lại bằng Playwright. \\
+\hline
+Report & Báo cáo kết quả sau khi chạy test, thường gồm verdict, thời gian chạy, log, screenshot, step lỗi và evidence liên quan. \\
+\hline
+Runtime config & Cấu hình khi chạy test, ví dụ model LLM, timeout, số bước tối đa, allowed domains, viewport và chế độ trình duyệt. \\
+\hline
+Scan/crawl & Quá trình duyệt website từ base URL để ghi nhận sitemap, interaction map hoặc thông tin nền hỗ trợ tạo test case và chạy agent. \\
+\hline
+Screenshot & Ảnh chụp màn hình tại một thời điểm trong quá trình chạy test, dùng làm evidence để xem lại trạng thái giao diện. \\
+\hline
+Selector & Biểu thức dùng để chọn phần tử trong DOM, ví dụ CSS selector hoặc XPath. \\
+\hline
+Self-healing & Cơ chế hỗ trợ phục hồi trong một số trường hợp locator hoặc cách nhận diện phần tử thay đổi nhỏ; không thay thế việc cập nhật test case khi luồng nghiệp vụ thay đổi lớn. \\
+\hline
+State anchor & Điều kiện xác nhận một trạng thái quan trọng của giao diện, chẳng hạn URL thay đổi, phần tử hiển thị hoặc thông báo lỗi xuất hiện. \\
+\hline
+Step log & Log ghi nhận từng bước thực thi, gồm action, trạng thái, URL, thời điểm, lỗi và thông tin hỗ trợ phân tích. \\
+\hline
+Test case & Ca kiểm thử mô tả mục tiêu, dữ liệu đầu vào, các bước thực hiện và điều kiện kỳ vọng. \\
+\hline
+Test run & Một lần thực thi cụ thể của test case hoặc replay script, có trạng thái, verdict, thời gian chạy và evidence riêng. \\
+\hline
+Test suite & Nhóm nhiều test case được gom lại để quản lý hoặc chạy theo lô, thường dùng trong kiểm thử hồi quy. \\
+\hline
+Timeline & Cách hiển thị diễn tiến thực thi theo từng bước để người dùng theo dõi test đang chạy đến đâu và lỗi xảy ra ở bước nào. \\
+\hline
+Verdict & Kết luận cuối cùng của một test run, ví dụ pass, fail hoặc error. \\
+\hline
+Website mục tiêu & Website được khai báo trong project và là đối tượng mà hệ thống thực hiện kiểm thử tự động. \\
+\hline
+\end{longtable}
+}
