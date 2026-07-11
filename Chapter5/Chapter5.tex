@@ -247,10 +247,34 @@ Module Data hiển thị dataset dưới dạng bảng, trong đó mỗi cột l
 
 Người dùng có thể chỉnh sửa trực tiếp từng ô, thêm hoặc xóa dòng và xem trước dữ liệu trước khi chạy. Dataset do AI sinh từ test case được tạo theo schema đầu vào của test case đó.
 
+\begin{figure}[H]
+    \centering
+    \IfFileExists{images/chapter5/data_management.png}{
+        \includegraphics[
+            width=\textwidth,
+            height=0.82\textheight,
+            keepaspectratio
+        ]{images/chapter5/data_management.png}
+    }{
+        \fbox{
+            \parbox[c][7.2cm][c]{0.97\textwidth}{
+                \centering
+                \textbf{Vị trí chèn hình}\\[0.3cm]
+                Giao diện quản lý dữ liệu kiểm thử.\\
+                \texttt{images/chapter5/data\_management.png}
+            }
+        }
+    }
+    \caption{Giao diện quản lý dữ liệu kiểm thử}
+    \label{fig:chapter5_data_management_ui}
+\end{figure}
+
 % ---------------------------------------------------------
 \paragraph{Giao diện Object Repository.}
 
-Module Objects gồm khu vực danh sách object và khu vực thông tin chi tiết của object đang được chọn.
+Module Objects được dùng để quản lý các phần tử giao diện có thể tái sử dụng trong quá trình chạy replay script. Trong giao diện project, nhóm Objects xuất hiện ở sidebar và được gom theo Page/Group. Khi người dùng mở rộng một nhóm và chọn một object, màn hình chính hiển thị thông tin chi tiết của object đó như tên object, trạng thái, selector mặc định, các selector dự phòng, DOM properties snapshot và thông tin lần ghi nhận gần nhất.
+
+Hình~\ref{fig:chapter5_object_repository_ui} minh họa giao diện Object Repository trong hệ thống. Ở phần đầu màn hình, người dùng có thể tạo object mới bằng nút \textit{New Object}. Với mỗi object đang được chọn, hệ thống hiển thị trạng thái \textit{Auto} hoặc \textit{Confirmed}. Trạng thái \textit{Auto} cho biết object được hệ thống tự ghi nhận từ phiên chạy agent, trong khi trạng thái \textit{Confirmed} cho biết người dùng đã xác nhận object này để sử dụng ổn định hơn trong các lần replay sau.
 
 \begin{figure}[H]
     \centering
@@ -275,9 +299,9 @@ Module Objects gồm khu vực danh sách object và khu vực thông tin chi ti
     \label{fig:chapter5_object_repository_ui}
 \end{figure}
 
-% Nội dung chi tiết về cách tạo object, selector mặc định,
-% candidate locator, DOM properties, quy trình xác nhận
-% và locator fallback sẽ được bổ sung sau.
+Giao diện chi tiết object cho phép người dùng xem và chỉnh sửa các thông tin chính gồm Object Name, Page/Group, Description, Default Selector và Selector Collection. Default Selector là locator được ưu tiên sử dụng trước, còn Selector Collection lưu nhiều cách định vị khác nhau như CSS, XPath, \texttt{id}, \texttt{name}, placeholder, accessible name, text hoặc \texttt{data-testid}. Người dùng có thể thêm fallback locator, sao chép locator, chỉnh sửa object hoặc xóa object khi không còn sử dụng.
+
+Bên cạnh các locator đã lưu, giao diện còn hiển thị DOM properties snapshot và Candidate Locators. Candidate Locators là các locator mới được phát hiện trong những lần chạy sau. Đối với object đã được người dùng xác nhận, hệ thống không tự động ghi đè locator hiện có mà đưa locator mới vào danh sách candidate để người dùng chọn \textit{Accept} hoặc \textit{Dismiss}. Cách thiết kế này giúp giảm rủi ro làm hỏng replay script do cập nhật locator ngoài ý muốn.
 
 % ---------------------------------------------------------
 \paragraph{Giao diện theo dõi kết quả thực thi.}
@@ -539,18 +563,11 @@ Evidence gồm screenshot, step log, action history, URL và các artifact liên
 % ---------------------------------------------------------
 \subsection{Object Repository và locator fallback}
 
-Hình~\ref{fig:chapter5_object_repository_ui} minh họa giao diện Object Repository đã được hiện thực trong hệ thống.
+Object Repository được hiện thực để lưu các phần tử giao diện được phát hiện trong quá trình chạy agent và cho phép tái sử dụng trong replay script. Khi một phiên chạy agent kết thúc, agent-worker trích xuất các object từ lịch sử thao tác đã được chuẩn hóa, bao gồm tên object, Page/Group, selector method, selector collection, URL nguồn và một số thuộc tính DOM. Các object này được gửi về backend cùng kết quả cuối cùng của test run.
 
-% TODO:
-% Bổ sung nội dung sau khi xác nhận đầy đủ:
-% - Cách tạo object thủ công và tự động.
-% - Quy trình xác nhận object.
-% - Selector mặc định và fallback selector.
-% - Candidate locators.
-% - DOM properties snapshot.
-% - Thứ tự thử locator.
-% - Cơ chế cập nhật locator.
-% - Quan hệ giữa object, test run và replay script.
+Ở backend, object mới được lưu vào bảng \texttt{test\_objects} với trạng thái \textit{Auto}. Nếu object đã tồn tại và vẫn ở trạng thái \textit{Auto}, hệ thống có thể cập nhật locator mới nhất cho object đó. Nếu object đã được người dùng xác nhận, hệ thống không ghi đè trực tiếp mà lưu locator mới vào \texttt{test\_object\_candidates}. Người dùng có thể xem các candidate này trên giao diện Object Repository và quyết định chấp nhận hoặc bỏ qua.
+
+Khi chạy replay script, các step có thể tham chiếu object thông qua \texttt{objectRef}. Trước khi gửi yêu cầu sang agent-worker, backend lấy selector mới nhất từ Object Repository và đưa vào step dưới dạng selector mặc định và selector collection. Ở worker, replay script thử selector mặc định trước, sau đó lần lượt thử các selector dự phòng theo thứ tự ưu tiên như \texttt{data-testid}, \texttt{id}, \texttt{name}, CSS, accessible name, placeholder, title và XPath. Cơ chế này hỗ trợ locator fallback trong một số trường hợp giao diện thay đổi nhỏ, nhưng không thay thế việc người dùng cập nhật lại test case hoặc replay script khi website thay đổi mạnh về luồng nghiệp vụ.
 
 % ---------------------------------------------------------
 \subsection{AI Analysis}
