@@ -181,12 +181,6 @@
 \addcontentsline{toc}{chapter}{\listtablename}
 \listoftables
 
-% Danh mục từ viết tắt
-\cleardoublepage
-\phantomsection
-\addcontentsline{toc}{chapter}{Danh mục từ viết tắt}
-\include{Appendix/abbreviations}
-
 % Bảng thuật ngữ
 \cleardoublepage
 \phantomsection
@@ -211,33 +205,23 @@
 
 \include{Chapter3/chapter3}
 
-\include{Chapter4/chapter4}
+\include{Chapter4/Chapter4}
 
-\include{Chapter5/chapter5}
+\include{Chapter5/Chapter5}
 
 \include{Chapter6/chapter6}
 
 \include{Chapter8/chapter8}
 
-% Công trình của tác giả
-% Nếu không có công trình thì có thể comment 2 dòng dưới
-\cleardoublepage
-\phantomsection
-\addcontentsline{toc}{chapter}{Danh mục công trình của tác giả}
-\include{Appendix/publish}
-
 % Tài liệu tham khảo
 \cleardoublepage
 \phantomsection
 \addcontentsline{toc}{chapter}{Tài liệu tham khảo}
-\printbibheading[title={Tài liệu tham khảo}]
-
-\printbibliography[heading=subbibliography, title={Tiếng Việt}, keyword=Viet, resetnumbers=true]
 
 \DeclareNameAlias{sortname}{last-first}
 \DeclareNameAlias{default}{last-first}
 
-\printbibliography[heading=subbibliography, title={Tiếng Anh}, notkeyword=Viet, resetnumbers=4]
+\printbibliography[title={Tài liệu tham khảo}]
 
 % Phần phụ lục
 \appendix

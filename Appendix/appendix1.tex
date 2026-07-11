@@ -5,17 +5,79 @@ Phụ lục này tổng hợp các nội dung chi tiết liên quan đến cơ s
 
 \section{Sơ đồ cơ sở dữ liệu đầy đủ}
 
-Sơ đồ cơ sở dữ liệu đầy đủ của hệ thống được đặt tại vị trí này để người đọc có thể đối chiếu với danh sách bảng chi tiết ở phần sau. Do sơ đồ đầy đủ có nhiều bảng và quan hệ, phần nội dung chính của báo cáo chỉ trình bày mô hình dữ liệu cốt lõi, còn sơ đồ đầy đủ được đưa vào phụ lục để phục vụ tra cứu.
+Sơ đồ cơ sở dữ liệu đầy đủ của hệ thống được chia thành nhiều hình nhỏ theo nhóm chức năng để người đọc dễ theo dõi và đối chiếu với danh sách bảng chi tiết ở phần sau. Cách trình bày này tránh việc đặt toàn bộ ERD trong một hình lớn, dễ bị thu nhỏ quá mức hoặc tràn trang.
 
-% Khi có ảnh sơ đồ DB đầy đủ, có thể đặt vào đây, ví dụ:
-% \begin{figure}[H]
-% \centering
-% \makebox[\textwidth][c]{%
-%     \includegraphics[width=1.15\textwidth]{images/appendix/db_full_diagram.png}
-% }
-% \caption{Sơ đồ cơ sở dữ liệu đầy đủ của hệ thống}
-% \label{fig:appendix_db_full_diagram}
-% \end{figure}
+\newcommand{\appendixERDFigure}[3]{%
+\begin{figure}[H]
+    \centering
+    \IfFileExists{#1}{%
+        \includegraphics[
+            width=\textwidth,
+            height=0.78\textheight,
+            keepaspectratio
+        ]{#1}%
+    }{%
+        \fbox{%
+            \parbox[c][0.32\textheight][c]{0.92\textwidth}{%
+                \centering
+                Vị trí đặt hình ERD: \path{#1}
+            }%
+        }%
+    }%
+    \caption{#2}
+    \label{#3}
+\end{figure}
+}
+
+\noindent\textbf{Nhóm 1 -- Người dùng, dự án và cấu hình.}
+Nhóm này gồm các bảng \path{users}, \path{sessions}, \path{password_reset_otps}, \path{projects}, \path{project_secrets}, \path{browser_profiles} và \path{agent_runtime_configs}. Đây là nhóm dữ liệu nền tảng để quản lý tài khoản, project, cấu hình trình duyệt và cấu hình runtime khi chạy agent. Số bảng chính của nhóm là 7.
+
+\appendixERDFigure
+{images/appendix/db_erd_user_project_config.png}
+{Sơ đồ dữ liệu quản lý người dùng, dự án và cấu hình}
+{fig:appendix_db_erd_user_project_config}
+
+\noindent\textbf{Nhóm 2 -- Quét website và quản lý đối tượng.}
+Nhóm này hiển thị các bảng \path{projects}, \path{scans}, \path{test_objects} và \path{test_object_candidates}. Bảng \path{projects} được lặp lại từ Nhóm 1 để làm rõ mối liên hệ giữa project với dữ liệu scan/crawl và object repository. Số bảng nghiệp vụ riêng của nhóm là 3, số bảng hiển thị trên sơ đồ là 4.
+
+\appendixERDFigure
+{images/appendix/db_erd_scan_object_repository.png}
+{Sơ đồ dữ liệu quét website và quản lý đối tượng}
+{fig:appendix_db_erd_scan_object_repository}
+
+\noindent\textbf{Nhóm 3 -- Sinh và quản lý ca kiểm thử.}
+Nhóm này hiển thị các bảng liên quan đến test case, phiên bản test case, step, cây test, batch sinh test case, candidate sinh ra, dataset và log sinh dataset. Bảng \path{projects} được lặp lại để thể hiện nguồn gốc của test case, dataset và batch sinh test case. Số bảng nghiệp vụ riêng của nhóm là 9, số bảng hiển thị trên sơ đồ là 10.
+
+\appendixERDFigure
+{images/appendix/db_erd_testcase_generation.png}
+{Sơ đồ dữ liệu sinh và quản lý ca kiểm thử}
+{fig:appendix_db_erd_testcase_generation}
+
+\noindent\textbf{Nhóm 4 -- Thực thi kiểm thử và bằng chứng.}
+Nhóm này hiển thị các bảng liên quan đến replay script, test run, attempt, step log, evidence, batch run, dataset binding và tag của test run. Ba bảng \path{test_cases}, \path{test_case_versions} và \path{test_datasets} được lặp lại từ Nhóm 3 để làm rõ nguồn dữ liệu đầu vào của quá trình thực thi. Số bảng nghiệp vụ riêng của nhóm là 9, số bảng hiển thị trên sơ đồ là 12.
+
+\appendixERDFigure
+{images/appendix/db_erd_execution_evidence.png}
+{Sơ đồ dữ liệu thực thi kiểm thử và lưu trữ bằng chứng}
+{fig:appendix_db_erd_execution_evidence}
+
+\noindent\textbf{Nhóm 5 -- Test Collection, Test Sheet và Test Suite.}
+Nhóm này hiển thị các bảng phục vụ gom nhóm test case và chạy theo lô, bao gồm test collection, test sheet, test suite và các bảng item/run tương ứng. Ba bảng \path{projects}, \path{test_cases} và \path{test_runs} được lặp lại để thể hiện quan hệ với các cấu trúc gom nhóm và kết quả chạy. Số bảng nghiệp vụ riêng của nhóm là 10, số bảng hiển thị trên sơ đồ là 13.
+
+\appendixERDFigure
+{images/appendix/db_erd_collection_sheet_suite.png}
+{Sơ đồ dữ liệu quản lý Test Collection, Test Sheet và Test Suite}
+{fig:appendix_db_erd_collection_sheet_suite}
+
+\noindent\textbf{Nhóm 6 -- Phân tích lỗi, phục hồi và báo cáo.}
+Nhóm này hiển thị các bảng \path{test_runs}, \path{run_step_logs}, \path{evidences}, \path{failure_analyses}, \path{healing_suggestions}, \path{healing_applications} và \path{reports}. Các bảng \path{test_runs}, \path{run_step_logs} và \path{evidences} được lặp lại từ Nhóm 4 để thể hiện dữ liệu đầu vào cho phân tích lỗi, phục hồi và báo cáo. Số bảng hiển thị trên sơ đồ là 7.
+
+\appendixERDFigure
+{images/appendix/db_erd_failure_healing_report.png}
+{Sơ đồ dữ liệu phân tích lỗi, phục hồi và báo cáo}
+{fig:appendix_db_erd_failure_healing_report}
+
+\clearpage
 
 \section{Danh sách các bảng trong cơ sở dữ liệu}
 
