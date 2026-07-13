@@ -1,4 +1,46 @@
-\chapter*{Đề cương chi tiết}
+\phantomsection
+\addcontentsline{toc}{chapter}{Đề cương chi tiết}
 \label{appendix:proposal}
 
-Bản \href{https://www.overleaf.com/read/jwrxbcrmkgfh}{đề cương} đã thực hiện và nộp cho giáo vụ trước đó \textit{(phải có chữ ký của giảng viên hướng dẫn)}.
+\newcommand{\proposalPDFPageWithTitle}[1]{%
+    \thispagestyle{empty}
+    \vspace*{-0.7cm}
+    \noindent{\Large\bfseries Đề cương chi tiết\par}
+    \vspace{-0.5cm}
+    \noindent\makebox[\textwidth][c]{%
+        \includegraphics[
+            page=#1,
+            width=1.08\textwidth,
+            height=0.91\textheight,
+            trim=1.6cm 0.35cm 1.6cm 1.2cm,
+            clip,
+            keepaspectratio
+        ]{Appendix/decuong_chi_tiet.pdf}%
+    }
+    \clearpage
+}
+
+\newcommand{\proposalPDFPage}[1]{%
+    \thispagestyle{empty}
+    \noindent\makebox[\textwidth][c]{%
+        \includegraphics[
+            page=#1,
+            width=1.08\textwidth,
+            height=0.98\textheight,
+            trim=1.6cm 0.35cm 1.6cm 1.2cm,
+            clip,
+            keepaspectratio
+        ]{Appendix/decuong_chi_tiet.pdf}%
+    }
+    \clearpage
+}
+
+\proposalPDFPageWithTitle{1}
+\proposalPDFPage{2}
+\proposalPDFPage{3}
+\proposalPDFPage{4}
+\proposalPDFPage{5}
+\proposalPDFPage{6}
+\proposalPDFPage{7}
+\proposalPDFPage{8}
+\proposalPDFPage{9}
