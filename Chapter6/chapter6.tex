@@ -482,7 +482,7 @@ App error & 1 & 5.88\% \\
 \end{tabular}
 \end{table}
 
-Lỗi phổ biến nhất là Bad locator, chiếm 70.59\% trong các lỗi đã được phân loại. Đây là nhóm lỗi xảy ra khi hệ thống không tìm thấy phần tử, phần tử chưa hiển thị hoặc locator không còn phù hợp tại thời điểm chạy. Kết quả này phù hợp với đặc thù của kiểm thử giao diện Web: các phần tử có thể được render động, thay đổi cấu trúc DOM hoặc xuất hiện chậm hơn so với thời điểm script tìm kiếm.
+Lỗi phổ biến nhất là Bad locator, chiếm 70.59\% trong các lỗi đã được phân loại. Đây là nhóm lỗi xảy ra khi hệ thống không tìm thấy phần tử, phần tử chưa hiển thị hoặc locator không còn phù hợp tại thời điểm chạy. Kết quả này phù hợp với đặc thù của kiểm thử giao diện Web: các phần tử có thể được render động, thay đổi cấu trúc DOM hoặc xuất hiện chậm hơn so với thời điểm script tìm kiếm~\cite{9402129}.
 
 Nhóm lỗi Prompt misunderstanding chiếm 23.53\%. Lỗi này xảy ra khi prompt, expected result hoặc điều kiện kiểm tra chưa đủ rõ, khiến agent hoặc assertion đánh giá sai kết quả. Ví dụ, một kịch bản đăng nhập không hợp lệ có thể được xem là thành công nếu expected result là hiển thị thông báo lỗi, nhưng có thể bị đánh giá fail nếu hệ thống chỉ kiểm tra việc điều hướng sang dashboard.
 
