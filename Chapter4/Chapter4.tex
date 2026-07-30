@@ -100,9 +100,16 @@ Hỗ trợ sinh test case, sinh dữ liệu, suy luận hành động và phân 
 
 \subsection{Thiết kế giao diện người dùng}
 
-Giao diện được thiết kế theo vòng đời kiểm thử: xác thực người dùng, quản lý project, sinh test case, chuẩn bị dữ liệu, cấu hình thực thi và xem kết quả. Các màn hình chính gồm đăng nhập, đăng ký, Dashboard, Test Case Detail, Test Suite Detail, Data, Objects và Test Runs.
+Giao diện được thiết kế theo vòng đời kiểm thử: xác thực tester, quản lý project, sinh và lựa chọn test case, tạo automation test script, chuẩn bị dữ liệu kiểm thử, tổ chức test case và xem kết quả thực thi.
 
-Thiết kế ưu tiên người dùng không phải viết script ngay từ đầu. Các chức năng nhập prompt, chạy bằng agent, sử dụng replay script, chọn dataset và xem evidence được tổ chức theo một luồng thao tác thống nhất.
+Các màn hình chính gồm đăng nhập, đăng ký, Dashboard, Generate Testcase, Test Case, Test Case Detail, Test Suite Detail, Data, Objects và Test Runs.
+
+Trang \textit{Generate Testcase} là khu vực để tester nhập yêu cầu bằng ngôn ngữ tự nhiên, sinh danh sách test case đề xuất và lựa chọn các test case phù hợp. Giao diện có thể tổ chức thành nhiều section làm việc để tester xử lý các nhóm yêu cầu khác nhau. Đây là cách tổ chức giao diện, không được xem là một chức năng nghiệp vụ độc lập.
+
+Các test case được lựa chọn được sử dụng để chạy bằng agent và tạo automation test script. Sau khi script được tạo và xác nhận, test case được chuyển sang trang \textit{Test Case} và tổ chức theo cấu trúc cây thư mục.
+
+Thiết kế ưu tiên việc tester không phải viết script ngay từ đầu. Các chức năng nhập yêu cầu, lựa chọn test case, tạo script bằng agent, chạy replay script, chọn dataset và xem evidence được tổ chức theo một luồng thao tác thống nhất.
+
 
 % ---------------------------------------------------------
 \subsection{Thiết kế backend API}
@@ -271,7 +278,9 @@ Quản lý phiên đăng nhập, dữ liệu nhạy cảm và thông tin xác th
 
 Lịch sử sinh bằng AI &
 Các bảng generation batch và candidate &
-Lưu lịch sử sinh test case, dataset và kết quả tạm thời từ AI. \\
+Lưu từng lần sinh và các test case đề xuất tại trang
+\textit{Generate Testcase}. Candidate chỉ được chuyển thành test case
+chính thức sau khi được tester lựa chọn và hoàn tất quá trình tạo script. \\
 \hline
 \end{tabular}
 \end{table}
@@ -294,6 +303,12 @@ Tên bảng vật lý \texttt{test\_sheets} được sử dụng để hiện th
 
 Chỉ trình bày bảng cốt lõi trong ERD chính &
 Giữ mô hình tập trung vào vòng đời kiểm thử và tránh làm sơ đồ quá phức tạp. \\
+\hline
+
+Tách test case đề xuất và test case chính thức &
+Test case do AI sinh ban đầu được lưu dưới dạng candidate. Chỉ những
+candidate được tester lựa chọn và hoàn tất quá trình tạo script mới
+được đưa vào kho test case chính thức. \\
 \hline
 
 Tách test case và test run &
@@ -338,27 +353,29 @@ Người dùng khai báo tên project, mô tả, base URL và cấu hình liên 
 Sau khi tạo project, người dùng có thể khởi tạo scan/crawl để thu thập sitemap và interaction map. Đây là bước tùy chọn nhằm cung cấp ngữ cảnh cho quá trình sinh test case và chạy agent.
 
 % ---------------------------------------------------------
-\subsection{Luồng sinh test case từ prompt}
+\subsection{Luồng sinh và lựa chọn test case}
 
-Người dùng nhập prompt hoặc goal. Backend kết hợp nội dung này với thông tin project và dữ liệu scan nếu có, sau đó gọi AI để sinh test case gồm tiêu đề, mục tiêu, test plan, dữ liệu đầu vào và kết quả kỳ vọng.
+Tester truy cập trang \textit{Generate Testcase} và nhập yêu cầu, mục tiêu hoặc mô tả chức năng cần kiểm thử bằng ngôn ngữ tự nhiên. Backend kết hợp nội dung này với thông tin project và dữ liệu scan nếu có, sau đó gọi LLM để sinh danh sách test case đề xuất gồm tiêu đề, mục tiêu, test plan, dữ liệu đầu vào và kết quả kỳ vọng.
 
-Test case được đưa vào khu vực xem trước để người dùng chỉnh sửa hoặc lưu vào project.
+Các test case được sinh được hiển thị trong khu vực làm việc để tester xem xét, chỉnh sửa và lựa chọn. Những test case chưa được lựa chọn chỉ là kết quả đề xuất và chưa được đưa vào kho test case chính thức của project.
+
+Tester có thể sử dụng các test case đã lựa chọn làm đầu vào cho quá trình chạy bằng agent nhằm tạo automation test script. Sau khi quá trình tạo script hoàn thành và được xác nhận, test case cùng script tương ứng được chuyển sang trang \textit{Test Case} để lưu trữ và quản lý.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[
-        width=\textwidth,
-        height=0.78\textheight,
-        keepaspectratio
-    ]{images/chapter4/flow_project_testcase_creation.png}
-    \caption{Luồng tạo project, scan/crawl website và sinh test case}
-    \label{fig:flow_project_testcase_creation}
+\centering
+\includegraphics[
+width=\textwidth,
+height=0.78\textheight,
+keepaspectratio
+]{images/chapter4/flow_project_testcase_creation.png}
+\caption{Luồng tạo project, sinh, lựa chọn test case và tạo test script}
+\label{fig:flow_project_testcase_creation}
 \end{figure}
 
 % ---------------------------------------------------------
 \subsection{Luồng chạy bằng goal-based agent}
 
-Agent là chế độ thực thi linh hoạt, trong đó hệ thống dựa trên mục tiêu kiểm thử và trạng thái hiện tại của website để xác định hành động tiếp theo.
+Agent được sử dụng trong giai đoạn thực thi ban đầu để khám phágiao diện và tạo automation test script từ test case đã được tester lựa chọn.
 
 \begin{figure}[H]
     \centering
@@ -451,11 +468,12 @@ Locator fallback là một nhánh trong luồng agent. Khi cách nhận diện b
 % ---------------------------------------------------------
 \subsection{Quản lý test suite và dữ liệu kiểm thử}
 
-Test suite gom nhiều test case thành một nhóm chạy. Mỗi test case trong suite có thể được cấu hình chạy bằng agent hoặc replay script; kết quả được tổng hợp theo từng lượt thực thi.
+Test suite gom nhiều test case đã được lưu trong cây thư mục thành một nhóm chạy. Đối với các test case đã có replay script, hệ thống ưu tiên thực thi bằng replay script để phục vụ kiểm thử hồi quy. Agent được sử dụng khi cần tạo mới hoặc cập nhật script do test case chưa có kịch bản phù hợp hoặc luồng nghiệp vụ đã thay đổi đáng kể.
 
-Dữ liệu kiểm thử được lưu thành dataset, trong đó mỗi dòng là một bộ input. Khi chạy replay script với dataset, hệ thống tạo kết quả riêng cho từng dòng dữ liệu.
+Dữ liệu kiểm thử được lưu thành dataset, trong đó mỗi dòng là một bộ dữ liệu đầu vào. Khi chạy replay script với dataset, hệ thống tạo kết quả riêng cho từng dòng dữ liệu.
 
-Trước khi chạy, hệ thống kiểm tra cấu trúc dataset với các biến của replay script dựa trên số lượng trường và kiểu dữ liệu. Cấu hình không đầy đủ hoặc dataset không tương thích sẽ bị chặn.
+Trước khi chạy, hệ thống kiểm tra cấu trúc dataset với các biến của replay script dựa trên tên trường và kiểu dữ liệu. Cấu hình không đầy đủ hoặc dataset không tương thích sẽ bị chặn.
+
 
 % =========================================================
 \section{Thiết kế bảo mật và kiểm soát vận hành}
