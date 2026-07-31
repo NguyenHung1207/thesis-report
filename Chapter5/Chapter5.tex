@@ -25,7 +25,7 @@ Dựa trên kiến trúc ở Chương~\ref{Chapter4}, hệ thống được xây
 
 Frontend &
 ReactJS, Vite, shadcn/ui, Tailwind CSS &
-Xây dựng giao diện quản lý project, test case, dataset, test suite, Object Repository và report. \\
+Xây dựng giao diện quản lý project, sinh và lựa chọn test case, quản lý test case theo cây thư mục, dataset, test suite, Object Repository và kết quả thực thi. \\
 \hline
 
 Backend API &
@@ -35,17 +35,17 @@ Xử lý nghiệp vụ, quản lý dữ liệu và điều phối yêu cầu th�
 
 Cơ sở dữ liệu &
 PostgreSQL 16 &
-Lưu người dùng, project, test case, replay script, test run, evidence, dataset và dữ liệu hỗ trợ. \\
+Lưu người dùng, project, lịch sử sinh test case, test case ứng viên, test case chính thức, replay script, test run, evidence và dataset. \\
 \hline
 
 Agent-worker &
 Python, FastAPI &
-Chạy kiểm thử trên trình duyệt, ghi nhận evidence và trả kết quả về backend. \\
+Chạy test bằng agent hoặc replay script, ghi nhận evidence và trả kết quả về backend. \\
 \hline
 
 Tự động hóa trình duyệt &
 Browser-use, Playwright &
-Browser-use hỗ trợ goal-based agent; Playwright điều khiển trình duyệt và chạy replay script. \\
+Browser-use hỗ trợ agent tạo script ban đầu; Playwright điều khiển trình duyệt và chạy replay script. \\
 \hline
 
 AI/LLM &
@@ -55,7 +55,7 @@ Hỗ trợ sinh test case, sinh dữ liệu, suy luận hành động và phân 
 \end{tabular}
 \end{table}
 
-Frontend gửi yêu cầu đến backend; backend quản lý nghiệp vụ và điều phối; agent-worker xử lý các tác vụ tự động hóa trình duyệt. Việc phân tách này giúp các thành phần có thể phát triển, triển khai và mở rộng độc lập.
+Frontend gửi yêu cầu đến backend; backend xử lý nghiệp vụ và điều phối; agent-worker thực hiện các tác vụ tự động hóa trình duyệt. Việc phân tách này giúp các thành phần có thể phát triển, triển khai và mở rộng độc lập.
 
 % =========================================================
 \section{Xây dựng các thành phần chính}
@@ -64,14 +64,18 @@ Frontend gửi yêu cầu đến backend; backend quản lý nghiệp vụ và �
 % ---------------------------------------------------------
 \subsection{Giao diện người dùng}
 
-Giao diện được xây dựng theo vòng đời kiểm thử: xác thực người dùng, lựa chọn project, sinh test case, cấu hình thực thi và xem kết quả. Trong phạm vi một project, thanh điều hướng cung cấp các module \textit{Test Cases}, \textit{Test Suites}, \textit{Data}, \textit{Objects}, \textit{Test Runs} và \textit{Settings}.
+Giao diện được xây dựng theo vòng đời kiểm thử: xác thực tester, lựa chọn project, sinh và lựa chọn test case, tạo automation test script, quản lý test case đã xác nhận, thực hiện kiểm thử hồi quy và xem kết quả.
 
-Phần này tập trung vào bố cục và thao tác chính của các giao diện đã hiện thực; yêu cầu chức năng tương ứng đã được trình bày ở Chương~\ref{Chapter3}.
+Trong phạm vi một project, thanh điều hướng cung cấp các module \textit{Generate Testcase}, \textit{Test Cases}, \textit{Test Suites}, \textit{Data}, \textit{Objects}, \textit{Test Runs} và \textit{Settings}.
+
+Trang \textit{Generate Testcase} được sử dụng để sinh và lựa chọn các test case đề xuất. Trang \textit{Test Cases} đóng vai trò là kho lưu trữ các test case đã có automation test script và được tổ chức theo cấu trúc cây thư mục.
+
+Phần này trình bày các giao diện chính đã được hiện thực; yêu cầu chức năng tương ứng đã được phân tích tại Chương~\ref{Chapter3}.
 
 % ---------------------------------------------------------
 \paragraph{Giao diện đăng nhập.}
 
-Màn hình đăng nhập hỗ trợ email và mật khẩu, ghi nhớ phiên đăng nhập, hiển thị hoặc ẩn mật khẩu và khôi phục mật khẩu. Người dùng cũng có thể đăng nhập bằng Google thông qua Google OAuth hoặc chuyển sang trang đăng ký.
+Màn hình đăng nhập hỗ trợ email và mật khẩu, ghi nhớ phiên đăng nhập, hiển thị hoặc ẩn mật khẩu và khôi phục mật khẩu. Tester cũng có thể đăng nhập bằng Google thông qua Google OAuth hoặc chuyển sang trang đăng ký.
 
 \begin{figure}[H]
     \centering
@@ -99,7 +103,7 @@ Màn hình đăng nhập hỗ trợ email và mật khẩu, ghi nhớ phiên đ�
 % ---------------------------------------------------------
 \paragraph{Giao diện đăng ký.}
 
-Màn hình đăng ký cho phép nhập email, họ tên, mật khẩu và xác nhận mật khẩu. Sau khi hoàn tất, người dùng có thể chuyển trực tiếp về trang đăng nhập.
+Màn hình đăng ký cho phép nhập email, họ tên, mật khẩu và xác nhận mật khẩu. Sau khi hoàn tất, tester có thể chuyển về trang đăng nhập để sử dụng hệ thống.
 
 \begin{figure}[H]
     \centering
@@ -127,7 +131,7 @@ Màn hình đăng ký cho phép nhập email, họ tên, mật khẩu và xác n
 % ---------------------------------------------------------
 \paragraph{Giao diện Dashboard và quản lý project.}
 
-Dashboard hiển thị tổng số lượt kiểm thử, tỷ lệ pass, số lượt thất bại, thời gian chạy trung bình và các project gần đây. Người dùng có thể tạo project mới hoặc mở project để truy cập các module kiểm thử.
+Dashboard hiển thị tổng số lượt kiểm thử, tỷ lệ pass, số lượt thất bại, thời gian chạy trung bình và các project gần đây. Tester có thể tạo project mới hoặc mở project để truy cập các module kiểm thử.
 
 \begin{figure}[H]
     \centering
@@ -153,9 +157,15 @@ Dashboard hiển thị tổng số lượt kiểm thử, tỷ lệ pass, số l�
 \end{figure}
 
 % ---------------------------------------------------------
-\paragraph{Giao diện sinh và quản lý test case.}
+\paragraph{Giao diện Generate Testcase.}
 
-Người dùng nhập prompt bằng ngôn ngữ tự nhiên để hệ thống sinh các test case ứng viên. Mỗi ứng viên hiển thị tiêu đề, mục tiêu và các bước dự kiến để người dùng xem lại trước khi lưu hoặc loại bỏ.
+Trang \textit{Generate Testcase} cho phép tester nhập yêu cầu hoặc mục tiêu kiểm thử bằng ngôn ngữ tự nhiên để hệ thống sinh danh sách test case đề xuất. Mỗi test case ứng viên gồm tiêu đề, mục tiêu, các bước dự kiến, dữ liệu đầu vào và kết quả kỳ vọng.
+
+Giao diện có thể được chia thành nhiều section làm việc để tester xử lý các nhóm yêu cầu khác nhau trong cùng một project. Các section chỉ có vai trò tổ chức không gian làm việc và lưu ngữ cảnh của từng nhóm yêu cầu.
+
+Sau khi hệ thống sinh kết quả, tester có thể xem xét, chỉnh sửa, lựa chọn hoặc loại bỏ các test case ứng viên. Các test case được lựa chọn tiếp tục được sử dụng làm đầu vào cho agent nhằm tạo automation test script.
+
+Test case chưa được lựa chọn hoặc chưa có script được xác nhận vẫn được xem là kết quả đề xuất và chưa được đưa vào kho test case chính thức của project.
 
 \begin{figure}[H]
     \centering
@@ -170,22 +180,24 @@ Người dùng nhập prompt bằng ngôn ngữ tự nhiên để hệ thống s
             \parbox[c][7.0cm][c]{0.97\textwidth}{
                 \centering
                 \textbf{Vị trí chèn hình}\\[0.3cm]
-                Giao diện nhập prompt, sinh test case ứng viên
-                và lưu vào project.\\
+                Giao diện nhập yêu cầu, sinh danh sách test case
+                và lựa chọn các test case phù hợp.\\
                 \texttt{images/chapter5/testcase\_generate.png}
             }
         }
     }
-    \caption{Giao diện sinh test case từ mô tả bằng ngôn ngữ tự nhiên}
+    \caption{Giao diện Generate Testcase và lựa chọn test case đề xuất}
     \label{fig:chapter5_testcase_generate_ui}
 \end{figure}
 
 % ---------------------------------------------------------
-\paragraph{Giao diện chi tiết test case.}
+\paragraph{Giao diện quản lý và chi tiết test case.}
 
-Trang Test Case Detail hiển thị Test Plan, replay script, trạng thái, tỷ lệ pass, lần chạy gần nhất và Run History. Khu vực \textit{Recorded Script} trình bày các action và check được ghi nhận sau lần chạy agent thành công.
+Trang \textit{Test Cases} lưu trữ các test case đã hoàn thành quá trình tạo automation test script và được tester xác nhận. Các test case được tổ chức theo cấu trúc cây thư mục để phân nhóm theo chức năng, module hoặc luồng nghiệp vụ.
 
-Người dùng có thể chạy lại replay script, chọn dataset để chạy theo dữ liệu và xem kết quả của từng lượt thực thi. \textit{Developer Mode} hỗ trợ chỉnh sửa step, action và check ở mức nâng cao.
+Khi tester chọn một test case, trang \textit{Test Case Detail} hiển thị Test Plan, replay script, trạng thái, tỷ lệ pass, lần chạy gần nhất và Run History. Khu vực \textit{Recorded Script} trình bày các action và check được ghi nhận từ phiên chạy agent thành công.
+
+Tester có thể chạy lại replay script, chọn dataset để thực thi với nhiều bộ dữ liệu và xem kết quả của từng lượt chạy. \textit{Developer Mode} hỗ trợ chỉnh sửa step, action và check khi kịch bản cần được cập nhật.
 
 \begin{figure}[H]
     \centering
@@ -206,16 +218,16 @@ Người dùng có thể chạy lại replay script, chọn dataset để chạy
             }
         }
     }
-    \caption{Giao diện chi tiết test case và cấu hình thực thi}
+    \caption{Giao diện quản lý và chi tiết test case}
     \label{fig:chapter5_testcase_detail_ui}
 \end{figure}
 
 % ---------------------------------------------------------
 \paragraph{Giao diện cấu hình và chạy test suite.}
 
-Trang Test Suite Detail hiển thị các test case trong suite và cấu hình chạy của từng test case. Chế độ \textit{Run with Agent} không sử dụng dataset; chế độ Replay cho phép chọn replay script, dataset và xem trước dữ liệu.
+Trang \textit{Test Suite Detail} hiển thị các test case trong suite và cấu hình thực thi của từng test case. Đối với kiểm thử hồi quy, hệ thống ưu tiên chế độ Replay và cho phép tester chọn replay script, dataset và xem trước dữ liệu.
 
-Hệ thống kiểm tra số lượng trường và kiểu dữ liệu của dataset. Trạng thái cấu hình gồm \texttt{Need review}, \texttt{Compatible} và \texttt{Incompatible}; cấu hình chưa đầy đủ hoặc dataset không tương thích sẽ bị chặn thực thi.
+Chế độ \textit{Run with Agent} được sử dụng khi test case chưa có script phù hợp hoặc cần tạo lại kịch bản. Hệ thống kiểm tra số lượng trường và kiểu dữ liệu của dataset trước khi chạy. Trạng thái cấu hình gồm \texttt{Need review}, \texttt{Compatible} và \texttt{Incompatible}; cấu hình chưa đầy đủ hoặc dataset không tương thích sẽ bị chặn thực thi.
 
 \begin{figure}[H]
     \centering
@@ -243,9 +255,9 @@ Hệ thống kiểm tra số lượng trường và kiểu dữ liệu của dat
 % ---------------------------------------------------------
 \paragraph{Giao diện quản lý dữ liệu kiểm thử.}
 
-Module Data hiển thị dataset dưới dạng bảng, trong đó mỗi cột là một trường và mỗi dòng là một bộ dữ liệu. Dataset có thể được tạo thủ công hoặc sinh bằng AI trong ngữ cảnh của một test case.
+Module \textit{Data} hiển thị dataset dưới dạng bảng, trong đó mỗi cột là một trường và mỗi dòng là một bộ dữ liệu. Dataset có thể được tạo thủ công hoặc sinh bằng AI dựa trên một test case.
 
-Người dùng có thể chỉnh sửa trực tiếp từng ô, thêm hoặc xóa dòng và xem trước dữ liệu trước khi chạy. Dataset do AI sinh từ test case được tạo theo schema đầu vào của test case đó.
+Tester có thể chỉnh sửa từng ô, thêm hoặc xóa dòng và xem trước dữ liệu trước khi chạy. Dataset do AI sinh được xây dựng theo schema đầu vào của test case tương ứng.
 
 \begin{figure}[H]
     \centering
@@ -272,9 +284,9 @@ Người dùng có thể chỉnh sửa trực tiếp từng ô, thêm hoặc xó
 % ---------------------------------------------------------
 \paragraph{Giao diện Object Repository.}
 
-Module Objects được dùng để quản lý các phần tử giao diện có thể tái sử dụng trong quá trình chạy replay script. Trong giao diện project, nhóm Objects xuất hiện ở sidebar và được gom theo Page/Group. Khi người dùng mở rộng một nhóm và chọn một object, màn hình chính hiển thị thông tin chi tiết của object đó như tên object, trạng thái, selector mặc định, các selector dự phòng, DOM properties snapshot và thông tin lần ghi nhận gần nhất.
+Module \textit{Objects} quản lý các phần tử giao diện có thể tái sử dụng trong replay script. Các object được nhóm theo Page/Group và lưu những thông tin như tên object, trạng thái, selector mặc định, selector dự phòng và DOM properties snapshot.
 
-Hình~\ref{fig:chapter5_object_repository_ui} minh họa giao diện Object Repository trong hệ thống. Ở phần đầu màn hình, người dùng có thể tạo object mới bằng nút \textit{New Object}. Với mỗi object đang được chọn, hệ thống hiển thị trạng thái \textit{Auto} hoặc \textit{Confirmed}. Trạng thái \textit{Auto} cho biết object được hệ thống tự ghi nhận từ phiên chạy agent, trong khi trạng thái \textit{Confirmed} cho biết người dùng đã xác nhận object này để sử dụng ổn định hơn trong các lần replay sau.
+Object có thể mang trạng thái \textit{Auto} hoặc \textit{Confirmed}. Trạng thái \textit{Auto} cho biết object được ghi nhận tự động từ phiên chạy agent; trạng thái \textit{Confirmed} cho biết object đã được tester xác nhận để sử dụng ổn định hơn trong các lần replay tiếp theo.
 
 \begin{figure}[H]
     \centering
@@ -299,18 +311,18 @@ Hình~\ref{fig:chapter5_object_repository_ui} minh họa giao diện Object Repo
     \label{fig:chapter5_object_repository_ui}
 \end{figure}
 
-Giao diện chi tiết object cho phép người dùng xem và chỉnh sửa các thông tin chính gồm Object Name, Page/Group, Description, Default Selector và Selector Collection. Default Selector là locator được ưu tiên sử dụng trước, còn Selector Collection lưu nhiều cách định vị khác nhau như CSS, XPath, \texttt{id}, \texttt{name}, placeholder, accessible name, text hoặc \texttt{data-testid}. Người dùng có thể thêm fallback locator, sao chép locator, chỉnh sửa object hoặc xóa object khi không còn sử dụng.
+Tester có thể xem và chỉnh sửa Object Name, Page/Group, Description, Default Selector và Selector Collection. Selector Collection hỗ trợ nhiều cách định vị như CSS, XPath, \texttt{id}, \texttt{name}, placeholder, accessible name, text và \texttt{data-testid}.
 
-Bên cạnh các locator đã lưu, giao diện còn hiển thị DOM properties snapshot và Candidate Locators. Candidate Locators là các locator mới được phát hiện trong những lần chạy sau. Đối với object đã được người dùng xác nhận, hệ thống không tự động ghi đè locator hiện có mà đưa locator mới vào danh sách candidate để người dùng chọn \textit{Accept} hoặc \textit{Dismiss}. Cách thiết kế này giúp giảm rủi ro làm hỏng replay script do cập nhật locator ngoài ý muốn.
+Đối với object đã được xác nhận, hệ thống không tự động ghi đè locator hiện có. Locator mới được đưa vào danh sách Candidate Locators để tester lựa chọn chấp nhận hoặc bỏ qua, qua đó hạn chế làm hỏng replay script do cập nhật ngoài ý muốn.
 
 % ---------------------------------------------------------
 \paragraph{Giao diện theo dõi kết quả thực thi.}
 
-Module Test Runs chia kết quả thành ba nhóm: test case run, suite run và dataset run. Trang danh sách hiển thị trạng thái, thời điểm và thời gian thực thi; trang chi tiết hiển thị timeline, screenshot, bước thất bại và thông tin lỗi.
+Module \textit{Test Runs} chia kết quả thành ba nhóm: test case run, suite run và dataset run. Trang danh sách hiển thị trạng thái, thời điểm và thời gian thực thi; trang chi tiết hiển thị timeline, screenshot, bước thất bại và thông tin lỗi.
 
-Với suite run, người dùng xem kết quả tổng hợp và mở chi tiết từng test case. Với dataset run, kết quả được phân chia theo từng dòng dữ liệu.
+Với suite run, tester có thể xem kết quả tổng hợp và mở chi tiết từng test case. Với dataset run, kết quả được phân chia theo từng dòng dữ liệu.
 
-Khu vực AI Analysis sử dụng log và evidence đã lưu để xác định nguyên nhân và đề xuất hướng xử lý. Kết quả phân tích được lưu cùng phiên chạy.
+Khu vực AI Analysis sử dụng log và evidence đã lưu để gợi ý nguyên nhân và hướng xử lý. Kết quả phân tích được lưu cùng phiên chạy.
 
 \begin{figure}[H]
     \centering
@@ -335,7 +347,7 @@ Khu vực AI Analysis sử dụng log và evidence đã lưu để xác định 
     \label{fig:chapter5_run_result_ui}
 \end{figure}
 
-Các thành phần như bảng dữ liệu, panel cấu hình, timeline, khung screenshot và khu vực replay script được tái sử dụng để bảo đảm giao diện nhất quán.
+Các thành phần như bảng dữ liệu, panel cấu hình, timeline, screenshot và khu vực replay script được tái sử dụng để bảo đảm giao diện nhất quán.
 
 % ---------------------------------------------------------
 \subsection{Backend API}
@@ -362,7 +374,7 @@ Quản lý project, base URL và phạm vi website mục tiêu. \\
 \hline
 
 Test case &
-Lưu test case, phiên bản, prompt, goal, test plan và trạng thái. \\
+Quản lý các lần sinh test case, test case ứng viên, lựa chọn của tester, test case chính thức, phiên bản, Test Plan và cây thư mục. \\
 \hline
 
 Execution &
@@ -387,7 +399,9 @@ Lưu object và thông tin nhận diện phần tử giao diện. \\
 \end{tabular}
 \end{table}
 
-Khi người dùng khởi tạo thực thi, backend tạo test run, chuẩn bị payload và gửi sang agent-worker. Sau khi nhận callback, backend cập nhật trạng thái, lưu evidence và cung cấp kết quả cho frontend.
+Khi tester yêu cầu sinh test case, backend lưu thông tin lần sinh và các test case ứng viên để frontend hiển thị tại trang \textit{Generate Testcase}. Khi tester lựa chọn test case và yêu cầu tạo script, backend tạo test run, chuẩn bị payload và gửi sang agent-worker.
+
+Sau khi nhận callback, backend cập nhật trạng thái, lưu action history, evidence và replay script. Test case được đưa vào kho test case chính thức sau khi script được tạo thành công và được tester xác nhận.
 
 % ---------------------------------------------------------
 \subsection{Agent-worker}
@@ -395,12 +409,12 @@ Khi người dùng khởi tạo thực thi, backend tạo test run, chuẩn bị
 Agent-worker được xây dựng bằng Python và FastAPI, chịu trách nhiệm trực tiếp chạy kiểm thử trên trình duyệt. Thành phần này hỗ trợ hai chế độ:
 
 \begin{itemize}
-    \item \textbf{Goal-based agent}: nhận goal, test plan, dữ liệu đầu vào và cấu hình runtime để Browser-use agent thực thi kiểm thử.
+    \item \textbf{Goal-based agent}: được sử dụng chủ yếu để tạo automation test script ban đầu. Worker nhận goal, Test Plan, dữ liệu đầu vào và cấu hình runtime để Browser-use Agent thực thi test case đã được tester lựa chọn.
     
-    \item \textbf{Replay script}: đọc script JSON và sử dụng Playwright để phát lại các step.
+    \item \textbf{Replay script}: sử dụng Playwright để phát lại script JSON đã được xác nhận, phù hợp với các lần kiểm thử hồi quy tiếp theo.
 \end{itemize}
 
-Trong quá trình chạy, worker ghi nhận action history, URL, screenshot, log, trạng thái step, verdict và error message. Sau khi hoàn tất, worker callback kết quả về backend; phiên agent thành công có thể được chuyển thành replay script.
+Trong quá trình chạy, worker ghi nhận action history, URL, screenshot, log, trạng thái step, verdict và error message. Khi phiên agent thành công, lịch sử hành động được chuẩn hóa thành replay script và gửi về backend để tester xác nhận.
 
 \begin{table}[H]
 \centering
@@ -418,7 +432,7 @@ Kiểm tra trạng thái sẵn sàng của worker. \\
 \hline
 
 Run agent &
-Nhận goal, test plan, dữ liệu đầu vào, base URL, allowed domains và callback URL. \\
+Nhận goal, Test Plan, dữ liệu đầu vào, base URL, allowed domains và callback URL. \\
 \hline
 
 Run replay script &
@@ -439,14 +453,14 @@ Gửi verdict, trạng thái cuối cùng, thời gian chạy và error message.
 \end{tabular}
 \end{table}
 
-Locator fallback được xử lý trong luồng agent khi cách nhận diện phần tử ban đầu không còn phù hợp. Cơ chế này chỉ hỗ trợ các thay đổi nhỏ và không thay thế việc cập nhật lại test case khi luồng nghiệp vụ thay đổi.
+Locator fallback được xử lý khi cách nhận diện phần tử ban đầu không còn phù hợp. Cơ chế này hỗ trợ các thay đổi nhỏ trên giao diện nhưng không thay thế việc cập nhật test case hoặc replay script khi luồng nghiệp vụ thay đổi đáng kể.
 
 % ---------------------------------------------------------
 \subsection{Cơ sở dữ liệu}
 
-PostgreSQL 16 được sử dụng để lưu dữ liệu nghiệp vụ và dữ liệu thực thi. Các nhóm dữ liệu chính gồm người dùng, project, test case, replay script, test run, evidence, dataset, test suite và report.
+PostgreSQL 16 được sử dụng để lưu dữ liệu nghiệp vụ và dữ liệu thực thi. Các nhóm dữ liệu chính gồm người dùng, project, lịch sử sinh test case, test case ứng viên, test case chính thức, replay script, test run, evidence, dataset, test suite và report.
 
-Replay script, test plan snapshot, variables schema, runtime config, selector collection và evidence summary được lưu bằng JSON/JSONB khi cần cấu trúc linh hoạt. Các bảng cốt lõi đã được trình bày ở Chương~\ref{Chapter4}; Chương này tập trung vào cách dữ liệu được sử dụng trong quá trình hiện thực.
+Replay script, Test Plan snapshot, variables schema, runtime config, selector collection và evidence summary được lưu bằng JSON/JSONB khi cần cấu trúc linh hoạt. Các bảng cốt lõi đã được trình bày ở Chương~\ref{Chapter4}; chương này tập trung vào cách dữ liệu được sử dụng trong quá trình hiện thực.
 
 % =========================================================
 \section{Tích hợp các công nghệ lõi}
@@ -455,23 +469,23 @@ Replay script, test plan snapshot, variables schema, runtime config, selector co
 % ---------------------------------------------------------
 \subsection{Tích hợp Browser-use}
 
-Browser-use được tích hợp trong agent-worker để thực hiện goal-based agent. Worker tạo task từ goal, test plan, dữ liệu đầu vào, base URL và allowed domains; agent sau đó quan sát giao diện, suy luận và thực hiện hành động.
+Browser-use được tích hợp trong agent-worker để thực hiện goal-based agent. Worker tạo task từ goal, Test Plan, dữ liệu đầu vào, base URL và allowed domains; agent sau đó quan sát giao diện, suy luận và thực hiện hành động.
 
-Sau mỗi bước, worker ghi nhận action history, screenshot và log để phục vụ report và tạo replay script.
+Sau mỗi bước, worker ghi nhận action history, screenshot và log. Khi phiên chạy thành công, action history được sử dụng để tạo replay script.
 
 % ---------------------------------------------------------
 \subsection{Tích hợp Playwright}
 
-Playwright được dùng để điều khiển trình duyệt và thực thi các action như navigate, click, fill, assertion và screenshot. Trong chế độ replay, Playwright chạy trực tiếp script JSON theo thứ tự mà không cần LLM suy luận lại ở từng bước.
+Playwright được dùng để điều khiển trình duyệt và thực hiện các action như navigate, click, fill, assertion và screenshot. Trong chế độ replay, Playwright chạy trực tiếp script JSON theo thứ tự mà không cần LLM suy luận lại ở từng bước.
 
-Nếu locator, action hoặc assertion không còn phù hợp, hệ thống ghi nhận \texttt{failed} hoặc \texttt{error} và lưu evidence để phân tích.
+Nếu locator, action hoặc assertion không còn phù hợp, hệ thống ghi nhận trạng thái \texttt{failed} hoặc \texttt{error} và lưu evidence để phân tích.
 
 % ---------------------------------------------------------
 \subsection{Tích hợp Gemini Flash}
 
-Gemini Flash hỗ trợ phân tích prompt, sinh test case, sinh dữ liệu, suy luận hành động cho agent và phân tích kết quả thực thi.
+Gemini Flash hỗ trợ phân tích yêu cầu, sinh test case, sinh dữ liệu, suy luận hành động cho agent và phân tích kết quả thực thi.
 
-Sau khi replay script được tạo, các lần kiểm thử hồi quy có thể chạy bằng Playwright mà không cần gọi LLM ở từng step, qua đó giảm chi phí và tăng tính lặp lại.
+Sau khi replay script được tạo và xác nhận, các lần kiểm thử hồi quy được thực hiện bằng Playwright mà không cần gọi LLM ở từng step. Cách tiếp cận này giúp giảm số lần gọi mô hình và tăng tính lặp lại của quá trình kiểm thử.
 
 % =========================================================
 \section{Xây dựng các chức năng kiểm thử}
@@ -480,21 +494,25 @@ Sau khi replay script được tạo, các lần kiểm thử hồi quy có th�
 % ---------------------------------------------------------
 \subsection{Scan/crawl website}
 
-Chức năng scan/crawl bắt đầu từ base URL và thu thập các URL, sitemap, interaction map, trạng thái và thông tin lỗi trong phạm vi project. Kết quả scan cung cấp ngữ cảnh ban đầu cho quá trình sinh test case và chạy agent.
+Chức năng scan/crawl bắt đầu từ base URL và thu thập URL, sitemap, interaction map, trạng thái cùng thông tin lỗi trong phạm vi project. Đây là chức năng tùy chọn nhằm cung cấp thêm ngữ cảnh cho quá trình sinh test case và chạy agent.
 
 % ---------------------------------------------------------
-\subsection{Sinh test case}
+\subsection{Sinh và lựa chọn test case}
 
-Người dùng nhập prompt hoặc goal bằng ngôn ngữ tự nhiên. AI tạo test case gồm tiêu đề, mục tiêu, Test Plan, dữ liệu đầu vào và kết quả kỳ vọng.
+Tester truy cập trang \textit{Generate Testcase} và nhập yêu cầu hoặc mục tiêu kiểm thử bằng ngôn ngữ tự nhiên. Backend kết hợp nội dung này với thông tin project và dữ liệu scan nếu có, sau đó sử dụng Gemini Flash để sinh danh sách test case đề xuất.
 
-Test case ứng viên được lưu tạm để người dùng xem lại; các ứng viên được chọn mới được chuyển vào danh sách test case chính thức của project.
+Mỗi test case ứng viên gồm tiêu đề, mục tiêu, Test Plan, dữ liệu đầu vào và kết quả kỳ vọng. Các ứng viên được lưu theo từng lần sinh để tester xem xét, chỉnh sửa, lựa chọn hoặc loại bỏ.
+
+Những test case được lựa chọn tiếp tục được sử dụng để tạo automation test script bằng agent. Sau khi script được tạo thành công và được tester xác nhận, test case cùng replay script được chuyển vào cây thư mục tại trang \textit{Test Cases}.
 
 % ---------------------------------------------------------
-\subsection{Chạy test bằng agent}
+\subsection{Tạo test script bằng agent}
 
-Backend tạo test run và gửi test case cùng cấu hình sang agent-worker. Worker khởi tạo trình duyệt, sử dụng Browser-use và Gemini Flash để quan sát giao diện, suy luận hành động và thực thi bằng Playwright.
+Backend tạo test run cho test case đã được tester lựa chọn và gửi test case cùng cấu hình thực thi sang agent-worker. Worker khởi tạo trình duyệt, sử dụng Browser-use và Gemini Flash để quan sát giao diện, suy luận hành động và thực thi thông qua Playwright.
 
-Trong quá trình chạy, hệ thống lưu step log, screenshot, action history, evidence và verdict. Khi thành công, lịch sử hành động có thể được chuẩn hóa thành replay script.
+Trong quá trình chạy, hệ thống lưu step log, screenshot, action history, evidence và verdict. Khi phiên chạy thành công, action history được chuẩn hóa thành replay script để tester xem xét và xác nhận.
+
+Agent chủ yếu được sử dụng để tạo script ban đầu hoặc tạo lại script khi website thay đổi đáng kể. Các lần kiểm thử hồi quy tiếp theo ưu tiên sử dụng replay script đã được xác nhận.
 
 % ---------------------------------------------------------
 \subsection{Replay script}
@@ -534,18 +552,18 @@ Replay script được sinh từ lịch sử hành động của một phiên ag
 
 Playwright thực thi các step theo thứ tự. Các biến như \texttt{\{\{username\}\}} hoặc \texttt{\{\{password\}\}} được thay thế bằng dữ liệu của từng dòng trong dataset.
 
-Các check hoặc assertion trong script được sử dụng để xác định trạng thái cuối cùng của test run. Người dùng có thể chỉnh sửa chúng trong Developer Mode.
+Các check hoặc assertion được sử dụng để xác định trạng thái cuối cùng của test run. Tester có thể chỉnh sửa các step trong \textit{Developer Mode} khi kịch bản cần được cập nhật.
 
 % ---------------------------------------------------------
 \subsection{Quản lý dữ liệu kiểm thử và test suite}
 
-Dataset có thể được tạo thủ công tại module Data hoặc sinh bằng AI từ một test case. Dữ liệu được lưu theo dạng bảng và có thể được chỉnh sửa, xem trước hoặc xóa.
+Dataset có thể được tạo thủ công tại module \textit{Data} hoặc sinh bằng AI từ một test case. Dữ liệu được lưu dưới dạng bảng và có thể được chỉnh sửa, xem trước hoặc xóa.
 
-Khi chạy replay script, hệ thống kiểm tra số lượng trường và kiểu dữ liệu của dataset. Dataset không tương thích hoặc cấu hình chưa đầy đủ sẽ bị chặn; dataset sinh trực tiếp từ test case được tạo theo schema đầu vào tương ứng.
+Khi chạy replay script, hệ thống kiểm tra tên trường và kiểu dữ liệu của dataset. Dataset không tương thích hoặc cấu hình chưa đầy đủ sẽ bị chặn thực thi.
 
-Test suite gom nhiều test case thành một cấu hình chạy theo lô. Mỗi test case có thể chạy bằng agent hoặc replay script; replay script có thể kết hợp với dataset để tạo nhiều lượt thực thi.
+Test suite gom nhiều test case đã được lưu trong cây thư mục thành một cấu hình chạy theo lô. Đối với kiểm thử hồi quy, hệ thống ưu tiên chạy các test case bằng replay script. Replay script có thể kết hợp với dataset để tạo nhiều lượt thực thi với các bộ dữ liệu khác nhau.
 
-Kết quả suite được tổng hợp theo số lượt thực thi, số lượt pass, fail, tỷ lệ pass và tổng thời gian. Người dùng có thể mở từng kết quả để xem chi tiết.
+Agent được sử dụng khi test case chưa có script phù hợp hoặc cần tạo lại kịch bản. Kết quả suite được tổng hợp theo số lượt thực thi, số lượt pass, fail, tỷ lệ pass và tổng thời gian.
 
 % ---------------------------------------------------------
 \subsection{Report và evidence}
@@ -554,7 +572,7 @@ Kết quả được tổ chức thành test case run, suite run và dataset run
 
 Suite run bổ sung kết quả tổng hợp của các lượt thực thi. Dataset run lưu dữ liệu đầu vào và kết quả riêng cho từng dòng dữ liệu.
 
-Evidence gồm screenshot, step log, action history, URL và các artifact liên quan. Screenshot được gắn với step tương ứng; log kỹ thuật được lưu ở backend để hỗ trợ truy vết và AI Analysis nhưng không hiển thị trực tiếp trên giao diện chính.
+Evidence gồm screenshot, step log, action history, URL và các artifact liên quan. Các dữ liệu này hỗ trợ tester truy vết quá trình chạy và phân tích nguyên nhân khi test thất bại.
 
 % =========================================================
 \section{Xây dựng cơ chế hỗ trợ}
@@ -563,20 +581,20 @@ Evidence gồm screenshot, step log, action history, URL và các artifact liên
 % ---------------------------------------------------------
 \subsection{Object Repository và locator fallback}
 
-Object Repository được hiện thực để lưu các phần tử giao diện được phát hiện trong quá trình chạy agent và cho phép tái sử dụng trong replay script. Khi một phiên chạy agent kết thúc, agent-worker trích xuất các object từ lịch sử thao tác đã được chuẩn hóa, bao gồm tên object, Page/Group, selector method, selector collection, URL nguồn và một số thuộc tính DOM. Các object này được gửi về backend cùng kết quả cuối cùng của test run.
+Object Repository lưu các phần tử giao diện được phát hiện trong quá trình chạy agent để tái sử dụng trong replay script. Mỗi object có thể gồm tên, Page/Group, selector mặc định, selector dự phòng, URL nguồn và một số thuộc tính DOM.
 
-Ở backend, object mới được lưu vào bảng \texttt{test\_objects} với trạng thái \textit{Auto}. Nếu object đã tồn tại và vẫn ở trạng thái \textit{Auto}, hệ thống có thể cập nhật locator mới nhất cho object đó. Nếu object đã được người dùng xác nhận, hệ thống không ghi đè trực tiếp mà lưu locator mới vào \texttt{test\_object\_candidates}. Người dùng có thể xem các candidate này trên giao diện Object Repository và quyết định chấp nhận hoặc bỏ qua.
+Object mới được lưu với trạng thái \textit{Auto}. Nếu object đã được tester xác nhận, hệ thống không ghi đè locator hiện có mà lưu locator mới vào danh sách candidate để tester xem xét.
 
-Khi chạy replay script, các step có thể tham chiếu object thông qua \texttt{objectRef}. Trước khi gửi yêu cầu sang agent-worker, backend lấy selector mới nhất từ Object Repository và đưa vào step dưới dạng selector mặc định và selector collection. Ở worker, replay script thử selector mặc định trước, sau đó lần lượt thử các selector dự phòng theo thứ tự ưu tiên như \texttt{data-testid}, \texttt{id}, \texttt{name}, CSS, accessible name, placeholder, title và XPath. Cơ chế này hỗ trợ locator fallback trong một số trường hợp giao diện thay đổi nhỏ, nhưng không thay thế việc người dùng cập nhật lại test case hoặc replay script khi website thay đổi mạnh về luồng nghiệp vụ.
+Khi chạy replay script, worker thử selector mặc định trước, sau đó lần lượt thử các selector dự phòng như \texttt{data-testid}, \texttt{id}, \texttt{name}, CSS, accessible name, placeholder, title và XPath.
+
+Cơ chế locator fallback giúp xử lý một số thay đổi nhỏ trên giao diện nhưng không thay thế việc cập nhật test case hoặc replay script khi luồng nghiệp vụ thay đổi đáng kể.
 
 % ---------------------------------------------------------
 \subsection{AI Analysis}
 
-Khi người dùng yêu cầu phân tích, backend tập hợp error message, failure type, action history, trạng thái step, URL, screenshot metadata, log kỹ thuật và verdict để gửi cho Gemini Flash.
+Khi tester yêu cầu phân tích, backend tập hợp error message, failure type, action history, trạng thái step, URL, screenshot metadata, log kỹ thuật và verdict để gửi cho Gemini Flash.
 
-AI Analysis xác định bước xảy ra lỗi, mô tả nguyên nhân và đề xuất hướng xử lý. Với suite run, hệ thống có thể tổng hợp kết quả của nhiều lượt thực thi.
-
-Kết quả phân tích được lưu cùng phiên chạy và hiển thị lại khi người dùng mở report. Nội dung này có vai trò hỗ trợ và không thay thế việc kiểm tra của người dùng.
+AI Analysis xác định bước xảy ra lỗi, mô tả nguyên nhân dự kiến và đề xuất hướng xử lý. Kết quả được lưu cùng phiên chạy và có vai trò hỗ trợ tester trong quá trình phân tích.
 
 % =========================================================
 \section{Bảo mật và xử lý dữ liệu nhạy cảm}
@@ -592,7 +610,7 @@ Các dữ liệu nhạy cảm của hệ thống gồm mật khẩu, API key, to
     \item Kiểm tra quyền truy cập project trước khi truy cập test case, dataset, replay script và evidence.
     
     \item Giới hạn domain được phép truy cập khi chạy agent hoặc replay script.
-
+    
     \item Xem nội dung website mục tiêu là dữ liệu không tin cậy để hạn chế rủi ro prompt injection~\cite{11359704}.
     
     \item Hạn chế ghi token, API key và mật khẩu vào log.
@@ -610,7 +628,7 @@ Các giá trị nhạy cảm được cấu hình thông qua biến môi trườ
 
 Frontend được triển khai trên Vercel. Backend API và agent-worker được đóng gói bằng Docker và triển khai trên Azure; Docker image được lưu tại Azure Container Registry.
 
-Backend và agent-worker giao tiếp qua HTTP API và callback. Agent-worker có thể được cấp tài nguyên riêng để chạy trình duyệt mà không ảnh hưởng đến backend nghiệp vụ.
+Backend và agent-worker giao tiếp qua HTTP API và callback. Agent-worker được cấp tài nguyên riêng để chạy trình duyệt mà không ảnh hưởng đến backend nghiệp vụ.
 
 Quy trình CI/CD sử dụng GitHub Actions để build Docker image, đẩy image lên registry và cập nhật service khi mã nguồn thay đổi. URL service, database, JWT secret, LLM API key và các cấu hình khác được quản lý bằng biến môi trường.
 
@@ -662,21 +680,27 @@ Trong quá trình xây dựng, nhóm gặp các khó khăn chính sau:
 \begin{itemize}
     \item \textbf{Tích hợp nhiều công nghệ}: cần thống nhất cơ chế giao tiếp giữa ReactJS, Node.js, PostgreSQL, FastAPI, Browser-use, Playwright và LLM.
     
-    \item \textbf{Quản lý trạng thái thực thi}: test run có thể kéo dài, timeout hoặc lỗi nên cần callback và lưu trạng thái chính xác.
+    \item \textbf{Quản lý trạng thái bất đồng bộ}: các tác vụ sinh test case, tạo script và chạy test có thể kéo dài, timeout hoặc thất bại.
     
     \item \textbf{Tạo replay script}: action history của agent phải được chuẩn hóa thành các step có thể phát lại.
     
     \item \textbf{Locator không ổn định}: thay đổi giao diện có thể khiến selector cũ không còn phù hợp.
     
-    \item \textbf{Chi phí LLM}: replay script được sử dụng để giảm số lần gọi mô hình trong kiểm thử hồi quy.
+    \item \textbf{Chi phí LLM}: cần ưu tiên replay script để giảm số lần gọi mô hình trong kiểm thử hồi quy.
     
     \item \textbf{Quản lý evidence}: screenshot, log và action history phải đủ để phân tích nhưng không làm tăng quá nhiều chi phí lưu trữ.
 \end{itemize}
 
-Các khó khăn trên dẫn đến việc hệ thống được tách thành nhiều service, lưu vết theo từng test run và kết hợp agent với replay script.
+Các khó khăn trên dẫn đến việc hệ thống được tách thành nhiều service, lưu vết theo từng test run và kết hợp tính linh hoạt của agent với khả năng tái sử dụng của replay script.
 
 % =========================================================
 \section{Kết chương}
 % =========================================================
 
-Chương này đã trình bày quá trình hiện thực hệ thống, gồm frontend, backend API, cơ sở dữ liệu và agent-worker; việc tích hợp Browser-use, Playwright và Gemini Flash; cùng các chức năng sinh, thực thi và phân tích kết quả kiểm thử. Chương tiếp theo trình bày quá trình thực nghiệm và đánh giá hệ thống.
+Chương này đã trình bày quá trình hiện thực frontend, backend API, cơ sở dữ liệu và agent-worker; việc tích hợp Browser-use, Playwright và Gemini Flash; cùng các chức năng sinh test case, tạo automation test script, thực thi và phân tích kết quả kiểm thử.
+
+Quy trình chính bắt đầu tại trang \textit{Generate Testcase}, nơi tester nhập yêu cầu bằng ngôn ngữ tự nhiên, xem xét và lựa chọn các test case được sinh. Các test case phù hợp được thực thi bằng agent để tạo automation test script. Sau khi được xác nhận, test case và replay script được lưu trong cây thư mục tại trang \textit{Test Cases}.
+
+Trong các lần kiểm thử hồi quy tiếp theo, hệ thống ưu tiên tái sử dụng replay script bằng Playwright thay vì yêu cầu LLM suy luận lại ở từng bước. Cách tiếp cận này giúp giảm số lần gọi mô hình, giảm thời gian thực thi và nâng cao khả năng tái sử dụng kịch bản kiểm thử.
+
+Chương tiếp theo trình bày quá trình thực nghiệm và đánh giá hệ thống.

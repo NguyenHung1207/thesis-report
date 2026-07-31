@@ -9,11 +9,13 @@
 \section{Tổng quan hệ thống}
 % =========================================================
 
-Hệ thống là nền tảng web hỗ trợ tester xây dựng, quản lý và thực thi kiểm thử tự động đối với các ứng dụng website. Tester có thể tạo và quản lý project, sinh test case từ mô tả bằng ngôn ngữ tự nhiên, lựa chọn các test case phù hợp, quản lý dữ liệu kiểm thử, chạy test bằng agent hoặc replay script và xem kết quả thực thi.
+Hệ thống là nền tảng web hỗ trợ tester xây dựng, quản lý và thực thi kiểm thử tự động đối với các ứng dụng website. Tester có thể tạo và quản lý project, sinh test case từ mô tả bằng ngôn ngữ tự nhiên, lựa chọn các test case phù hợp, sử dụng agent để tạo automation test script, quản lý dữ liệu kiểm thử, chạy kiểm thử hồi quy bằng replay script và xem kết quả thực thi.
 
-Quá trình sinh test case được thực hiện tại trang \textit{Generate Testcase}. Tester nhập yêu cầu hoặc mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, sau đó hệ thống sử dụng mô hình ngôn ngữ lớn để sinh danh sách test case đề xuất. Giao diện có thể hỗ trợ nhiều khu vực làm việc để tester xử lý các nhóm yêu cầu khác nhau, nhưng đây là cách tổ chức thao tác trên giao diện, không phải một chức năng nghiệp vụ độc lập.
+Quá trình sinh test case được thực hiện tại trang \textit{Generate Testcase}. Tester nhập yêu cầu hoặc mục tiêu kiểm thử bằng ngôn ngữ tự nhiên, sau đó hệ thống sử dụng mô hình ngôn ngữ lớn để sinh danh sách test case đề xuất. Giao diện có thể gồm nhiều khu vực làm việc để tester xử lý các nhóm yêu cầu khác nhau, nhưng đây chỉ là cách tổ chức thao tác trên giao diện, không phải một chức năng nghiệp vụ độc lập.
 
-Sau khi test case được sinh, tester xem xét, chỉnh sửa và lựa chọn các test case phù hợp. Những test case được lựa chọn có thể được sử dụng để chạy bằng agent và tạo automation test script. Khi script được tạo thành công và được tester xác nhận, test case cùng script tương ứng được lưu tại trang \textit{Test Case} theo cấu trúc cây thư mục để phục vụ quản lý và tái sử dụng.
+Sau khi test case được sinh, tester xem xét, chỉnh sửa và lựa chọn các test case phù hợp. Những test case được lựa chọn được sử dụng làm đầu vào cho agent để tạo automation test script. Khi script được tạo thành công và được tester xác nhận, test case cùng replay script tương ứng được lưu tại trang \textit{Test Cases} theo cấu trúc cây thư mục để phục vụ quản lý và tái sử dụng.
+
+Trong các lần kiểm thử hồi quy tiếp theo, hệ thống ưu tiên chạy replay script bằng Playwright mà không cần mô hình ngôn ngữ lớn suy luận lại ở từng bước. Agent được sử dụng chủ yếu để tạo script ban đầu hoặc tạo lại script khi website thay đổi đáng kể.
 
 Hệ thống hỗ trợ scan/crawl website để thu thập sitemap và thông tin điều hướng khi cần. Đây là chức năng tùy chọn, không phải điều kiện bắt buộc để tạo project hoặc sinh test case.
 
@@ -36,19 +38,19 @@ Cung cấp giao diện quản lý project, sinh và lựa chọn test case, qu�
 \hline
 
 Bộ xử lý nghiệp vụ &
-Kiểm tra dữ liệu, quản lý nghiệp vụ và điều phối các yêu cầu sinh test case, sinh test script và thực thi kiểm thử. \\
+Kiểm tra dữ liệu, quản lý nghiệp vụ và điều phối các yêu cầu sinh test case, tạo test script và thực thi kiểm thử. \\
 \hline
 
 Kho dữ liệu &
-Lưu trữ tester, project, test case, cấu trúc cây thư mục, dataset, test run, replay script, evidence và Object Repository. \\
+Lưu tài khoản người dùng, project, lịch sử sinh test case, test case chính thức, cấu trúc cây thư mục, dataset, test run, replay script, evidence và Object Repository. \\
 \hline
 
 Thành phần thực thi kiểm thử &
-Chạy test bằng agent hoặc replay script, thao tác trên trình duyệt, tạo automation test script và ghi nhận kết quả. \\
+Chạy agent để tạo automation test script, chạy replay script bằng trình duyệt và ghi nhận kết quả thực thi. \\
 \hline
 
 Thành phần AI/LLM &
-Hỗ trợ sinh test case, sinh dữ liệu kiểm thử, suy luận hành động và phân tích kết quả thực thi. \\
+Hỗ trợ sinh test case, sinh dữ liệu kiểm thử, suy luận hành động cho agent và phân tích kết quả thực thi. \\
 \hline
 \end{tabular}
 \end{table}
@@ -65,16 +67,29 @@ Tester có thể thực hiện các chức năng sau:
 
 \begin{itemize}
     \item Đăng ký, đăng nhập bằng tài khoản hệ thống hoặc Google, khôi phục mật khẩu và đăng xuất.
+    
     \item Tạo và quản lý project kiểm thử.
+    
     \item Khai báo base URL và tùy chọn scan/crawl website.
+    
     \item Nhập yêu cầu bằng ngôn ngữ tự nhiên và sinh danh sách test case đề xuất.
-    \item Xem xét, chỉnh sửa và lựa chọn các test case phù hợp.
-    \item Sinh automation test script từ các test case đã lựa chọn.
-    \item Quản lý test case và test script theo cấu trúc cây thư mục.
+    
+    \item Xem xét, chỉnh sửa, lựa chọn hoặc loại bỏ các test case đề xuất.
+    
+    \item Sử dụng agent để tạo automation test script từ các test case đã lựa chọn.
+    
+    \item Xem xét, chỉnh sửa và xác nhận replay script được tạo.
+    
+    \item Quản lý test case và replay script theo cấu trúc cây thư mục.
+    
     \item Sinh và quản lý dữ liệu kiểm thử.
-    \item Chạy test bằng agent hoặc replay script.
+    
+    \item Chạy replay script để phục vụ kiểm thử hồi quy.
+    
     \item Chạy replay script với nhiều dòng dữ liệu.
+    
     \item Quản lý test suite và Object Repository.
+    
     \item Xem kết quả, log, screenshot, evidence, report và phân tích lỗi.
 \end{itemize}
 
@@ -123,7 +138,7 @@ Should \\
 \hline
 
 FR04 &
-Sinh và quản lý test case &
+Sinh và lựa chọn test case &
 Cho phép tester nhập yêu cầu bằng ngôn ngữ tự nhiên, sinh danh sách test case đề xuất, xem xét, chỉnh sửa, lựa chọn hoặc loại bỏ test case trước khi tạo automation test script. &
 Must \\
 \hline
@@ -147,20 +162,20 @@ Should \\
 \hline
 
 FR08 &
-Thực thi test bằng agent &
-Cho phép agent tiếp nhận test case đã được lựa chọn, quan sát giao diện, suy luận và thực hiện các thao tác kiểm thử trên website mục tiêu. &
+Tạo test script bằng agent &
+Cho phép agent tiếp nhận test case đã được tester lựa chọn, quan sát giao diện, suy luận và thực hiện các thao tác trên website mục tiêu; đồng thời ghi nhận action history để tạo automation test script. &
 Must \\
 \hline
 
 FR09 &
-Sinh và quản lý replay script &
-Cho phép hệ thống tạo replay script từ lần chạy agent thành công; cho phép tester xem, chỉnh sửa và xác nhận trước khi lưu test case cùng script vào cây thư mục tại trang \textit{Test Case}. &
+Sinh, xác nhận và quản lý replay script &
+Cho phép hệ thống tạo replay script từ lần chạy agent thành công; cho phép tester xem, chỉnh sửa và xác nhận trước khi lưu test case cùng script vào cây thư mục tại trang \textit{Test Cases}. &
 Must \\
 \hline
 
 FR10 &
 Chạy replay script &
-Cho phép tester chạy lại kịch bản đã lưu mà không cần LLM suy luận ở từng bước. &
+Cho phép tester chạy lại kịch bản đã lưu để phục vụ kiểm thử hồi quy mà không cần LLM suy luận ở từng bước. &
 Must \\
 \hline
 
@@ -178,7 +193,7 @@ Should \\
 
 FR13 &
 Locator fallback &
-Cho phép agent hoặc thành phần thực thi thử phương thức định vị khác khi locator ban đầu không còn phù hợp. &
+Cho phép thành phần thực thi thử phương thức định vị khác khi locator ban đầu không còn phù hợp. &
 Should \\
 \hline
 
@@ -227,12 +242,12 @@ Hệ thống cần xử lý timeout, lỗi trình duyệt, lỗi locator, lỗi 
 
 NFR03 &
 Hiệu năng vận hành &
-Test run cần có timeout cấu hình được và giới hạn số phiên trình duyệt chạy đồng thời. \\
+Các tác vụ sinh test case, tạo test script và thực thi kiểm thử cần hiển thị trạng thái tiến trình. Test run cần có timeout cấu hình được và giới hạn số phiên trình duyệt chạy đồng thời. \\
 \hline
 
 NFR04 &
 Tối ưu chi phí &
-Ưu tiên replay script cho kiểm thử hồi quy nhằm giảm số lần gọi LLM. \\
+Ưu tiên replay script cho kiểm thử hồi quy nhằm giảm số lần gọi LLM và chi phí sử dụng mô hình. \\
 \hline
 
 NFR05 &
@@ -247,7 +262,7 @@ Hệ thống cần hỗ trợ mở rộng trình duyệt, mô hình LLM, asserti
 
 NFR07 &
 Khả năng truy vết &
-Mỗi test run phải lưu trạng thái, log, screenshot, action history, error message và evidence liên quan. \\
+Mỗi test run phải liên kết được với test case và replay script tương ứng, đồng thời lưu trạng thái, log, screenshot, action history, error message và evidence liên quan. \\
 \hline
 
 NFR08 &
@@ -286,13 +301,15 @@ Hình~\ref{fig:usecase_account_project} mô tả các chức năng đăng ký, �
     height=0.78\textheight,
     keepaspectratio
 ]{images/usecase/usecase_agent_testing.png}
-\caption{Use case sinh, lựa chọn test case và chạy bằng agent}
+\caption{Use case sinh, lựa chọn test case và tạo test script bằng agent}
 \label{fig:usecase_agent_testing}
 \end{figure}
 
-Hình~\ref{fig:usecase_agent_testing} mô tả quá trình tester nhập yêu cầu tại trang \textit{Generate Testcase}, sinh danh sách test case, xem xét, chỉnh sửa, lựa chọn test case và chạy các test case đã chọn bằng agent. Giao diện có thể chia thành nhiều khu vực làm việc để tester xử lý các nhóm yêu cầu khác nhau, nhưng không được tách thành một use case độc lập.
+Hình~\ref{fig:usecase_agent_testing} mô tả quá trình tester nhập yêu cầu tại trang \textit{Generate Testcase}, sinh danh sách test case, xem xét, chỉnh sửa và lựa chọn các test case phù hợp. Những test case được lựa chọn được sử dụng làm đầu vào cho agent để tạo automation test script.
 
-Khi lần chạy agent thành công, hệ thống tạo replay script để tester xem xét và xác nhận. Chức năng quản lý dữ liệu kiểm thử có thể được thực hiện độc lập tại module Data.
+Khi lần chạy agent thành công, hệ thống chuyển action history thành replay script để tester xem xét và xác nhận. Giao diện có thể chia thành nhiều khu vực làm việc để xử lý các nhóm yêu cầu khác nhau, nhưng các khu vực này không được tách thành use case độc lập.
+
+Chức năng quản lý dữ liệu kiểm thử có thể được thực hiện độc lập tại module \textit{Data}.
 
 \begin{figure}[H]
 \centering
@@ -305,9 +322,11 @@ Khi lần chạy agent thành công, hệ thống tạo replay script để test
 \label{fig:usecase_replay_data_suite}
 \end{figure}
 
-Hình~\ref{fig:usecase_replay_data_suite} mô tả các chức năng lưu và quản lý test case theo cấu trúc cây thư mục, quản lý replay script, chạy replay script với một hoặc nhiều dòng dữ liệu và quản lý test suite.
+Hình~\ref{fig:usecase_replay_data_suite} mô tả các chức năng xác nhận và quản lý replay script, lưu test case theo cấu trúc cây thư mục, chạy replay script với một hoặc nhiều dòng dữ liệu và quản lý test suite.
 
-Sau khi replay script được tester xác nhận, test case cùng script được lưu tại trang \textit{Test Case}. Tester có thể phân nhóm các test case theo thư mục, module hoặc luồng nghiệp vụ để thuận tiện quản lý và tái sử dụng. Tester có thể quản lý test suite mà không bắt buộc phải chạy replay script.
+Sau khi replay script được tester xác nhận, test case cùng script được lưu tại trang \textit{Test Cases}. Tester có thể phân nhóm test case theo thư mục, module hoặc luồng nghiệp vụ để thuận tiện quản lý và tái sử dụng.
+
+Đối với các test case đã có replay script, hệ thống ưu tiên chế độ replay trong các lần kiểm thử hồi quy. Tester có thể quản lý test suite mà không bắt buộc phải thực hiện test run ngay lập tức.
 
 \begin{figure}[H]
 \centering
@@ -350,7 +369,7 @@ Bảng~\ref{tab:main_use_cases} trình bày đặc tả rút gọn của các us
 
 UC01 &
 Đăng ký tài khoản &
-Cho phép tester tạo tài khoản mới. &
+Cho phép người dùng tạo tài khoản mới. &
 Tài khoản được tạo nếu dữ liệu hợp lệ. \\
 \hline
 
@@ -362,7 +381,7 @@ Phiên đăng nhập được tạo. \\
 
 UC03 &
 Quản lý project kiểm thử &
-Tạo, xem và cập nhật thông tin project. &
+Cho phép tester tạo, xem và cập nhật thông tin project. &
 Thông tin project được lưu. \\
 \hline
 
@@ -380,32 +399,32 @@ Danh sách test case được sinh, chỉnh sửa và lựa chọn để tạo t
 
 UC06 &
 Sinh và quản lý dữ liệu kiểm thử &
-Tạo thủ công hoặc sinh bằng AI và quản lý dataset. &
+Cho phép tester tạo thủ công hoặc sinh dataset bằng AI. &
 Dataset được lưu để sử dụng khi thực thi test. \\
 \hline
 
 UC07 &
-Chạy test case bằng agent &
-Thực thi test case đã lựa chọn bằng agent và browser automation. &
+Tạo test script bằng agent &
+Thực thi test case đã được lựa chọn bằng agent và browser automation để tạo automation test script. &
 Test run, action history, log, evidence và replay script ban đầu được tạo. \\
 \hline
 
 UC08 &
 Xem kết quả chạy test &
-Xem thông tin của một test run đã thực thi. &
+Cho phép tester xem thông tin của một test run đã thực thi. &
 Trạng thái, timeline, screenshot và thông tin lỗi được hiển thị. \\
 \hline
 
 UC09 &
 Xác nhận và quản lý replay script &
-Xem xét, chỉnh sửa và xác nhận replay script được tạo từ lần chạy agent thành công. &
-Test case và replay script được lưu vào cây thư mục tại trang \textit{Test Case}. \\
+Cho phép tester xem xét, chỉnh sửa và xác nhận replay script được tạo từ lần chạy agent thành công. &
+Test case và replay script được lưu vào cây thư mục tại trang \textit{Test Cases}. \\
 \hline
 
 UC10 &
 Chạy replay script &
-Chạy lại kịch bản kiểm thử đã lưu bằng Playwright. &
-Kết quả replay run được lưu. \\
+Chạy lại kịch bản đã lưu bằng Playwright để phục vụ kiểm thử hồi quy. &
+Kết quả replay run được lưu mà không cần LLM suy luận ở từng bước. \\
 \hline
 
 UC11 &
@@ -439,6 +458,10 @@ Nguyên nhân dự kiến và hướng xử lý được hiển thị và lưu l
 \section{Kết chương}
 % =========================================================
 
-Chương này đã trình bày tổng quan hệ thống, đối tượng sử dụng, yêu cầu chức năng, yêu cầu phi chức năng và các use case chính. Quy trình chính bao gồm sinh và lựa chọn test case, chạy bằng agent để tạo replay script, xác nhận và lưu test case theo cấu trúc cây thư mục, sau đó tái sử dụng replay script trong các lần kiểm thử tiếp theo.
+Chương này đã trình bày tổng quan hệ thống, đối tượng sử dụng, yêu cầu chức năng, yêu cầu phi chức năng và các use case chính.
+
+Quy trình chính bắt đầu tại trang \textit{Generate Testcase}, nơi tester nhập yêu cầu bằng ngôn ngữ tự nhiên, xem xét và lựa chọn các test case phù hợp. Agent được sử dụng để thực thi các test case đã chọn và tạo automation test script. Sau khi được tester xác nhận, test case cùng replay script được lưu theo cấu trúc cây thư mục tại trang \textit{Test Cases}.
+
+Trong các lần kiểm thử hồi quy tiếp theo, hệ thống ưu tiên tái sử dụng replay script thay vì yêu cầu LLM suy luận lại ở từng bước. Cách tiếp cận này giúp giảm công sức xây dựng kịch bản ban đầu, giảm số lần gọi mô hình và tăng khả năng tái sử dụng test script.
 
 Các yêu cầu và use case được xác định trong chương này là cơ sở để thiết kế kiến trúc, dữ liệu và luồng xử lý tại Chương~\ref{Chapter4}.
