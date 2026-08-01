@@ -7,7 +7,7 @@ Trong những năm gần đây, các ứng dụng web được phát triển v�
 
 Trong quy trình kiểm thử phần mềm, việc xây dựng test case, chuẩn bị test data và viết automation test script thường chiếm nhiều thời gian và chi phí. Đối với các dự án có số lượng chức năng lớn hoặc phát hành nhiều phiên bản, tester phải lặp lại quá trình phân tích yêu cầu, thiết kế test case và hiện thực test script cho từng tính năng. Khi hệ thống thay đổi, các test script hiện có cũng cần được bảo trì hoặc chỉnh sửa, làm tăng đáng kể chi phí kiểm thử.
 
-Sự phát triển của các mô hình ngôn ngữ lớn (Large Language Models - LLM) mở ra khả năng hỗ trợ tự động sinh test case và test data từ yêu cầu bằng ngôn ngữ tự nhiên. Tuy nhiên, nếu mỗi lần kiểm thử hoặc mỗi lần phát hành phiên bản mới đều phụ thuộc hoàn toàn vào LLM hoặc AI Agent để sinh lại toàn bộ kịch bản kiểm thử thì chi phí sử dụng mô hình, thời gian thực thi và tính ổn định của hệ thống sẽ bị ảnh hưởng.
+Sự phát triển của các mô hình ngôn ngữ lớn (Large Language Models - LLM) mở ra khả năng hỗ trợ tự động sinh test case và test data từ yêu cầu bằng ngôn ngữ tự nhiên. Tuy nhiên, nếu mỗi lần kiểm thử hoặc mỗi lần phát hành phiên bản mới đều phụ thuộc hoàn toàn vào LLM hoặc AI Agent để sinh lại toàn bộ kịch bản kiểm thử thì chi phí sử dụng mô hình và thời gian suy luận có thể tăng, đồng thời quy trình thực thi sẽ phụ thuộc nhiều hơn vào kết quả suy luận của agent.
 
 Do đó, bài toán đặt ra không chỉ là tự động hóa việc sinh test case hay test script, mà còn cần xây dựng một quy trình cho phép tester tận dụng khả năng của AI để giảm khối lượng công việc ban đầu, đồng thời tạo ra các test script có khả năng tái sử dụng qua nhiều phiên bản phần mềm nhằm giảm chi phí bảo trì và kiểm thử hồi quy.
 
@@ -55,9 +55,9 @@ Hệ thống hướng đến môi trường staging hoặc môi trường kiểm
 
 Sau khi được xác nhận, Browser-use Agent sử dụng các test case để tự động thao tác trên trình duyệt và sinh automation test script thông qua Playwright. Tester có thể chạy thử các script được sinh ra, kiểm tra kết quả và điều chỉnh nếu cần. Phiên bản script sau khi được xác nhận sẽ được lưu trữ như phiên bản chuẩn phục vụ kiểm thử.
 
-Ở các phiên bản phần mềm tiếp theo, nếu luồng nghiệp vụ không thay đổi đáng kể, hệ thống ưu tiên tái sử dụng các automation test script đã có để thực hiện kiểm thử hồi quy thay vì sinh lại bằng mô hình ngôn ngữ lớn. Chỉ khi các thay đổi của hệ thống vượt quá khả năng tái sử dụng, tester mới cần sử dụng AI để tạo mới hoặc cập nhật test script.
+Trong kiểm thử hồi quy, hệ thống cho phép tester chủ động lựa chọn chạy lại bằng replay script đối với các kịch bản đã ổn định, thay vì sử dụng agent để suy luận lại toàn bộ luồng. Khi các thay đổi của website vượt quá khả năng tái sử dụng, tester có thể sử dụng AI để tạo mới hoặc cập nhật test script.
 
-Cách tiếp cận này giúp giảm thời gian xây dựng automation test, giảm chi phí sử dụng mô hình ngôn ngữ lớn, đồng thời tăng khả năng tái sử dụng và bảo trì các kịch bản kiểm thử trong quá trình phát triển phần mềm.
+Cách tiếp cận này tạo điều kiện giảm số lần gọi mô hình trong các lần chạy hồi quy, đồng thời tăng khả năng tái sử dụng và bảo trì các kịch bản kiểm thử trong quá trình phát triển phần mềm.
 
 \section{Kết quả đạt được}
 
@@ -78,10 +78,12 @@ Các kết quả chính đạt được gồm:
 
     \item Ghi nhận log, screenshot, evidence và báo cáo phục vụ truy vết và phân tích kết quả kiểm thử.
 
-    \item Xây dựng quy trình hỗ trợ giảm thời gian tạo automation test và giảm chi phí bảo trì test script trong quá trình phát triển phần mềm.
+    \item Ghi nhận số token sử dụng trong quá trình sinh test case, sinh test data và thực thi bằng agent; từ đó làm cơ sở ước tính chi phí LLM theo mô hình được cấu hình.
+
+    \item Xây dựng quy trình hỗ trợ giảm thời gian tạo automation test, tăng khả năng tái sử dụng replay script và giảm mức phụ thuộc vào LLM trong các lần kiểm thử hồi quy.
 \end{itemize}
 
-Nhìn chung, hệ thống đã hiện thực được quy trình hỗ trợ tester từ giai đoạn phân tích yêu cầu, sinh test case, sinh automation test script, xác nhận kết quả đến tái sử dụng các script trong các phiên bản tiếp theo. Qua đó góp phần giảm thời gian xây dựng kiểm thử tự động và nâng cao hiệu quả kiểm thử hồi quy.
+Nhìn chung, hệ thống đã hiện thực được quy trình hỗ trợ tester từ giai đoạn phân tích yêu cầu, sinh test case, sinh automation test script, xác nhận kết quả đến tái sử dụng các script trong các phiên bản tiếp theo. Qua đó góp phần giảm thời gian xây dựng kiểm thử tự động, nâng cao hiệu quả kiểm thử hồi quy và tạo cơ sở định lượng mức sử dụng LLM thông qua số token được ghi nhận.
 
 \section{Cấu trúc báo cáo}
 
@@ -97,6 +99,6 @@ Chương 4 trình bày kiến trúc và thiết kế hệ thống, bao gồm ki�
 
 Chương 5 trình bày quá trình hiện thực hệ thống, bao gồm frontend, backend, cơ sở dữ liệu, quy trình sinh test case, sinh test script và thực thi kiểm thử.
 
-Chương 6 trình bày thực nghiệm và đánh giá hệ thống thông qua các kịch bản kiểm thử trên website mẫu, đồng thời đánh giá hiệu quả về thời gian tạo test case, test script và khả năng tái sử dụng trong kiểm thử hồi quy.
+Chương 6 trình bày thực nghiệm và đánh giá hệ thống thông qua các kịch bản kiểm thử trên website mẫu, đồng thời đánh giá hiệu quả về thời gian tạo test case, khả năng tái sử dụng replay script và mức sử dụng token LLM trong kiểm thử hồi quy.
 
 Chương 7 trình bày kết luận, những hạn chế của đề tài và các hướng phát triển trong tương lai.

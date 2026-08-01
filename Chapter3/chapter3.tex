@@ -15,7 +15,7 @@ Quá trình sinh test case được thực hiện tại trang \textit{Generate T
 
 Sau khi test case được sinh, tester xem xét, chỉnh sửa và lựa chọn các test case phù hợp. Những test case được lựa chọn được sử dụng làm đầu vào cho agent để tạo automation test script. Khi script được tạo thành công và được tester xác nhận, test case cùng replay script tương ứng được lưu tại trang \textit{Test Cases} theo cấu trúc cây thư mục để phục vụ quản lý và tái sử dụng.
 
-Trong các lần kiểm thử hồi quy tiếp theo, hệ thống ưu tiên chạy replay script bằng Playwright mà không cần mô hình ngôn ngữ lớn suy luận lại ở từng bước. Agent được sử dụng chủ yếu để tạo script ban đầu hoặc tạo lại script khi website thay đổi đáng kể.
+Trong các lần kiểm thử hồi quy tiếp theo, tester có thể chạy lại replay script bằng Playwright mà không cần mô hình ngôn ngữ lớn suy luận lại ở từng bước. Agent được sử dụng chủ yếu để tạo script ban đầu hoặc tạo lại script khi website thay đổi đáng kể.
 
 Hệ thống hỗ trợ scan/crawl website để thu thập sitemap và thông tin điều hướng khi cần. Đây là chức năng tùy chọn, không phải điều kiện bắt buộc để tạo project hoặc sinh test case.
 
@@ -247,7 +247,7 @@ Các tác vụ sinh test case, tạo test script và thực thi kiểm thử c�
 
 NFR04 &
 Tối ưu chi phí &
-Ưu tiên replay script cho kiểm thử hồi quy nhằm giảm số lần gọi LLM và chi phí sử dụng mô hình. \\
+Hệ thống phải hỗ trợ chạy replay script mà không yêu cầu LLM suy luận ở từng bước, qua đó tạo điều kiện giảm số lần gọi mô hình trong kiểm thử hồi quy. \\
 \hline
 
 NFR05 &
@@ -326,7 +326,7 @@ Hình~\ref{fig:usecase_replay_data_suite} mô tả các chức năng xác nhận
 
 Sau khi replay script được tester xác nhận, test case cùng script được lưu tại trang \textit{Test Cases}. Tester có thể phân nhóm test case theo thư mục, module hoặc luồng nghiệp vụ để thuận tiện quản lý và tái sử dụng.
 
-Đối với các test case đã có replay script, hệ thống ưu tiên chế độ replay trong các lần kiểm thử hồi quy. Tester có thể quản lý test suite mà không bắt buộc phải thực hiện test run ngay lập tức.
+Đối với các test case đã có replay script, hệ thống hỗ trợ chế độ replay để tester sử dụng trong các lần kiểm thử hồi quy. Tester có thể quản lý test suite mà không bắt buộc phải thực hiện test run ngay lập tức.
 
 \begin{figure}[H]
 \centering
@@ -462,6 +462,6 @@ Chương này đã trình bày tổng quan hệ thống, đối tượng sử d�
 
 Quy trình chính bắt đầu tại trang \textit{Generate Testcase}, nơi tester nhập yêu cầu bằng ngôn ngữ tự nhiên, xem xét và lựa chọn các test case phù hợp. Agent được sử dụng để thực thi các test case đã chọn và tạo automation test script. Sau khi được tester xác nhận, test case cùng replay script được lưu theo cấu trúc cây thư mục tại trang \textit{Test Cases}.
 
-Trong các lần kiểm thử hồi quy tiếp theo, hệ thống ưu tiên tái sử dụng replay script thay vì yêu cầu LLM suy luận lại ở từng bước. Cách tiếp cận này giúp giảm công sức xây dựng kịch bản ban đầu, giảm số lần gọi mô hình và tăng khả năng tái sử dụng test script.
+Trong các lần kiểm thử hồi quy tiếp theo, tester có thể tái sử dụng replay script thay vì yêu cầu LLM suy luận lại ở từng bước. Cách tiếp cận này giúp giảm công sức xây dựng kịch bản ban đầu, giảm số lần gọi mô hình và tăng khả năng tái sử dụng test script.
 
 Các yêu cầu và use case được xác định trong chương này là cơ sở để thiết kế kiến trúc, dữ liệu và luồng xử lý tại Chương~\ref{Chapter4}.

@@ -20,7 +20,7 @@ Các mục tiêu thiết kế chính gồm:
     
     \item \textbf{Kiểm soát kết quả do AI sinh}: tester xem xét và lựa chọn test case trước khi sử dụng để tạo automation test script.
     
-    \item \textbf{Kết hợp agent và replay script}: agent hỗ trợ tạo script ban đầu; replay script được ưu tiên trong kiểm thử hồi quy.
+    \item \textbf{Kết hợp agent và replay script}: agent hỗ trợ tạo script ban đầu; hệ thống cho phép tester chạy lại replay script đối với các kịch bản đã ổn định trong kiểm thử hồi quy.
     
     \item \textbf{Lưu vết thực thi}: mỗi test run lưu trạng thái, verdict, step log, screenshot, evidence và thông tin lỗi.
     
@@ -414,7 +414,7 @@ Khi phiên chạy thành công, action history được chuẩn hóa thành repl
 % ---------------------------------------------------------
 \subsection{Luồng chạy bằng replay script}
 
-Replay script được sử dụng khi test case đã có kịch bản được xác nhận. Chế độ này ưu tiên tính ổn định, khả năng lặp lại và phù hợp với kiểm thử hồi quy.
+Replay script được sử dụng khi test case đã có kịch bản được xác nhận. Chế độ này thực thi theo các step đã lưu nên có tính xác định hơn về luồng thao tác, phù hợp với các kịch bản ổn định trong kiểm thử hồi quy.
 
 \begin{figure}[H]
     \centering
@@ -493,7 +493,7 @@ Cơ chế này hỗ trợ xử lý các thay đổi nhỏ trên giao diện như
 % ---------------------------------------------------------
 \subsection{Quản lý test suite và dữ liệu kiểm thử}
 
-Test suite gom nhiều test case đã được lưu trong cây thư mục thành một nhóm chạy. Đối với các test case đã có replay script, hệ thống ưu tiên thực thi bằng replay script để phục vụ kiểm thử hồi quy.
+Test suite gom nhiều test case đã được lưu trong cây thư mục thành một nhóm chạy. Đối với các test case đã có replay script, hệ thống hỗ trợ cấu hình thực thi bằng replay script để phục vụ kiểm thử hồi quy.
 
 Agent được sử dụng khi test case chưa có script phù hợp hoặc khi cần tạo lại script do website thay đổi đáng kể.
 
@@ -588,7 +588,7 @@ Kết quả có thể không hoàn toàn xác định và phát sinh chi phí LL
 \hline
 
 Kết hợp agent và replay script &
-Agent linh hoạt; replay script ổn định và phù hợp hơn với kiểm thử hồi quy. &
+Agent linh hoạt; replay script có tính xác định hơn về luồng thao tác và phù hợp với các kịch bản hồi quy đã ổn định. &
 Cần chuyển action history thành script và bảo trì script khi website thay đổi. \\
 \hline
 
@@ -619,7 +619,7 @@ Tester phải cấu hình allowed domains chính xác. \\
 \end{tabular}
 \end{table}
 
-Nhìn chung, thiết kế hướng đến sự cân bằng giữa khả năng hỗ trợ tạo kịch bản của AI Agent và tính ổn định, khả năng tái sử dụng của replay script.
+Nhìn chung, thiết kế hướng đến sự cân bằng giữa khả năng hỗ trợ tạo kịch bản của AI Agent và tính xác định, khả năng tái sử dụng của replay script.
 
 % =========================================================
 \section{Kết chương}
@@ -629,6 +629,6 @@ Chương này đã trình bày kiến trúc tổng thể, thiết kế các thà
 
 Quy trình chính bắt đầu tại trang \textit{Generate Testcase}, nơi tester nhập yêu cầu bằng ngôn ngữ tự nhiên và lựa chọn các test case phù hợp. Agent tiếp tục thực thi các test case được chọn để tạo automation test script. Sau khi được xác nhận, test case và replay script được lưu trong cây thư mục tại trang \textit{Test Cases}.
 
-Trong các lần kiểm thử hồi quy tiếp theo, hệ thống ưu tiên thực thi replay script bằng Playwright thay vì yêu cầu LLM suy luận lại ở từng bước. Kiến trúc này giúp giảm công sức xây dựng kịch bản ban đầu, giảm số lần gọi mô hình và nâng cao khả năng tái sử dụng test script.
+Trong các lần kiểm thử hồi quy tiếp theo, tester có thể thực thi replay script bằng Playwright thay vì yêu cầu LLM suy luận lại ở từng bước. Kiến trúc này tạo điều kiện giảm số lần gọi mô hình trong các lần chạy hồi quy và nâng cao khả năng tái sử dụng test script.
 
 Chương~\ref{Chapter5} trình bày quá trình xây dựng và tích hợp các thành phần trên.

@@ -225,7 +225,7 @@ Tester có thể chạy lại replay script, chọn dataset để thực thi v�
 % ---------------------------------------------------------
 \paragraph{Giao diện cấu hình và chạy test suite.}
 
-Trang \textit{Test Suite Detail} hiển thị các test case trong suite và cấu hình thực thi của từng test case. Đối với kiểm thử hồi quy, hệ thống ưu tiên chế độ Replay và cho phép tester chọn replay script, dataset và xem trước dữ liệu.
+Trang \textit{Test Suite Detail} hiển thị các test case trong suite và cấu hình thực thi của từng test case. Đối với kiểm thử hồi quy, hệ thống cung cấp chế độ Replay để tester chọn replay script, dataset và xem trước dữ liệu.
 
 Chế độ \textit{Run with Agent} được sử dụng khi test case chưa có script phù hợp hoặc cần tạo lại kịch bản. Hệ thống kiểm tra số lượng trường và kiểu dữ liệu của dataset trước khi chạy. Trạng thái cấu hình gồm \texttt{Need review}, \texttt{Compatible} và \texttt{Incompatible}; cấu hình chưa đầy đủ hoặc dataset không tương thích sẽ bị chặn thực thi.
 
@@ -286,7 +286,7 @@ Tester có thể chỉnh sửa từng ô, thêm hoặc xóa dòng và xem trư�
 
 Module \textit{Objects} quản lý các phần tử giao diện có thể tái sử dụng trong replay script. Các object được nhóm theo Page/Group và lưu những thông tin như tên object, trạng thái, selector mặc định, selector dự phòng và DOM properties snapshot.
 
-Object có thể mang trạng thái \textit{Auto} hoặc \textit{Confirmed}. Trạng thái \textit{Auto} cho biết object được ghi nhận tự động từ phiên chạy agent; trạng thái \textit{Confirmed} cho biết object đã được tester xác nhận để sử dụng ổn định hơn trong các lần replay tiếp theo.
+Object có thể mang trạng thái \textit{Auto} hoặc \textit{Confirmed}. Trạng thái \textit{Auto} cho biết object được ghi nhận tự động từ phiên chạy agent; trạng thái \textit{Confirmed} cho biết object đã được tester xác nhận để sử dụng có kiểm soát hơn trong các lần replay tiếp theo.
 
 \begin{figure}[H]
     \centering
@@ -485,7 +485,7 @@ Nếu locator, action hoặc assertion không còn phù hợp, hệ thống ghi 
 
 Gemini Flash hỗ trợ phân tích yêu cầu, sinh test case, sinh dữ liệu, suy luận hành động cho agent và phân tích kết quả thực thi.
 
-Sau khi replay script được tạo và xác nhận, các lần kiểm thử hồi quy được thực hiện bằng Playwright mà không cần gọi LLM ở từng step. Cách tiếp cận này giúp giảm số lần gọi mô hình và tăng tính lặp lại của quá trình kiểm thử.
+Sau khi replay script được tạo và xác nhận, tester có thể thực hiện các lần kiểm thử hồi quy bằng Playwright mà không cần gọi LLM ở từng step. Cách tiếp cận này giúp loại bỏ quá trình LLM suy luận hành động ở từng bước; đối với các kịch bản ổn định và replay thành công, phương thức này có tiềm năng giảm thời gian thực thi và tăng tính xác định của luồng thao tác.
 
 % =========================================================
 \section{Xây dựng các chức năng kiểm thử}
@@ -512,7 +512,7 @@ Backend tạo test run cho test case đã được tester lựa chọn và gửi
 
 Trong quá trình chạy, hệ thống lưu step log, screenshot, action history, evidence và verdict. Khi phiên chạy thành công, action history được chuẩn hóa thành replay script để tester xem xét và xác nhận.
 
-Agent chủ yếu được sử dụng để tạo script ban đầu hoặc tạo lại script khi website thay đổi đáng kể. Các lần kiểm thử hồi quy tiếp theo ưu tiên sử dụng replay script đã được xác nhận.
+Agent chủ yếu được sử dụng để tạo script ban đầu hoặc tạo lại script khi website thay đổi đáng kể. Trong các lần kiểm thử hồi quy tiếp theo, tester có thể sử dụng replay script đã được xác nhận.
 
 % ---------------------------------------------------------
 \subsection{Replay script}
@@ -561,7 +561,7 @@ Dataset có thể được tạo thủ công tại module \textit{Data} hoặc s
 
 Khi chạy replay script, hệ thống kiểm tra tên trường và kiểu dữ liệu của dataset. Dataset không tương thích hoặc cấu hình chưa đầy đủ sẽ bị chặn thực thi.
 
-Test suite gom nhiều test case đã được lưu trong cây thư mục thành một cấu hình chạy theo lô. Đối với kiểm thử hồi quy, hệ thống ưu tiên chạy các test case bằng replay script. Replay script có thể kết hợp với dataset để tạo nhiều lượt thực thi với các bộ dữ liệu khác nhau.
+Test suite gom nhiều test case đã được lưu trong cây thư mục thành một cấu hình chạy theo lô. Đối với kiểm thử hồi quy, hệ thống cho phép tester chạy các test case bằng replay script. Replay script có thể kết hợp với dataset để tạo nhiều lượt thực thi với các bộ dữ liệu khác nhau.
 
 Agent được sử dụng khi test case chưa có script phù hợp hoặc cần tạo lại kịch bản. Kết quả suite được tổng hợp theo số lượt thực thi, số lượt pass, fail, tỷ lệ pass và tổng thời gian.
 
@@ -686,7 +686,7 @@ Trong quá trình xây dựng, nhóm gặp các khó khăn chính sau:
     
     \item \textbf{Locator không ổn định}: thay đổi giao diện có thể khiến selector cũ không còn phù hợp.
     
-    \item \textbf{Chi phí LLM}: cần ưu tiên replay script để giảm số lần gọi mô hình trong kiểm thử hồi quy.
+    \item \textbf{Chi phí LLM}: cần tận dụng replay script cho các kịch bản ổn định để giảm số lần gọi mô hình trong kiểm thử hồi quy.
     
     \item \textbf{Quản lý evidence}: screenshot, log và action history phải đủ để phân tích nhưng không làm tăng quá nhiều chi phí lưu trữ.
 \end{itemize}
@@ -701,6 +701,6 @@ Chương này đã trình bày quá trình hiện thực frontend, backend API, 
 
 Quy trình chính bắt đầu tại trang \textit{Generate Testcase}, nơi tester nhập yêu cầu bằng ngôn ngữ tự nhiên, xem xét và lựa chọn các test case được sinh. Các test case phù hợp được thực thi bằng agent để tạo automation test script. Sau khi được xác nhận, test case và replay script được lưu trong cây thư mục tại trang \textit{Test Cases}.
 
-Trong các lần kiểm thử hồi quy tiếp theo, hệ thống ưu tiên tái sử dụng replay script bằng Playwright thay vì yêu cầu LLM suy luận lại ở từng bước. Cách tiếp cận này giúp giảm số lần gọi mô hình, giảm thời gian thực thi và nâng cao khả năng tái sử dụng kịch bản kiểm thử.
+Trong các lần kiểm thử hồi quy tiếp theo, tester có thể tái sử dụng replay script bằng Playwright thay vì yêu cầu LLM suy luận lại ở từng bước. Cách tiếp cận này giúp loại bỏ quá trình LLM suy luận hành động ở từng bước. Đối với các kịch bản ổn định và replay thành công, phương thức này có tiềm năng giảm thời gian thực thi, tăng tính xác định của luồng thao tác và nâng cao khả năng tái sử dụng kịch bản kiểm thử.
 
 Chương tiếp theo trình bày quá trình thực nghiệm và đánh giá hệ thống.

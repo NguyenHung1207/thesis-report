@@ -14,7 +14,7 @@ Các mục tiêu đánh giá chính gồm:
 \begin{itemize}
     \item Đánh giá khả năng sinh test case từ mô tả ngôn ngữ tự nhiên, bao gồm tiêu đề, mục tiêu kiểm thử, các bước thực hiện và điều kiện kỳ vọng.
     \item Đánh giá khả năng thực thi test case bằng agent trên trình duyệt thật.
-    \item Đánh giá khả năng tái sử dụng kết quả chạy thành công thông qua replay script.
+    \item Đánh giá khả năng tạo replay script và chạy lại kịch bản đã lưu trong phạm vi case study.
     \item Kiểm tra khả năng sinh dữ liệu kiểm thử phục vụ các kịch bản có nhiều bộ dữ liệu đầu vào.
     \item Phân tích các lỗi thường gặp trong quá trình chạy test như lỗi locator, lỗi assertion, lỗi môi trường hoặc lỗi do prompt chưa rõ ràng.
     \item Đánh giá vai trò của các thành phần hỗ trợ như evidence, log, timeline, report và phân tích lỗi.
@@ -110,7 +110,7 @@ Dữ liệu của case study được tổng hợp từ log hệ thống đượ
 \hline
 \textbf{Nguồn dữ liệu} & \textbf{Nội dung ghi nhận} & \textbf{Vai trò trong đánh giá} \\
 \hline
-Log thực thi test case & Kết quả chạy, thời gian thực thi, chế độ chạy, trạng thái pass/fail và khả năng tái sử dụng. & Đánh giá khả năng thực thi kiểm thử trên trình duyệt và mức độ ổn định của hệ thống. \\
+Log thực thi test case & Kết quả chạy, thời gian thực thi, chế độ chạy, trạng thái pass/fail và trạng thái tạo replay script hoặc đánh dấu reusable. & Đánh giá khả năng thực thi kiểm thử trên trình duyệt và mức độ ổn định của hệ thống. \\
 \hline
 Log sinh test case & Prompt đầu vào, test case được sinh ra, thời gian sinh và thông tin token sử dụng. & Đánh giá khả năng hỗ trợ tạo test case từ mô tả ngôn ngữ tự nhiên. \\
 \hline
@@ -133,7 +133,7 @@ Quy trình thực nghiệm trên OrangeHRM được thực hiện theo các bư�
     \item Kiểm tra lại test case được sinh ra, bao gồm mục tiêu kiểm thử, các bước thực hiện và điều kiện kỳ vọng.
     \item Chạy test case lần đầu bằng agent trên trình duyệt thật.
     \item Với các phiên chạy thành công, hệ thống ghi nhận lịch sử thao tác và sinh replay script để có thể chạy lại.
-    \item Chạy lại các kịch bản bằng replay script nhằm đánh giá khả năng tái sử dụng trong kiểm thử hồi quy.
+    \item Chạy lại các kịch bản bằng replay script nhằm đánh giá khả năng thực thi lại các kịch bản đã lưu trong phạm vi website mục tiêu.
     \item Ghi nhận kết quả thực thi, thời gian chạy, trạng thái pass/fail, lỗi từng bước và thông tin token sử dụng.
     \item Tổng hợp log hệ thống để phân tích kết quả.
 \end{enumerate}
@@ -180,7 +180,7 @@ Các kịch bản trên tập trung vào các thao tác người dùng thực t�
 
 \subsection{Chỉ số đánh giá trong case study}
 
-Để đánh giá case study một cách nhất quán, khóa luận sử dụng các chỉ số định lượng được trích xuất từ log hệ thống. Các chỉ số này phản ánh kết quả thực thi, thời gian xử lý, khả năng tái sử dụng và nguyên nhân lỗi.
+Để đánh giá case study một cách nhất quán, khóa luận sử dụng các chỉ số định lượng được trích xuất từ log hệ thống. Các chỉ số này phản ánh kết quả thực thi, thời gian xử lý, khả năng tạo replay script hoặc đánh dấu reusable và nguyên nhân lỗi.
 
 \begin{table}[H]
 \centering
@@ -197,7 +197,7 @@ Thời gian sinh test case & Thời gian LLM sinh test case từ prompt. & Log s
 \hline
 Thời gian thực thi & Thời gian agent hoặc replay script chạy trên trình duyệt. & Log thực thi test case \\
 \hline
-Tỷ lệ tái sử dụng & Tỷ lệ test run có thể tái sử dụng dưới dạng script hoặc kết quả chạy lại. & Log thực thi test case \\
+Tỷ lệ lần chạy có khả năng tái sử dụng & Tỷ lệ test run tạo được replay script hoặc được đánh dấu reusable trong phạm vi thực nghiệm. & Log thực thi test case \\
 \hline
 Số token sử dụng & Số token đầu vào và đầu ra khi sinh test case hoặc khi agent thực thi. & Log sinh test case và log thực thi agent \\
 \hline
@@ -237,7 +237,7 @@ Tỷ lệ Pass tổng thể & 83.2\% \\
 \hline
 Tỷ lệ Fail tổng thể & 16.8\% \\
 \hline
-Tỷ lệ tái sử dụng & 65.9\% \\
+Tỷ lệ lần chạy có khả năng tái sử dụng & 65.9\% \\
 \hline
 Thời gian thực thi trung bình & 70.12 giây \\
 \hline
@@ -248,15 +248,15 @@ Các thông tin liên quan đến token và thời gian sinh test case được 
 
 Kết quả thực nghiệm cho thấy hệ thống đạt 139 lần Pass trên 167 lần thực thi, tương ứng tỷ lệ Pass tổng thể 83.2\%. Số lần Fail là 28, tương ứng 16.8\%, phản ánh các trường hợp hệ thống gặp lỗi trong quá trình thao tác với giao diện Web, kiểm tra assertion hoặc xử lý locator.
 
-Tỷ lệ tái sử dụng được tính theo công thức:
+Tỷ lệ lần chạy có khả năng tái sử dụng được tính theo công thức:
 
 \[
-\text{Tỷ lệ tái sử dụng} =
+R_{\text{reusable}} =
 \frac{\text{Số lần chạy có khả năng tái sử dụng}}
 {\text{Tổng số lần thực thi}} \times 100\%
 \]
 
-Trong dữ liệu thực nghiệm, có 110/167 lần chạy tạo ra replay script hoặc được đánh dấu reusable, tương ứng 65.9\%. Chỉ số này không đồng nghĩa với tỷ lệ replay thành công, vì replay script còn phụ thuộc vào locator, assertion và trạng thái giao diện tại thời điểm chạy lại.
+Trong dữ liệu thực nghiệm, có 110/167 lần chạy tạo ra replay script hoặc được đánh dấu reusable, tương ứng 65.9\%. Chỉ số này phản ánh khả năng tái sử dụng tiềm năng của kết quả chạy trong phạm vi case study, không đồng nghĩa với tỷ lệ replay thành công và cũng chưa chứng minh rằng replay script đã được sử dụng thành công qua nhiều phiên bản website liên tiếp.
 
 Thời gian thực thi trung bình trên trình duyệt là 70.12 giây. Khi đối chiếu với kết quả sinh test case được trình bày riêng ở phần sau, có thể thấy phần tốn thời gian chính của hệ thống không nằm ở bước sinh test case, mà nằm ở quá trình agent hoặc replay script thao tác với trình duyệt, chờ trang tải, tìm phần tử và kiểm tra điều kiện kỳ vọng.
 
@@ -454,9 +454,68 @@ Tuy nhiên, đây chỉ là ví dụ minh họa cho một kịch bản cụ th�
 
 Do số lần chạy giữa hai chế độ khác nhau, chỉ số phù hợp để so sánh là thời gian trung bình trên mỗi lần chạy, đặc biệt khi tách theo kết quả pass/fail. Theo Bảng~\ref{tab:chapter6_agent_replay_time_by_result}, replay script thành công có thời gian trung bình thấp hơn agent thành công khoảng 14.65\%, nhưng các lần replay thất bại vẫn mất trung bình 94.43 giây do timeout hoặc lỗi locator/assertion. Vì vậy, phần đánh giá không sử dụng tổng thời gian thực thi để kết luận hiệu năng giữa hai chế độ.
 
-Từ kết quả trên có thể thấy agent và replay script có vai trò bổ sung cho nhau. Agent phù hợp với giai đoạn chạy ban đầu, khi hệ thống cần quan sát giao diện và suy luận hành động từ mục tiêu kiểm thử. Replay script phù hợp hơn với các kịch bản đã chạy thành công và có thể tái sử dụng, vì khi replay thành công, thời gian thực thi trung bình thấp hơn agent thành công khoảng 14.65\%.
+Từ kết quả trên có thể thấy agent và replay script có vai trò bổ sung cho nhau. Agent phù hợp với giai đoạn chạy ban đầu, khi hệ thống cần quan sát giao diện và suy luận hành động từ mục tiêu kiểm thử. Replay script phù hợp hơn với các kịch bản đã chạy thành công và có tiềm năng tái sử dụng, vì khi replay thành công, thời gian thực thi trung bình thấp hơn agent thành công khoảng 14.65\%.
 
 Tuy nhiên, replay script hiện vẫn có tỷ lệ thất bại cao hơn agent. Điều này cho thấy hệ thống cần tiếp tục cải thiện chất lượng locator, cơ chế chờ, assertion và khả năng tự phục hồi khi giao diện thay đổi. Vì vậy, hướng tiếp cận phù hợp là sử dụng agent để tạo và khám phá kịch bản ban đầu, sau đó dùng replay script để chạy lại các kịch bản đã ổn định trong kiểm thử hồi quy.
+
+\subsection{Mức sử dụng token và chi phí LLM ước tính}
+
+Bên cạnh tỷ lệ Pass và thời gian thực thi, log thực nghiệm cũng ghi nhận số token mà agent sử dụng trong quá trình chạy test. Dữ liệu này cho phép lượng hóa mức phụ thuộc vào LLM giữa hai chế độ thực thi. Workbook thực nghiệm hiện ghi nhận token ở cấp độ test run, chưa tách riêng số request API LLM bên trong từng phiên agent; vì vậy, phần đánh giá sử dụng 83 lần chạy agent có dữ liệu token và 46 lần chạy replay script có dữ liệu thực thi làm phạm vi so sánh.
+
+\begin{table}[H]
+\centering
+\caption{So sánh token LLM trong quá trình thực thi}
+\label{tab:chapter6_agent_replay_token_usage}
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{3.0cm}|C{2.2cm}|p{3.7cm}|C{2.4cm}|C{2.2cm}|}
+\hline
+\textbf{Chế độ chạy} & \textbf{Số run trong phân tích} & \textbf{Cách ghi nhận} & \textbf{Tổng agent tokens} & \textbf{Token TB/run} \\
+\hline
+Agent initial run & 83 & Có dữ liệu thực thi và token agent. & 5,349,788 & 64,455.28 \\
+\hline
+Replay script & 46 & Có dữ liệu thực thi; agent token bằng 0. & 0 & 0 \\
+\hline
+\end{tabular}
+\end{table}
+
+Trong 83 lần chạy agent thuộc phạm vi phân tích token, tổng số input tokens là 5,143,202. Tổng số output tokens là 206,586. Trung bình mỗi lần chạy agent sử dụng 61,966.29 input tokens và 2,488.99 output tokens. Đối với 46 lần chạy replay script, log vẫn ghi nhận dữ liệu thực thi, nhưng agent token trong giai đoạn thực thi bằng 0 do replay chạy trực tiếp các bước Playwright đã lưu thay vì yêu cầu LLM suy luận hành động ở từng bước.
+
+Để ước tính chi phí tiền tệ, gọi $P_{in}$ và $P_{out}$ lần lượt là đơn giá cho một triệu input tokens và một triệu output tokens của mô hình được cấu hình. Chi phí LLM có thể được quy đổi theo công thức:
+
+\[
+C = \frac{T_{in}}{1{,}000{,}000} \times P_{in} + \frac{T_{out}}{1{,}000{,}000} \times P_{out}
+\]
+
+Với 83 lần chạy agent trong phạm vi phân tích token, chi phí thực thi agent có thể được ước tính là:
+
+\[
+C_{agent} = 5.143202 \times P_{in} + 0.206586 \times P_{out}
+\]
+
+Nếu 46 lần chạy replay script được chạy lại bằng agent với mức token trung bình như 83 lần agent đã ghi nhận, lượng token có thể tránh sử dụng được ước tính như Bảng~\ref{tab:chapter6_replay_avoided_token}. Đây là kịch bản giả định, không phải thí nghiệm so sánh từng cặp giữa cùng một test case chạy bằng agent và replay.
+
+\begin{table}[H]
+\centering
+\caption{Ước tính token có thể tránh sử dụng khi chạy bằng replay script}
+\label{tab:chapter6_replay_avoided_token}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|p{5.3cm}|C{2.5cm}|C{2.5cm}|C{2.5cm}|}
+\hline
+\textbf{Kịch bản ước tính} & \textbf{Input tokens} & \textbf{Output tokens} & \textbf{Tổng tokens} \\
+\hline
+46 lần replay nếu chạy lại bằng agent theo token trung bình của các agent run đã ghi nhận & 2,850,449 & 114,493 & 2,964,942 \\
+\hline
+\end{tabular}
+\end{table}
+
+Từ đó, chi phí LLM có thể tránh sử dụng khi người dùng chọn replay script thay vì chạy lại bằng agent được ước tính theo công thức:
+
+\[
+C_{saved} = 2.850449 \times P_{in} + 0.114493 \times P_{out}
+\]
+
+Kết quả này không cố định thành một số tiền tuyệt đối vì chi phí phụ thuộc vào mô hình LLM và đơn giá tại thời điểm triển khai. Tuy nhiên, số liệu token cho thấy replay script có thể loại bỏ lượng token agent đáng kể trong các lần chạy lặp lại. Do đó, mục tiêu giảm chi phí LLM của hệ thống được thể hiện thông qua cơ chế cho phép người dùng chạy lại các kịch bản ổn định bằng replay script, trong đó chi phí tiền tệ có thể quy đổi trực tiếp từ token theo model đang sử dụng.
 
 \subsection{Phân tích lỗi trong case study}
 
@@ -710,11 +769,11 @@ Mức độ phụ thuộc LLM & Cao hơn vì cần suy luận hành động tron
 \hline
 Tính linh hoạt & Phù hợp khi giao diện cần được quan sát và diễn giải theo ngữ cảnh. & Phù hợp với luồng đã ổn định và cần chạy lặp lại. \\
 \hline
-Tính xác định & Có thể thay đổi theo trạng thái giao diện và phản hồi của LLM. & Ổn định hơn về mặt luồng thao tác, nhưng phụ thuộc locator và assertion. \\
+Tính xác định & Có thể thay đổi theo trạng thái giao diện và phản hồi của LLM. & Có tính xác định hơn về mặt luồng thao tác, nhưng vẫn phụ thuộc locator và assertion. \\
 \hline
 Khả năng bảo trì & Ít yêu cầu selector ban đầu, nhưng khó kiểm soát nếu prompt mơ hồ. & Cần bảo trì locator, assertion và dữ liệu khi website thay đổi. \\
 \hline
-Chi phí vận hành & Cao hơn do gọi LLM trong quá trình chạy. & Thấp hơn trong các lần chạy lặp lại vì chủ yếu sử dụng Playwright. \\
+Mức gọi LLM và chi phí ước tính & Trong 83 lần chạy agent thuộc phạm vi phân tích token, agent sử dụng tổng cộng 5,349,788 tokens. & 46 lần replay có dữ liệu thực thi và agent token bằng 0; nếu chạy lại bằng agent theo mức trung bình đã ghi nhận, lượng token có thể tránh sử dụng ước tính khoảng 2.96 triệu tokens. \\
 \hline
 Vai trò phù hợp & Khám phá luồng, tạo kịch bản ban đầu, xử lý tình huống cần suy luận. & Kiểm thử hồi quy, chạy dataset, chạy suite. \\
 \hline
@@ -727,6 +786,7 @@ Tổng hợp các kết quả trên cho thấy agent và replay script đóng va
 \centering
 \caption{Tổng hợp mức độ đáp ứng các mục tiêu đánh giá}
 \label{tab:chapter6_evaluation_objective_summary}
+\small
 \renewcommand{\arraystretch}{1.2}
 \begin{tabular}{|p{5.0cm}|p{5.0cm}|p{4.0cm}|}
 \hline
@@ -737,6 +797,8 @@ Sinh test case từ mô tả tự nhiên & Thời gian sinh trung bình 3.66 gi�
 Thực thi test bằng agent & Agent initial run đạt tỷ lệ Pass 90.91\%. & Phù hợp với giai đoạn chạy ban đầu và khám phá luồng. \\
 \hline
 Chạy lại bằng replay script & Replay script đạt tỷ lệ Pass 63.04\%; khi replay thành công, thời gian trung bình thấp hơn agent thành công 14.65\%. & Có tiềm năng cho kiểm thử hồi quy nhưng cần cải thiện locator và assertion. \\
+\hline
+Giảm phụ thuộc và chi phí LLM trong kiểm thử hồi quy & 46 lần replay script có dữ liệu thực thi và agent token bằng 0; so với chạy lại bằng agent theo mức trung bình đã ghi nhận, lượng token có thể tránh sử dụng ước tính khoảng 2.96 triệu tokens. & Chi phí tiền tệ có thể quy đổi từ input/output tokens theo đơn giá của mô hình được cấu hình. \\
 \hline
 Sinh dữ liệu kiểm thử & Chức năng sinh dataset hoàn thành trong các lần ghi nhận; thời gian sinh trung bình 2.57 giây. & Hỗ trợ chuẩn bị dữ liệu, nhưng cần đánh giá thêm theo từng dataset row. \\
 \hline
@@ -767,6 +829,7 @@ Bên cạnh đó, quá trình đánh giá hiện tại còn có một số giớ
 \begin{itemize}
     \item Dữ liệu thực nghiệm tập trung nhiều vào nhóm Login, trong khi các module khác như PIM, Leave, Admin hoặc Time \& Attendance có số lần chạy còn ít.
     \item Dữ liệu log được lọc theo các project có website mục tiêu liên quan đến OrangeHRM. Do đó, các bản ghi thuộc cùng website mục tiêu có thể đến từ nhiều project thử nghiệm khác nhau trong quá trình phát triển hệ thống. Vì vậy, kết quả cần được xem là dữ liệu thực nghiệm tổng hợp cho case study OrangeHRM, không phải benchmark tuyệt đối trên một project duy nhất.
+    \item Thực nghiệm hiện tại chủ yếu đánh giá khả năng tạo và chạy lại replay script trên cùng website mục tiêu. Hệ thống chưa được đánh giá theo một quy trình kiểm soát gồm nhiều phiên bản liên tiếp của cùng website; vì vậy, khả năng tái sử dụng qua thay đổi phiên bản mới chỉ được phản ánh gián tiếp, chưa được đo lường đầy đủ.
     \item Chỉ số Generated Tree Correct chưa được đánh giá thủ công; toàn bộ bản ghi trong log hiện tại vẫn ở trạng thái chưa đánh giá. Vì vậy, chỉ số này chưa được dùng để kết luận định lượng.
     \item Dữ liệu về crawl website, test suite run, dataset row run, self-healing và AI analysis chưa được ghi nhận hoặc export đầy đủ thành các bảng định lượng riêng.
     \item Khảo sát người dùng có số lượng phản hồi còn hạn chế, phù hợp để tham khảo định tính nhưng chưa đủ lớn để đại diện cho toàn bộ nhóm người dùng mục tiêu.

@@ -25,9 +25,9 @@ Kiểm thử tự động phù hợp với kiểm thử hồi quy vì các test 
 
 Tuy nhiên, khả năng tái sử dụng test script phụ thuộc vào mức độ thay đổi của website. Nếu luồng nghiệp vụ và giao diện không thay đổi đáng kể, script có thể tiếp tục được sử dụng. Nếu locator, nội dung hoặc trình tự thao tác thay đổi, tester cần cập nhật script trước khi thực thi lại.
 
-Trong hệ thống của đề tài, AI Agent được sử dụng để hỗ trợ tạo phiên bản đầu tiên của automation test script từ test case đã được xác nhận. Sau khi chạy thành công và được tester kiểm tra, lịch sử hành động được chuyển thành replay script và lưu trữ trong hệ thống. Replay script sau đó được ưu tiên sử dụng trong các lần kiểm thử hồi quy thay vì yêu cầu AI Agent thực hiện lại toàn bộ quá trình từ đầu.
+Trong hệ thống của đề tài, AI Agent được sử dụng để hỗ trợ tạo phiên bản đầu tiên của automation test script từ test case đã được xác nhận. Sau khi chạy thành công và được tester kiểm tra, lịch sử hành động được chuyển thành replay script và lưu trữ trong hệ thống. Trong kiểm thử hồi quy, hệ thống cho phép tester chủ động lựa chọn chạy lại bằng replay script đối với các kịch bản đã ổn định, thay vì sử dụng agent để suy luận lại toàn bộ luồng.
 
-Cách tiếp cận này giúp giảm số lần gọi mô hình ngôn ngữ lớn, giảm thời gian suy luận của agent và tăng tính ổn định giữa các lần thực thi. Khi website thay đổi làm replay script không còn phù hợp, tester có thể chỉnh sửa script hoặc sử dụng AI Agent để tạo lại kịch bản mới.
+Cách tiếp cận này giúp loại bỏ quá trình LLM suy luận hành động ở từng bước khi tester chọn chế độ replay. Đối với các kịch bản ổn định và replay thành công, phương thức này có tiềm năng giảm thời gian thực thi và tăng tính xác định của luồng thao tác. Khi website thay đổi làm replay script không còn phù hợp, tester có thể chỉnh sửa script hoặc sử dụng AI Agent để tạo lại kịch bản mới.
 
 \section{Một số công cụ kiểm thử web liên quan}
 
@@ -45,7 +45,9 @@ Khảo sát các công cụ trên cho thấy hệ thống của đề tài cần
 
 \section{Mô hình ngôn ngữ lớn trong hệ thống kiểm thử web}
 
-Mô hình ngôn ngữ lớn, hay Large Language Model (LLM), là mô hình trí tuệ nhân tạo có khả năng xử lý ngôn ngữ tự nhiên và sinh đầu ra dưới nhiều dạng khác nhau như văn bản, mã nguồn hoặc dữ liệu có cấu trúc. Theo tài liệu của OpenAI, mô hình ngôn ngữ lớn có thể sinh phản hồi văn bản, mã nguồn, dữ liệu JSON có cấu trúc và các nội dung gần với cách con người viết~\cite{openai_text_generation}.
+Mô hình ngôn ngữ lớn, hay Large Language Model (LLM), là mô hình trí tuệ nhân tạo có khả năng xử lý ngôn ngữ tự nhiên và sinh đầu ra dưới nhiều dạng khác nhau như văn bản, mã nguồn hoặc dữ liệu có cấu trúc. Các nền tảng LLM hiện nay thường hỗ trợ sinh phản hồi văn bản, mã nguồn và dữ liệu có cấu trúc như JSON để phục vụ việc tích hợp với hệ thống phần mềm~\cite{openai_text_generation,openai_structured_outputs}.
+
+Trong phần hiện thực của khóa luận, mô hình được tích hợp cụ thể là Gemini Flash thông qua Gemini API~\cite{GeminiAPI2026}. Vì vậy, các tài liệu về LLM trong chương này được sử dụng như cơ sở nền tảng cho cách hệ thống khai thác mô hình ngôn ngữ lớn, còn chi tiết tích hợp Gemini Flash được trình bày ở Chương~\ref{Chapter5}.
 
 Trong quy trình kiểm thử của hệ thống, LLM được sử dụng ở một số bước chính. Trước hết, LLM hỗ trợ chuyển yêu cầu hoặc mô tả của người dùng thành các test case có cấu trúc, bao gồm tiêu đề, mục tiêu, các bước dự kiến, dữ liệu liên quan và kết quả mong đợi. LLM cũng hỗ trợ đề xuất test data như dữ liệu hợp lệ, dữ liệu không hợp lệ, dữ liệu thiếu trường hoặc dữ liệu biên.
 
@@ -53,7 +55,7 @@ Ngoài ra, LLM được sử dụng trong quá trình AI Agent thực thi test c
 
 Prompt là đầu vào quan trọng trong các bước sử dụng LLM. Nếu người dùng cung cấp prompt có mục tiêu, dữ liệu, điều kiện kiểm tra và bối cảnh rõ ràng, hệ thống sẽ có nhiều thông tin hơn để sinh test case và hỗ trợ agent chạy đúng hướng. Ngoài prompt của người dùng, hệ thống còn có thể sử dụng thông tin từ project, base URL, runtime config và trạng thái giao diện hiện tại làm ngữ cảnh bổ sung.
 
-Trong hệ thống kiểm thử tự động, dữ liệu có cấu trúc giúp các thành phần trao đổi dữ liệu nhất quán. Các dữ liệu như test case, test step, replay script, assertion, test data và action history cần được biểu diễn rõ ràng để hệ thống có thể lưu trữ, kiểm tra và thực thi. Vì vậy, hệ thống yêu cầu LLM sinh đầu ra theo định dạng có cấu trúc, chẳng hạn như JSON. Theo tài liệu về Structured Outputs, mô hình có thể được ràng buộc để sinh phản hồi tuân theo một JSON Schema đã định nghĩa~\cite{openai_structured_outputs}.
+Trong hệ thống kiểm thử tự động, dữ liệu có cấu trúc giúp các thành phần trao đổi dữ liệu nhất quán. Các dữ liệu như test case, test step, replay script, assertion, test data và action history cần được biểu diễn rõ ràng để hệ thống có thể lưu trữ, kiểm tra và thực thi. Vì vậy, hệ thống yêu cầu LLM sinh đầu ra theo định dạng JSON được định nghĩa trước để backend có thể phân tích, lưu trữ và thực thi nhất quán.
 
 Tuy vậy, dữ liệu đúng schema chưa chắc đã đúng về mặt nghiệp vụ. Một test case có thể đúng định dạng nhưng vẫn thiếu điều kiện kiểm tra, test data có thể hợp lệ về cấu trúc nhưng chưa phù hợp với website hoặc một hành động có thể đúng schema nhưng lựa chọn sai phần tử. Vì vậy, hệ thống vẫn cần tester xem xét, lựa chọn và xác nhận kết quả trước khi đưa vào sử dụng.
 
@@ -69,24 +71,56 @@ Sau đó, hệ thống thực hiện các thao tác như mở trang, nhập dữ
 
 Browser automation là lớp kỹ thuật giúp hệ thống thao tác với trình duyệt. Lớp này chịu trách nhiệm mở trang web, tìm phần tử, nhập dữ liệu, nhấp chuột, kiểm tra nội dung, chụp screenshot và ghi nhận thông tin phục vụ báo cáo. Trong hệ thống đề xuất, browser automation phục vụ cả hai chế độ thực thi: chạy linh hoạt bằng agent và chạy lại bằng replay script.
 
-Việc kết hợp AI Agent và browser automation tạo ra hai khả năng bổ sung cho nhau. Agent hỗ trợ khám phá website và chuyển test case thành chuỗi hành động trong lần chạy ban đầu. Replay script giúp chạy lại chuỗi hành động đã được xác nhận một cách nhanh và ổn định hơn trong kiểm thử hồi quy.
+Việc kết hợp AI Agent và browser automation tạo ra hai khả năng bổ sung cho nhau. Agent hỗ trợ khám phá website và chuyển test case thành chuỗi hành động trong lần chạy ban đầu. Replay script cho phép chạy lại chuỗi hành động đã được xác nhận; đối với các kịch bản ổn định và replay thành công, phương thức này có tiềm năng giảm thời gian thực thi và tăng tính xác định của luồng thao tác.
 
 Do agent phụ thuộc vào trạng thái giao diện và kết quả suy luận của LLM, quá trình chạy bằng agent có thể không hoàn toàn xác định giữa các lần thực thi. Ngoài ra, agent cần thực hiện nhiều lần gọi mô hình trong quá trình quan sát và lựa chọn hành động. Vì vậy, sau khi phiên chạy thành công, hệ thống chuẩn hóa lịch sử hành động thành replay script để giảm sự phụ thuộc vào agent trong các lần kiểm thử tiếp theo.
 
+\section{Các nghiên cứu liên quan}
+
+Các nghiên cứu liên quan đến đề tài có thể được chia thành ba hướng chính: sử dụng mô hình ngôn ngữ lớn để sinh kiểm thử, sử dụng Web Agent để thực hiện tác vụ trên trình duyệt và bảo trì các kịch bản kiểm thử Web theo hướng record-and-replay hoặc tự động sửa chữa test script.
+
+\subsection{Sinh kiểm thử bằng mô hình ngôn ngữ lớn}
+
+Lemieux và cộng sự đề xuất CodaMOSA, một phương pháp kết hợp mô hình ngôn ngữ lớn với kỹ thuật sinh kiểm thử dựa trên tìm kiếm~\cite{10172800}. Trong phương pháp này, quá trình tìm kiếm được thực hiện trước để sinh các unit test có độ bao phủ cao. Khi độ bao phủ không tiếp tục được cải thiện, hệ thống gọi mô hình ngôn ngữ lớn để sinh các test case mẫu cho những hàm chưa được kiểm thử đầy đủ. Các test case này được dùng để định hướng lại quá trình tìm kiếm sang những khu vực có ích hơn trong không gian đầu vào.
+
+Kết quả đánh giá cho thấy việc kết hợp mô hình ngôn ngữ lớn với phương pháp sinh kiểm thử truyền thống có thể cải thiện độ bao phủ so với việc chỉ sử dụng riêng từng phương pháp. Tuy nhiên, CodaMOSA chủ yếu tập trung vào sinh unit test từ mã nguồn của chương trình. Trong khi đó, hệ thống của đề tài tập trung vào sinh functional test case từ yêu cầu bằng ngôn ngữ tự nhiên và thực thi kiểm thử trực tiếp trên giao diện của ứng dụng Web.
+
+\subsection{Web Agent và tự động hóa trình duyệt}
+
+Deng và cộng sự giới thiệu Mind2Web, một tập dữ liệu và benchmark được xây dựng để nghiên cứu các agent có khả năng tiếp nhận yêu cầu bằng ngôn ngữ tự nhiên và thực hiện tác vụ trên các website thực tế~\cite{deng2023mind2web}. Tập dữ liệu gồm hơn 2.000 tác vụ trên 137 website thuộc 31 lĩnh vực, kèm theo các chuỗi hành động do con người thực hiện. Nghiên cứu cho thấy mô hình ngôn ngữ lớn có thể được sử dụng để lựa chọn phần tử và dự đoán hành động trên website, nhưng việc xử lý cấu trúc HTML dài, giao diện động và những website chưa từng xuất hiện trong dữ liệu huấn luyện vẫn là những thách thức đáng kể.
+
+He và cộng sự đề xuất WebVoyager, một Web Agent sử dụng mô hình ngôn ngữ lớn đa phương thức để thực hiện các yêu cầu của người dùng trên các website thực tế~\cite{he2024webvoyager}. Agent kết hợp thông tin trực quan từ ảnh chụp màn hình với nội dung và các phần tử tương tác trên trang Web để quan sát trạng thái, lựa chọn hành động và hoàn thành tác vụ theo quy trình đầu cuối.
+
+Các tác giả xây dựng tập tác vụ trên 15 website phổ biến nhằm đánh giá khả năng hoạt động của agent trong môi trường thực tế. Kết quả nghiên cứu cho thấy việc kết hợp thông tin hình ảnh với nội dung trang Web giúp agent thực hiện tác vụ hiệu quả hơn so với cấu hình chỉ sử dụng thông tin dạng văn bản. Tuy nhiên, agent vẫn có thể thất bại khi nhận diện phần tử, lựa chọn hành động hoặc xác định trạng thái hoàn thành của tác vụ.
+
+Mind2Web và WebVoyager cung cấp cơ sở cho việc nghiên cứu Web Agent theo vòng lặp quan sát, suy luận và hành động. Tuy nhiên, mục tiêu chính của các công trình này là xây dựng và đánh giá agent hoàn thành tác vụ Web tổng quát. Các nghiên cứu chưa tập trung vào một quy trình kiểm thử phần mềm hoàn chỉnh gồm sinh và quản lý test case, xác định expected result, lưu evidence, tạo replay script và tổ chức kiểm thử hồi quy.
+
+\subsection{Record-and-replay và sửa chữa kiểm thử Web}
+
+Hammoudi và cộng sự nghiên cứu nguyên nhân các bài kiểm thử Web được tạo bằng công cụ record-and-replay bị hỏng khi ứng dụng thay đổi~\cite{7515470}. Nghiên cứu phân tích hơn một nghìn trường hợp test bị hỏng trên hàng trăm phiên bản ứng dụng Web và xây dựng một hệ thống phân loại các nguyên nhân gây lỗi. Các nguyên nhân được ghi nhận bao gồm thay đổi locator, giá trị đầu vào, hành động, quá trình tải lại trang, trạng thái phiên làm việc và popup.
+
+Kết quả của nghiên cứu cho thấy các kịch bản record-and-replay có thể được sử dụng cho kiểm thử hồi quy, nhưng thường nhạy cảm với sự thay đổi của website, đặc biệt là các thay đổi liên quan đến thông tin định vị phần tử. Nhận xét này là cơ sở để hệ thống trong đề tài lưu nhiều thông tin nhận diện phần tử trong Object Repository, ghi nhận evidence và hỗ trợ locator fallback khi replay script không tìm được phần tử bằng locator ban đầu.
+
+Stocco và cộng sự đề xuất phương pháp Visual Web Test Repair và hiện thực công cụ Vista để hỗ trợ sửa chữa các bài kiểm thử Web bị hỏng~\cite{stocco2018visualrepair}. Thay vì chỉ dựa vào mã nguồn hoặc cấu trúc DOM, phương pháp sử dụng thông tin hình ảnh thu được trong quá trình thực thi và kết hợp với cơ chế crawling cục bộ để tìm lại phần tử hoặc luồng tương tác phù hợp. Phương pháp được đánh giá trên 2.672 test case thuộc 86 phiên bản của bốn ứng dụng Web; Vista sửa được trung bình 81\% các trường hợp test bị hỏng trong tập dữ liệu thực nghiệm.
+
+Công trình này cho thấy thông tin trực quan và trạng thái giao diện có thể được sử dụng để hỗ trợ bảo trì test script khi website thay đổi. Tuy nhiên, Visual Web Test Repair tập trung vào việc sửa chữa các bài kiểm thử Web đã tồn tại. Trong khi đó, hệ thống của đề tài tích hợp thêm các giai đoạn sinh test case từ mô tả tự nhiên, thực thi ban đầu bằng agent, lưu replay script, quản lý dữ liệu kiểm thử và lưu kết quả thực thi để phục vụ truy vết.
+
 \section{Định vị giải pháp đề xuất}
 
-Trên cơ sở các nền tảng kỹ thuật đã trình bày, giải pháp của đề tài hướng đến một nền tảng web hỗ trợ quy trình kiểm thử tự động website từ việc sinh test case đến thực hiện kiểm thử hồi quy. Người dùng có thể tạo project, nhập yêu cầu kiểm thử, sinh test case và test data, lựa chọn test case, chạy test bằng agent, xác nhận replay script, tổ chức test suite và xem báo cáo kết quả.
+Các nghiên cứu đã khảo sát giải quyết những khía cạnh khác nhau của bài toán kiểm thử và tự động hóa Web. CodaMOSA tập trung vào việc kết hợp mô hình ngôn ngữ lớn với phương pháp tìm kiếm để sinh unit test từ mã nguồn. Mind2Web và WebVoyager tập trung vào khả năng của agent trong việc hiểu yêu cầu tự nhiên, quan sát trạng thái giao diện và hoàn thành các tác vụ trên trình duyệt. Các công trình về record-and-replay và Visual Web Test Repair tập trung vào nguyên nhân test script bị hỏng và khả năng sửa chữa kịch bản khi website thay đổi.
 
-Hệ thống kết hợp các hướng tiếp cận chính gồm kiểm thử tự động website, mô hình ngôn ngữ lớn, AI Agent, browser automation và cơ chế tái sử dụng test script. LLM hỗ trợ sinh test case và test data từ yêu cầu bằng ngôn ngữ tự nhiên. Browser-use Agent hỗ trợ khám phá website và tạo chuỗi hành động trong lần chạy ban đầu. Playwright đảm nhiệm vai trò điều khiển trình duyệt và thực thi replay script.
+Những công trình trên cho thấy mô hình ngôn ngữ lớn có thể hỗ trợ sinh kiểm thử, Web Agent có thể thực hiện tác vụ trên giao diện và các cơ chế repair có thể hỗ trợ duy trì test script. Trong phạm vi các công trình được khảo sát, mỗi hướng nghiên cứu chủ yếu tập trung vào một giai đoạn riêng của quy trình. Chưa có công trình nào trong nhóm tài liệu khảo sát tích hợp đầy đủ các giai đoạn từ mô tả yêu cầu, sinh và xác nhận test case, thực thi trên trình duyệt, lưu replay script, chạy lại kiểm thử đến quản lý và phân tích kết quả trong cùng một nền tảng.
 
-Điểm khác biệt chính của hệ thống là quy trình kết hợp giữa agent-based execution và replay-based execution. Agent được sử dụng để thực hiện test case chưa có automation test script và tạo ra lịch sử hành động phù hợp. Sau khi phiên chạy thành công và được tester xác nhận, lịch sử hành động được chuẩn hóa thành replay script để lưu trữ và chạy lại trong các lần kiểm thử tiếp theo.
+Trên cơ sở đó, đề tài hướng đến xây dựng một nền tảng Web hỗ trợ toàn bộ vòng đời kiểm thử tự động. Người dùng tạo project và nhập yêu cầu kiểm thử bằng ngôn ngữ tự nhiên. Mô hình ngôn ngữ lớn hỗ trợ chuyển yêu cầu thành các test case và test data có cấu trúc. Các kết quả được sinh không được đưa trực tiếp vào sử dụng mà cần được tester xem xét, chỉnh sửa, lựa chọn và xác nhận.
 
-Trong các phiên bản phần mềm sau, nếu luồng nghiệp vụ không thay đổi đáng kể, hệ thống ưu tiên sử dụng replay script để thực hiện kiểm thử hồi quy thay vì yêu cầu agent suy luận lại từ đầu. Cách tiếp cận này giúp giảm thời gian thực thi, giảm chi phí sử dụng mô hình và tăng tính ổn định của kết quả kiểm thử.
+Đối với test case chưa có kịch bản thực thi, Browser-use Agent tiếp nhận mục tiêu kiểm thử, quan sát trạng thái giao diện và thực hiện các thao tác trên trình duyệt. Trong quá trình này, hệ thống ghi nhận action history, log, screenshot, trạng thái từng bước và các evidence liên quan. Khi phiên chạy thành công, lịch sử hành động được chuẩn hóa thành replay script để tester tiếp tục xem xét và xác nhận trước khi lưu.
 
-Khi website thay đổi làm replay script không còn phù hợp, tester có thể dựa trên log, screenshot, evidence và thông báo lỗi để cập nhật script. Trong trường hợp luồng nghiệp vụ thay đổi đáng kể, tester có thể điều chỉnh test case và sử dụng AI Agent để tạo lại phiên bản script mới.
+Đối với các test case đã có replay script, người dùng có thể chủ động lựa chọn chạy lại bằng Playwright trong các lần kiểm thử hồi quy. Khi sử dụng chế độ này, các bước đã lưu được thực thi trực tiếp mà không cần mô hình ngôn ngữ lớn suy luận lại hành động ở từng bước. Cơ chế này tạo điều kiện tái sử dụng các kịch bản đã ổn định và giảm sự phụ thuộc vào LLM trong những lần chạy lặp lại.
 
-Ngoài ra, hệ thống còn quản lý test data, test suite, object repository, kết quả thực thi, log, screenshot và các bằng chứng liên quan. Những thông tin này hỗ trợ tester truy vết kết quả, phân tích lỗi và bảo trì các kịch bản kiểm thử.
+Khả năng tái sử dụng replay script phụ thuộc vào mức độ thay đổi của website mục tiêu. Khi luồng nghiệp vụ, locator, dữ liệu hoặc assertion không thay đổi đáng kể, script có thể được tiếp tục sử dụng. Khi script thất bại, tester có thể dựa trên log, screenshot, step lỗi, Object Repository và kết quả phân tích để cập nhật locator, dữ liệu, assertion hoặc chạy lại bằng agent.
 
-Như vậy, hệ thống không sử dụng LLM và AI Agent để thay thế hoàn toàn tester hoặc sinh lại toàn bộ kịch bản trong mỗi lần kiểm thử. AI được sử dụng để giảm khối lượng công việc trong giai đoạn tạo test case và test script ban đầu, trong khi replay script được lưu trữ và tái sử dụng để phục vụ kiểm thử hồi quy.
+Bên cạnh hai chế độ thực thi, hệ thống còn hỗ trợ quản lý test suite, dataset, Object Repository, test run, evidence và report. Những thành phần này giúp kết nối quá trình sinh kiểm thử với quá trình thực thi, tái sử dụng và bảo trì kịch bản.
 
-Chương này đã trình bày các nền tảng kỹ thuật cần thiết cho đề tài, bao gồm kiểm thử web, kiểm thử tự động, kiểm thử hồi quy, các công cụ kiểm thử website, mô hình ngôn ngữ lớn, AI Agent, browser automation và cơ chế tái sử dụng replay script. Các nội dung này là cơ sở để phân tích yêu cầu, thiết kế kiến trúc và hiện thực hệ thống ở các chương tiếp theo.
+Như vậy, điểm khác biệt của giải pháp không nằm ở việc đề xuất một mô hình ngôn ngữ lớn, một Web Agent hoặc một thuật toán test repair hoàn toàn mới. Đóng góp chính của đề tài là thiết kế và hiện thực một quy trình tích hợp, trong đó mô hình ngôn ngữ lớn và agent được sử dụng để giảm công sức trong giai đoạn tạo kiểm thử ban đầu, còn replay script và các thành phần quản lý được sử dụng để hỗ trợ tái sử dụng trong kiểm thử hồi quy. Tester vẫn giữ vai trò kiểm tra và xác nhận các kết quả do AI sinh trước khi đưa vào sử dụng.
+
+Chương này đã trình bày các nền tảng kỹ thuật cần thiết cho đề tài, bao gồm kiểm thử web, kiểm thử tự động, kiểm thử hồi quy, các công cụ kiểm thử website, mô hình ngôn ngữ lớn, AI Agent, browser automation, cơ chế tái sử dụng replay script và các nghiên cứu liên quan. Các nội dung này là cơ sở để phân tích yêu cầu, thiết kế kiến trúc và hiện thực hệ thống ở các chương tiếp theo.
