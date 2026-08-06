@@ -197,7 +197,7 @@ Thời gian sinh test case & Thời gian LLM sinh test case từ prompt. & Log s
 \hline
 Thời gian thực thi & Thời gian agent hoặc replay script chạy trên trình duyệt. & Log thực thi test case \\
 \hline
-Tỷ lệ lần chạy có khả năng tái sử dụng & Tỷ lệ test run tạo được replay script hoặc được đánh dấu reusable trong phạm vi thực nghiệm. & Log thực thi test case \\
+Tỷ lệ Agent initial run thành công & Tỷ lệ các lần chạy ban đầu bằng agent có kết quả Pass, dùng làm cơ sở để sinh và lưu replay script cho các kịch bản có thể tái sử dụng. & Log thực thi test case \\
 \hline
 Số token sử dụng & Số token đầu vào và đầu ra khi sinh test case hoặc khi agent thực thi. & Log sinh test case và log thực thi agent \\
 \hline
@@ -237,7 +237,7 @@ Tỷ lệ Pass tổng thể & 83.2\% \\
 \hline
 Tỷ lệ Fail tổng thể & 16.8\% \\
 \hline
-Tỷ lệ lần chạy có khả năng tái sử dụng & 65.9\% \\
+Tỷ lệ Agent initial run thành công & 90.91\% \\
 \hline
 Thời gian thực thi trung bình & 70.12 giây \\
 \hline
@@ -248,15 +248,15 @@ Các thông tin liên quan đến token và thời gian sinh test case được 
 
 Kết quả thực nghiệm cho thấy hệ thống đạt 139 lần Pass trên 167 lần thực thi, tương ứng tỷ lệ Pass tổng thể 83.2\%. Số lần Fail là 28, tương ứng 16.8\%, phản ánh các trường hợp hệ thống gặp lỗi trong quá trình thao tác với giao diện Web, kiểm tra assertion hoặc xử lý locator.
 
-Tỷ lệ lần chạy có khả năng tái sử dụng được tính theo công thức:
+Tỷ lệ Agent initial run thành công được tính theo công thức:
 
 \[
-R_{\text{reusable}} =
-\frac{\text{Số lần chạy có khả năng tái sử dụng}}
-{\text{Tổng số lần thực thi}} \times 100\%
+R_{\text{agent-pass}} =
+\frac{\text{Số Agent initial run có kết quả Pass}}
+{\text{Tổng số Agent initial run}} \times 100\%
 \]
 
-Trong dữ liệu thực nghiệm, có 110/167 lần chạy tạo ra replay script hoặc được đánh dấu reusable, tương ứng 65.9\%. Chỉ số này phản ánh khả năng tái sử dụng tiềm năng của kết quả chạy trong phạm vi case study, không đồng nghĩa với tỷ lệ replay thành công và cũng chưa chứng minh rằng replay script đã được sử dụng thành công qua nhiều phiên bản website liên tiếp.
+Trong dữ liệu thực nghiệm, Agent initial run đạt 110/121 lần Pass, tương ứng 90.91\%. Chỉ số này phản ánh khả năng hệ thống tạo phiên chạy ban đầu thành công, làm cơ sở để sinh replay script cho các kịch bản có thể tái sử dụng. Cách tính này tách nhóm Agent initial run khỏi nhóm Replay run, vì Replay run chủ yếu dùng script đã có để kiểm chứng việc chạy lại và không được thiết kế để sinh tiếp replay script mới. Do đó, chỉ số này không đồng nghĩa với tỷ lệ replay thành công; tỷ lệ replay thành công được phân tích riêng ở phần so sánh giữa Agent và Replay script.
 
 Thời gian thực thi trung bình trên trình duyệt là 70.12 giây. Khi đối chiếu với kết quả sinh test case được trình bày riêng ở phần sau, có thể thấy phần tốn thời gian chính của hệ thống không nằm ở bước sinh test case, mà nằm ở quá trình agent hoặc replay script thao tác với trình duyệt, chờ trang tải, tìm phần tử và kiểm tra điều kiện kỳ vọng.
 
